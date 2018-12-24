@@ -2,9 +2,13 @@
 
 Hierin staan alle details voor de demo en waar alle componenten aan moeten voldoen.
 
+# Programmeerhandleidingen
+
+Zowel de user's als programmer's guide kun je direct downloaden van [Folkerts c64 workshop](https://github.com/FolkertVanVerseveld/workshop/releases/download/v0.2/guides.zip).
+
 # Geheugenoverzicht
 
-Global overzicht:
+Globaal overzicht:
 
 Bereik (hex) | Doel
 -------------|-----
