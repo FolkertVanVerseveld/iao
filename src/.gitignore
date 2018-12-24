@@ -1,0 +1,6 @@
+# local stuff
+local.inc
+
+# KickAssembler
+*.prg
+*.sym
