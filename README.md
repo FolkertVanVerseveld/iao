@@ -44,7 +44,7 @@ MOSCOW puntjes:
 
 ## Must have
 
-* Twee onderzoeken
+* Één academisch onderzoek op aansprekende wijze uitleggen
 * Main .prg c64 demo
 * Meerdere .prg parts op d64 image
 
@@ -56,6 +56,7 @@ MOSCOW puntjes:
 
 ## Could have
 
+* Twee academisch onderzoeken op aansprekende wijze uitleggen
 * Zelf gecomponeerde muziek
 * Wat koala plaatjes
 
