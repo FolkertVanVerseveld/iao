@@ -3,6 +3,7 @@
 // UvA logo intro part
 
 #import "local.inc"
+#import "pseudo.lib"
 
 .var music = LoadSid(HVSC + "/MUSICIANS/G/Gangstar/Hyperraum.sid")
 
@@ -10,36 +11,72 @@
 .var screen = vic + $0400
 .var colram = $d800
 
+.var scroll_screen = screen
+.var scroll_colram = colram
+
+.var irq_line_top = $20
+.var irq_line_middle = $3b
+
 start:
 	lda #0
 	sta $d020
 	sta $d021
+
+	jsr copy_image
+
+	// just put some colors in scroller
+	ldx #0
+!:
+	lda scroll_coltbl, x
+	sta scroll_colram + 4, x
+	inx
+	lda scroll_coltbl, x
+	sta scroll_colram + 4, x
+	inx
+	cpx #32
+	bne !-
+
+	lda #$9
+	sta scroll_colram
+	sta scroll_colram + 40 - 1
+	lda #$b
+	sta scroll_colram + 1
+	sta scroll_colram + 40 - 2
+	lda #$8
+	sta scroll_colram + 2
+	sta scroll_colram + 40 - 3
+	lda #$c
+	sta scroll_colram + 3
+	sta scroll_colram + 40 - 4
+
 	ldx #0
 	ldy #0
 	lda #music.startSong - 1
 	jsr music.init
-	// i'm lazy, just let the kernal figure out irq handling
-	// TODO use our own irq
+
+	// inline: setup irq
 	sei
-	lda #<irq1
-	sta $0314
-	lda #>irq1
-	sta $0315
-	lda #$1b
-	sta $d011
-	lda #$80
-	sta $d012
-	lda #$7f
-	sta $dc0d
-	sta $dd0d
-	lda #$81
-	sta $d01a
+	lda #$35
+	sta $1
+	mov16 #irq_top : $fffe
+	// use dummy nmi and cold reset
+	lda #<dummy
+	sta $fffa
+	sta $fffc
+	lda #>dummy
+	sta $fffb
+	sta $fffd
+	mov #$1b : $d011
+	mov #irq_line_top : $d012
+	mov #$81 : $d01a
+	// init timers
+	mov #$7f : $dc0d
+	mov #$7f : $dd0d
 	lda $dc0d
 	lda $dd0d
+	// purge pending interrupts
 	asl $d019
 	cli
-
-	jsr copy_image
 
 	jmp *
 
@@ -65,12 +102,89 @@ copy_image:
 	rts
 
 //---------------------------------------------------------
-irq1:
-	asl $d019
+irq_top:
+	irq
+
+	//inc $d020
+	jsr scroll
+	//dec $d020
+
+	qri #irq_line_middle : #irq_music
+
+irq_music:
+	irq
+
+	lda #$c8
+	sta $d016
+
 	//inc $d020
 	jsr music.play
 	//dec $d020
-	jmp $ea81
+
+	qri #irq_line_top : #irq_top
+
+dummy:
+	rti
+
+scroll:
+	lda scroll_xpos
+	sec
+	sbc scroll_speed
+	and #$07
+	sta scroll_xpos
+	bcc !move+
+	jmp !done+
+!move:
+	ldx #$00
+!:
+	lda scroll_screen + 1, x
+	sta scroll_screen, x
+	inx
+	cpx #40
+	bne !-
+
+!textptr:
+	lda scroll_text
+	cmp #$ff
+	bne !nowrap+
+	jsr scroll_reset
+!nowrap:
+	sta scroll_screen + 39
+	// werk text ptr bij
+	inc !textptr- + 1
+	bne !done+
+	inc !textptr- + 2
+!done:
+	// pas horizontale verplaatsing toe
+	lda #$c0
+	ora scroll_xpos
+	sta $d016
+	rts
+
+scroll_reset:
+	// herstel ptr
+	lda #<scroll_text
+	sta !textptr- + 1
+	lda #>scroll_text
+	sta !textptr- + 2
+	lda scroll_text
+	rts
+
+	lda #$c0
+	sta $d016
+	rts
+
+scroll_xpos:
+	.byte 0
+scroll_speed:
+	.byte 2
+scroll_text:
+	.text "integratie academisch onderzoek gemaakt door methos, flevosap, theezakje, mund en york .... ... ... .. .. . . . .                 "
+	.byte $ff
+
+scroll_coltbl:
+	.byte 3, 1, 8, 4, 2, 9, 7, 12, 6, 11, 5, 10, 13, 14, 15, 7
+	.byte 3, 1, 8, 4, 2, 9, 7, 12, 6, 11, 5, 10, 13, 14, 15, 7
 
 // character data
 .align $100
