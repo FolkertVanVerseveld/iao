@@ -5,6 +5,7 @@
 
 .var vic = $0000
 .var screen = vic + $0400
+.var colram = $d800
 
 .function sinus_lo(i, amplitude, center, noOfSteps) {
 	.return round(center+amplitude*sin(toRadians(i*360/noOfSteps))) & $ff
@@ -21,10 +22,14 @@
 .var center_x = 24 + (256 + 64 - 24) / 2
 .var center_y = 50 + (229 - 50) / 2
 
-.var amplitude = 90
+.var amplitude = 88
 
 .var irq_line_top = $20 - 1
 .var irq_line_middle = cos_full(3, amplitude, center_y, 12) + 21 + 2
+
+.var spr_delay = 4
+.var spr_roll_steps = 12
+.var spr_roll_end = spr_roll_steps * 3 - 1
 
 start:
 	// clear screen
@@ -55,8 +60,30 @@ start:
 	dex
 	sta screen + $03f8, x
 	bne !-
+	// make sure sprites are invisible before irq kicks in
 	lda #$00
 	sta $d015
+	// set draw order
+	sta $d01b
+	sta $d01c
+
+	// center text
+	lda #%00010110
+	sta $d018
+
+	ldx #0
+	lda #7
+!:
+	sta colram + 8 * 40 + 13, x
+	dex
+	bne !-
+
+	ldx #0
+!:
+	lda text, x
+	sta screen + 8 * 40 + 13, x
+	dex
+	bne !-
 
 	sei
 	lda #$35		// Disable KERNAL and BASIC ROM
@@ -114,6 +141,14 @@ irq_top:
 
 	inc $d020
 
+	ldx #0
+!:
+	lda spr_coltbl_top, x
+	sta $d027, x
+	inx
+	cpx #7
+	bne !-
+
 	lda #sinus_lo(3, amplitude, center_x, 12)
 	sta $d000
 	lda #cos_full(3, amplitude, center_y, 12)
@@ -151,6 +186,12 @@ irq_top:
 	lda #$7f
 	sta $d015
 
+	inc $d020
+
+	jsr spr_roll
+
+	dec $d020
+
 	asl $d019
 	dec $d020
 
@@ -161,25 +202,33 @@ irq_middle:
 
 	inc $d020
 
-	lda #sinus_lo(0, amplitude, center_x, 12)
-	sta $d000
-	lda #cos_full(0, amplitude, center_y, 12)
-	sta $d001
-	lda #sinus_lo(1, amplitude, center_x, 12)
-	sta $d002
-	lda #cos_full(1, amplitude, center_y, 12)
-	sta $d003
-	lda #sinus_lo(2, amplitude, center_x, 12)
-	sta $d004
-	lda #cos_full(2, amplitude, center_y, 12)
-	sta $d005
+	ldx #0
+!:
+	lda spr_coltbl_middle, x
+	sta $d027, x
+	inx
+	cpx #5
+	bne !-
+
 	lda #sinus_lo(10, amplitude, center_x, 12)
-	sta $d006
+	sta $d000
 	lda #cos_full(10, amplitude, center_y, 12)
-	sta $d007
+	sta $d001
 	lda #sinus_lo(11, amplitude, center_x, 12)
-	sta $d008
+	sta $d002
 	lda #cos_full(11, amplitude, center_y, 12)
+	sta $d003
+	lda #sinus_lo(0, amplitude, center_x, 12)
+	sta $d004
+	lda #cos_full(0, amplitude, center_y, 12)
+	sta $d005
+	lda #sinus_lo(1, amplitude, center_x, 12)
+	sta $d006
+	lda #cos_full(1, amplitude, center_y, 12)
+	sta $d007
+	lda #sinus_lo(2, amplitude, center_x, 12)
+	sta $d008
+	lda #cos_full(2, amplitude, center_y, 12)
 	sta $d009
 
 .eval spr_hi_mask = 0
@@ -200,6 +249,81 @@ irq_middle:
 
 dummy:
 	rti
+
+spr_roll:
+	ldx spr_delay_counter
+	beq !+
+	dex
+	stx spr_delay_counter
+	rts
+!:
+	ldx #spr_delay
+	stx spr_delay_counter
+
+	ldx spr_counter
+	cpx #32 - 1
+	bne !next+
+	ldx spr_wait_counter
+	beq !+
+	dex
+	stx spr_wait_counter
+	rts
+!:
+	lda !fetch_col+ + 1
+	cmp #<out_tbl
+	beq !+
+	lda #<out_tbl
+	sta !fetch_col+ + 1
+	lda #>out_tbl
+	sta !fetch_col+ + 2
+	lda #spr_roll_steps
+	sta spr_counter
+!:
+	rts
+!next:
+	inx
+	stx spr_counter
+
+	ldy #0
+!:
+!fetch_col:
+	lda in_tbl, x
+	sta spr_coltbl_top, y
+	dex
+	iny
+	cpy #spr_roll_steps
+	bne !-
+	rts
+
+spr_wait_counter:
+	.byte 30
+
+spr_delay_counter:
+	.byte spr_delay
+
+spr_counter:
+	.byte spr_roll_steps
+
+spr_coltbl_top:
+	//.byte 13, 3, 5, 10, 14, 4, 6
+	.byte 6, 6, 6, 6, 6, 6, 6
+spr_coltbl_middle:
+	.byte 6, 6, 6, 6, 6
+	//.byte 7, 7, 7, 7, 7
+
+out_tbl:
+	.byte 7, 7, 7, 7, 7, 7, 7, 7
+	.byte 7, 7, 7, 7
+	.byte 7, 13, 3, 5, 10, 14, 4, 6
+	.byte 6, 6, 6, 6, 6, 6, 6, 6
+	.byte 6, 6, 6, 6
+
+in_tbl:
+	.byte 6, 6, 6, 6, 6, 6, 6, 6
+	.byte 6, 6, 6, 6
+	.byte 6, 4, 14, 10, 5, 3, 13, 7
+	.byte 7, 7, 7, 7, 7, 7, 7, 7
+	.byte 7, 7, 7, 7
 
 .align $40
 spr_star:
@@ -224,3 +348,12 @@ spr_star:
 	.byte %00000111,%00000000,%11100000
 	.byte %00000110,%00000000,%01100000
 	.byte %00001100,%00000000,%00110000
+text:
+	.text "SWITCH project             "
+	.text "                                        "
+	.text "           Software Workbench           "
+	.text "            for Interactive,            "
+	.text "           Time Critical and            "
+	.text "          Highly self-adaptive          "
+	.text "           Cloud applications           "
+	.fill 255,$ff
