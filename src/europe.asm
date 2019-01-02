@@ -29,9 +29,13 @@
 
 .var spr_delay = 4
 .var spr_roll_steps = 12
-.var spr_roll_end = spr_roll_steps * 3 - 1
+
+.var music = LoadSid("/home/methos/Music/HVSC69/MUSICIANS/0-9/20CC/van_Santen_Edwin/Sindision.sid")
 
 start:
+	lda #music.startSong - 1
+	jsr music.init
+
 	// clear screen
 	lda #' '
 	ldx #0
@@ -72,7 +76,7 @@ start:
 	sta $d018
 
 	ldx #0
-	lda #7
+	lda #6
 !:
 	sta colram + 8 * 40 + 13, x
 	dex
@@ -139,7 +143,7 @@ start:
 irq_top:
 	irq
 
-	inc $d020
+	//inc $d020
 
 	ldx #0
 !:
@@ -186,21 +190,21 @@ irq_top:
 	lda #$7f
 	sta $d015
 
-	inc $d020
+	//inc $d020
 
 	jsr spr_roll
 
-	dec $d020
+	//dec $d020
 
 	asl $d019
-	dec $d020
+	//dec $d020
 
 	qri #irq_line_middle : #irq_middle
 
 irq_middle:
 	irq
 
-	inc $d020
+	//inc $d020
 
 	ldx #0
 !:
@@ -242,8 +246,14 @@ irq_middle:
 	lda #$1f
 	sta $d015
 
+	//inc $d020
+	jsr text_roll
+	//dec $d020
+
 	asl $d019
-	dec $d020
+	//dec $d020
+
+	jsr music.play
 
 	qri #irq_line_top : #irq_top
 
@@ -261,6 +271,7 @@ spr_roll:
 	stx spr_delay_counter
 
 	ldx spr_counter
+!cmp_counter:
 	cpx #32 - 1
 	bne !next+
 	ldx spr_wait_counter
@@ -269,15 +280,11 @@ spr_roll:
 	stx spr_wait_counter
 	rts
 !:
-	lda !fetch_col+ + 1
-	cmp #<out_tbl
+	lda !cmp_counter- + 1
+	cmp #52 - 1
 	beq !+
-	lda #<out_tbl
-	sta !fetch_col+ + 1
-	lda #>out_tbl
-	sta !fetch_col+ + 2
-	lda #spr_roll_steps
-	sta spr_counter
+	lda #52 - 1
+	sta !cmp_counter- + 1
 !:
 	rts
 !next:
@@ -287,7 +294,7 @@ spr_roll:
 	ldy #0
 !:
 !fetch_col:
-	lda in_tbl, x
+	lda fade_tbl, x
 	sta spr_coltbl_top, y
 	dex
 	iny
@@ -295,8 +302,17 @@ spr_roll:
 	bne !-
 	rts
 
+text_roll:
+	lda spr_coltbl_top + 7
+	ldx #0
+!:
+	sta colram + 8 * 40 + 13, x
+	dex
+	bne !-
+	rts
+
 spr_wait_counter:
-	.byte 30
+	.byte 50
 
 spr_delay_counter:
 	.byte spr_delay
@@ -311,19 +327,15 @@ spr_coltbl_middle:
 	.byte 6, 6, 6, 6, 6
 	//.byte 7, 7, 7, 7, 7
 
-out_tbl:
-	.byte 7, 7, 7, 7, 7, 7, 7, 7
-	.byte 7, 7, 7, 7
-	.byte 7, 13, 3, 5, 10, 14, 4, 6
-	.byte 6, 6, 6, 6, 6, 6, 6, 6
-	.byte 6, 6, 6, 6
-
-in_tbl:
+fade_tbl:
 	.byte 6, 6, 6, 6, 6, 6, 6, 6
 	.byte 6, 6, 6, 6
 	.byte 6, 4, 14, 10, 5, 3, 13, 7
 	.byte 7, 7, 7, 7, 7, 7, 7, 7
 	.byte 7, 7, 7, 7
+	.byte 7, 13, 3, 5, 10, 14, 4, 6
+	.byte 6, 6, 6, 6, 6, 6, 6, 6
+	.byte 6, 6, 6, 6
 
 .align $40
 spr_star:
@@ -356,4 +368,6 @@ text:
 	.text "           Time Critical and            "
 	.text "          Highly self-adaptive          "
 	.text "           Cloud applications           "
-	.fill 255,$ff
+
+* = music.location "Tune"
+	.fill music.size, music.getData(i)
