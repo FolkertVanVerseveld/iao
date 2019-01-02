@@ -30,7 +30,7 @@
 .var spr_delay = 4
 .var spr_roll_steps = 12
 
-.var music = LoadSid("/home/methos/Music/HVSC69/MUSICIANS/0-9/20CC/van_Santen_Edwin/Sindision.sid")
+.var music = LoadSid(HVSC + "/MUSICIANS/0-9/20CC/van_Santen_Edwin/Sindision.sid")
 
 start:
 	lda #music.startSong - 1

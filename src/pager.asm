@@ -157,11 +157,15 @@ scroll:
 	sta screen + 6 * 40, x
 	lda screen + $100 + 7 * 40, x
 	sta screen + $100 + 6 * 40, x
-//	lda text, x
-//	sta screen + 6 * 40, x
-//	lda text + $100, x
-//	sta screen + $100 + 6 * 40, x
 	inx
+	bne !-
+
+	ldx #0
+!:
+	lda text, x
+	sta screen + $200 + 6 * 40 - 40 + 8, x
+	inx
+	cpx #40
 	bne !-
 	rts
 
@@ -171,6 +175,7 @@ steps:
 	.byte 0
 
 text:
+	.text "a0123456789012345678901234b5678901234567"
 	.text "a                         b             "
 	.text "ba                         b            "
 	.text "c a                         b           "
