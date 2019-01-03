@@ -10,12 +10,14 @@
 .var irq_line_top = 50 + 6 * 8 - 5
 .var irq_line_middle = 50 + 19 * 8 - 2
 
+.var key = $fb
+
 start:
 	lda #0
 	sta $d020
 	sta $d021
-	lda #%00010110
-	sta $d018
+	//lda #%00010110
+	//sta $d018
 
 	lda #' '
 	ldx #$ff
@@ -101,6 +103,10 @@ irq_top:
 
 	inc $d020
 
+	lda key
+	and #$02
+	bne !+
+
 	lda vscroll
 	sec
 	sbc #1
@@ -109,8 +115,13 @@ irq_top:
 	ora #$10
 
 	sta $d011
+!:
 
 	dec $d020
+
+	lda $dc00
+	sta screen + 40
+	sta key
 
 	asl $d019
 
@@ -124,16 +135,18 @@ irq_middle:
 	dex
 	bne *-1
 
-	ldx $d011
-
 	lda #$10
 	sta $d011
 
-	txa
-	and #$07
+	lda key
+	and #$02
+	bne !done+
+
+	lda vscroll
 	bne !+
-	jsr scroll
+	jsr scroll_up
 !:
+!done:
 
 	dec $d020
 
@@ -142,7 +155,7 @@ irq_middle:
 dummy:
 	rti
 
-scroll:
+scroll_up:
 
 	ldx #0
 !:
