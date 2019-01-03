@@ -27,14 +27,6 @@ start:
 	dex
 	bne !-
 
-	lda #0
-	ldx #0
-!:
-	sta screen + 6 * 40, x
-	sta screen + $100 + 6 * 40, x
-	inx
-	bne !-
-
 .for (var i=0;i<25;i++) {
 	lda #i
 	sta screen + i * 40
@@ -151,22 +143,33 @@ dummy:
 	rti
 
 scroll:
+
 	ldx #0
 !:
-	lda screen + 7 * 40, x
-	sta screen + 6 * 40, x
-	lda screen + $100 + 7 * 40, x
-	sta screen + $100 + 6 * 40, x
+	.for (var yy = 0; yy < 14; yy++) {
+		lda screen + (6 + 1 + yy) * 40, x
+		sta screen + (6 + yy) * 40, x
+	}
 	inx
+	cpx #40
 	bne !-
 
 	ldx #0
 !:
+!fetch:
 	lda text, x
 	sta screen + $200 + 6 * 40 - 40 + 8, x
 	inx
 	cpx #40
 	bne !-
+
+	lda !fetch- + 1
+	clc
+	adc #40
+	sta !fetch- + 1
+	bcc !+
+	inc !fetch- + 2
+!:
 	rts
 
 vscroll:
@@ -175,32 +178,6 @@ steps:
 	.byte 0
 
 text:
-	.text "a0123456789012345678901234b5678901234567"
-	.text "a                         b             "
-	.text "ba                         b            "
-	.text "c a                         b           "
-	.text "d  a                         b          "
-	.text "e   a                         b         "
-	.text "f    a                         b        "
-	.text "g     a                         b       "
-	.text "h      a                         b      "
-	.text "i       a                         b     "
-	.text "j        a                         b    "
-	.text "k         a                         b   "
-	.text "m          a                         b  "
-	.text "n           a                         b "
-	.text "o            a                         b"
-	.text "a                         b             "
-	.text "ba                         b            "
-	.text "c a                         b           "
-	.text "d  a                         b          "
-	.text "e   a                         b         "
-	.text "f    a                         b        "
-	.text "g     a                         b       "
-	.text "h      a                         b      "
-	.text "i       a                         b     "
-	.text "j        a                         b    "
-	.text "k         a                         b   "
-	.text "m          a                         b  "
-	.text "n           a                         b "
-	.text "o            a                         b"
+.for (var i=0; i<1024; i++) {
+	.byte i & $ff
+}
