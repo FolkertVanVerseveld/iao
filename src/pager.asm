@@ -27,8 +27,9 @@ start:
 
 	lda #3
 	sta vscroll
-	//lda #%00010110
-	//sta $d018
+
+	lda #%00010110
+	sta $d018
 
 	lda #' '
 	ldx #$ff
@@ -131,8 +132,6 @@ irq_top:
 irq_middle:
 	irq
 
-	inc $d020
-
 	lda $dc00
 	sta key
 
@@ -163,6 +162,8 @@ irq_middle:
 	lda #$10
 	sta $d011
 
+	inc $d020
+
 	lda scroll
 	beq !s+
 	bmi !+
@@ -188,7 +189,7 @@ dummy:
 scroll_down:
 	ldx #0
 !:
-	.for (var yy = 14 - 0; yy >= 0; yy--) {
+	.for (var yy = 14 - 1; yy >= 0; yy--) {
 		lda screen + (6 + yy) * 40, x
 		sta screen + (6 + 1 + yy) * 40, x
 	}
@@ -198,20 +199,30 @@ scroll_down:
 
 	ldx #0
 !:
-!fetch:
+fetch_down:
 	lda text, x
 	sta screen + 6 * 40, x
 	inx
 	cpx #40
 	bne !-
 
-	lda !fetch- + 1
+	lda fetch_down + 1
 	sec
 	sbc #40
-	sta !fetch- + 1
-	bcc !+
-	dec !fetch- + 2
+	sta fetch_down + 1
+	bcs !+
+	//dec fetch_down + 2
 !:
+
+	// FIXME
+	lda fetch_up + 1
+	sec
+	sbc #40
+	sta fetch_up + 1
+	bcs !+
+!:
+	//dec fetch_up + 2
+
 	dec scroll
 	beq !+
 	jmp scroll_down
@@ -232,20 +243,30 @@ scroll_up:
 
 	ldx #0
 !:
-!fetch:
+fetch_up:
 	lda text, x
 	sta screen + $200 + 6 * 40 - 40 + 8, x
 	inx
 	cpx #40
 	bne !-
 
-	lda !fetch- + 1
+	lda fetch_up + 1
 	clc
 	adc #40
-	sta !fetch- + 1
+	sta fetch_up + 1
 	bcc !+
-	inc !fetch- + 2
+	//inc fetch_up + 2
 !:
+
+	// FIXME
+	lda fetch_down + 1
+	clc
+	adc #40
+	sta fetch_down + 1
+	bcc !+
+	//inc fetch_down + 2
+!:
+
 	inc scroll
 	beq !+
 	jmp scroll_up
@@ -253,6 +274,9 @@ scroll_up:
 	rts
 
 text:
-.for (var i=0; i<1024; i++) {
-	.byte i & $ff
-}
+	.text "Use joy2 for scrolling! Welcome to this "
+	.text "scroller example. As you can see, it can"
+	.text "scroll up and down, but it is still a   "
+	.text "little bit buggy. The scroll up routine "
+	.text "does not properly move data around...   "
+	.text "                                        "
