@@ -10,12 +10,23 @@
 .var irq_line_top = 50 + 6 * 8 - 5
 .var irq_line_middle = 50 + 19 * 8 - 2
 
-.var key = $fb
+.var zp = $02
+
+.var scroll = zp + 0
+.var vscroll = zp + 1
+.var key = zp + 2
 
 start:
 	lda #0
 	sta $d020
 	sta $d021
+
+	lda #0
+	sta scroll
+	sta key
+
+	lda #3
+	sta vscroll
 	//lda #%00010110
 	//sta $d018
 
@@ -48,10 +59,10 @@ start:
 }
 
 	sei
-	lda #$35		// Disable KERNAL and BASIC ROM
-	sta $01			// Enable all RAM
+	lda #$35
+	sta $01
 
-	lda #<irq_top		// Setup IRQ vector
+	lda #<irq_top
 	sta $fffe
 	lda #>irq_top
 	sta $ffff
@@ -92,8 +103,7 @@ start:
 	lda #$00
 	sta $dc0e
 
-	lda #$01
-	sta $d019		// Acknowledge pending interrupts
+	asl $d019
 
 	cli			// Start firing interrupts
 	jmp *
@@ -101,27 +111,18 @@ start:
 irq_top:
 	irq
 
-	inc $d020
+	//inc $d020
 
-	lda key
-	and #$02
-	bne !+
+	ldx #5
+	dex
+	bne *-1
 
 	lda vscroll
-	sec
-	sbc #1
 	and #$07
-	sta vscroll
 	ora #$10
-
 	sta $d011
-!:
 
-	dec $d020
-
-	lda $dc00
-	sta screen + 40
-	sta key
+	//dec $d020
 
 	asl $d019
 
@@ -131,22 +132,51 @@ irq_middle:
 	irq
 
 	inc $d020
-	ldx #5
-	dex
-	bne *-1
+
+	lda $dc00
+	sta key
+
+	lda key
+	and #$02
+	bne !+
+	dec vscroll
+!:
+
+	lda key
+	and #$01
+	bne !+
+	inc vscroll
+!:
+
+	lda vscroll
+	and #$07
+	bne !s+
+	lda key
+	and #$02
+	bne !+
+	dec scroll
+	jmp !s+
+!:
+	inc scroll
+!s:
 
 	lda #$10
 	sta $d011
 
-	lda key
-	and #$02
-	bne !done+
-
-	lda vscroll
-	bne !+
-	jsr scroll_up
+	lda scroll
+	beq !s+
+	bmi !+
+	sta screen + 40
+	lda #1
+	sta vscroll
+	jsr scroll_down
+	jmp !s+
 !:
-!done:
+	sta screen + 40
+	lda #7
+	sta vscroll
+	jsr scroll_up
+!s:
 
 	dec $d020
 
@@ -154,6 +184,39 @@ irq_middle:
 
 dummy:
 	rti
+
+scroll_down:
+	ldx #0
+!:
+	.for (var yy = 14 - 0; yy >= 0; yy--) {
+		lda screen + (6 + yy) * 40, x
+		sta screen + (6 + 1 + yy) * 40, x
+	}
+	inx
+	cpx #40
+	bne !-
+
+	ldx #0
+!:
+!fetch:
+	lda text, x
+	sta screen + 6 * 40, x
+	inx
+	cpx #40
+	bne !-
+
+	lda !fetch- + 1
+	sec
+	sbc #40
+	sta !fetch- + 1
+	bcc !+
+	dec !fetch- + 2
+!:
+	dec scroll
+	beq !+
+	jmp scroll_down
+!:
+	rts
 
 scroll_up:
 
@@ -183,12 +246,11 @@ scroll_up:
 	bcc !+
 	inc !fetch- + 2
 !:
+	inc scroll
+	beq !+
+	jmp scroll_up
+!:
 	rts
-
-vscroll:
-	.byte 0
-steps:
-	.byte 0
 
 text:
 .for (var i=0; i<1024; i++) {
