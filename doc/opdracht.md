@@ -37,7 +37,7 @@ Als laatste dient duidelijk te worden hoe jullie nu naar informatica onderzoek k
 
 De vorm waarin je deze opdracht uitvoert, staat vrij en wordt in de beoordeling meegenomen. Hiermee willen we aanmoedigen om optimaal van deze vrijheid gebruik te maken en niet uit gewoonte volgens alle ingestampte standaarden een geschreven rapport te publiceren.
 
-Vormen waar je aan kunt denken zijn een animatie, infographic, [text-based](https://en.wikipedia.org/wiki/Text-based_game) gameLinks to an external site., video-opname, poster, enzovoort. Houd in je keuze rekening met de volgende aspecten:
+Vormen waar je aan kunt denken zijn een animatie, infographic, [text-based](https://en.wikipedia.org/wiki/Text-based_game) game, video-opname, poster, enzovoort. Houd in je keuze rekening met de volgende aspecten:
 
 * Naderhand worden de uitwerkingen gedeeld met je medestudenten en de staf: zorg dus dat het aantrekkelijk is om door te nemen en zet er geen zaken in die je niet wilt delen.
 * In principe lever je de uitwerking in via Canvas. Is dat niet mogelijk omdat het bijvoorbeeld een kijkdoos, standbeeld van aan elkaar gelaste computeronderdelen, of een interactieve website die elders gehost wordt is, overleg dan tijdig hoe je het wel kunt inleveren.
