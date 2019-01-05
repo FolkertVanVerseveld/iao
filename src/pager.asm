@@ -106,7 +106,7 @@ start:
 
 	asl $d019
 
-	cli			// Start firing interrupts
+	cli
 	jmp *
 
 irq_top:
@@ -189,7 +189,7 @@ dummy:
 scroll_down:
 	ldx #0
 !:
-	.for (var yy = 14 - 1; yy >= 0; yy--) {
+	.for (var yy = 14 - 3; yy >= 0; yy--) {
 		lda screen + (6 + yy) * 40, x
 		sta screen + (6 + 1 + yy) * 40, x
 	}
@@ -200,7 +200,7 @@ scroll_down:
 	ldx #0
 !:
 fetch_down:
-	lda text, x
+	lda text - 14 * 40, x
 	sta screen + 6 * 40, x
 	inx
 	cpx #40
@@ -211,7 +211,7 @@ fetch_down:
 	sbc #40
 	sta fetch_down + 1
 	bcs !+
-	//dec fetch_down + 2
+	dec fetch_down + 2
 !:
 
 	// FIXME
@@ -220,8 +220,8 @@ fetch_down:
 	sbc #40
 	sta fetch_up + 1
 	bcs !+
+	dec fetch_up + 2
 !:
-	//dec fetch_up + 2
 
 	dec scroll
 	beq !+
@@ -255,7 +255,7 @@ fetch_up:
 	adc #40
 	sta fetch_up + 1
 	bcc !+
-	//inc fetch_up + 2
+	inc fetch_up + 2
 !:
 
 	// FIXME
@@ -264,7 +264,7 @@ fetch_up:
 	adc #40
 	sta fetch_down + 1
 	bcc !+
-	//inc fetch_down + 2
+	inc fetch_down + 2
 !:
 
 	inc scroll
@@ -274,9 +274,13 @@ fetch_up:
 	rts
 
 text:
-	.text "Use joy2 for scrolling! Welcome to this "
-	.text "scroller example. As you can see, it can"
-	.text "scroll up and down, but it is still a   "
-	.text "little bit buggy. The scroll up routine "
-	.text "does not properly move data around...   "
-	.text "                                        "
+	.text "Use joy2 for scrolling! Before we jump  "
+	.text "right into the game, here is some basic "
+	.text "info you need to know to get started. As"
+	.text "you have set up your joystick in port 2,"
+	.text "you can scroll up and down in this text."
+	.text "The interactive parts of the game requi-"
+	.text "re a joystick. Sometimes, the keyboard  "
+	.text "is needed as well. The game notifies you"
+	.text "which one to use. Okay that's all, lets "
+	.text "start the game and have some fun!       "
