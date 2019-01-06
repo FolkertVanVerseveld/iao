@@ -4,3 +4,6 @@ local.inc
 # KickAssembler
 *.prg
 *.sym
+
+# VICE
+*.d64

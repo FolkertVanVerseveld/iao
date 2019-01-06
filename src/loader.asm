@@ -1,3 +1,8 @@
+// compile and run instructions:
+// assemble:
+//   kickass loader.asm && kickass file1.asm
+// create disk image:
+//    c1541 -format test,id d64 test.d64 -write loader.prg -write file1.prg
 :BasicUpstart2(start)
 
 #import "local.inc"
@@ -21,6 +26,8 @@
 .var org_drv_size = org_drv_end - org_drv
 
 .var irq_line_top = $20
+
+.var chrout = $ffd2
 
 start:
 	// dump values for debug purposes
@@ -64,11 +71,17 @@ start:
 
 	jsr relocate
 
+	lda #<str_init
+	ldx #>str_init
+	ldy #str_init_end - str_init
+	jsr puts
+
 	sec
 	jsr install
 	bcs error
 
-.if (true) {
+	// irq setup
+	// NOTE use threads
 	sei
 	lda #$35
 	sta $01
@@ -120,14 +133,39 @@ start:
 
 	jsr relocate2
 
-	jmp *
-}
-
-	jmp *
+	jmp test
 
 error:
-	inc $d020
-	jmp error
+	lda #<str_fail
+	ldx #>str_fail
+	ldy #str_fail_end - str_fail
+	jsr puts
+	rts
+
+puts:
+	sta !fetch+ + 1
+	stx !fetch+ + 2
+	sty !c+ + 1
+	ldx #0
+!fetch:
+	lda str_init, x
+	jsr chrout
+	inx
+!c:
+	cpx #str_init_end - str_init
+	bne !fetch-
+	rts
+
+str_init:
+	.encoding "petscii_upper"
+	.text "LOADING, PLEASE WAIT"
+	.byte $0d
+str_init_end:
+
+str_fail:
+	.text "FAILED"
+	.byte $0d
+str_fail_end:
 
 relocate:
 	ldx #0
@@ -166,6 +204,27 @@ irq_top:
 
 dummy:
 	rti
+
+// NOTE puts does not work here because KERNAL is disabled
+test:
+	ldx #<file
+	ldy #>file
+	jsr loadraw
+	bcs !+
+	// just update border color to see it works
+	inc $d020
+	// execute loaded file
+	jsr $4000
+	inc $d020
+	jmp *
+!:
+	inc $d020
+	jmp !-
+
+file:
+	.encoding "petscii_upper"
+	.text "FILE1.PRG"
+	.byte 0
 
 org_api:
 .import binary "../tools/krill/loader/build/loader-c64.prg"

@@ -9,30 +9,18 @@ Zie ook deze overzichten: [elk geheugenadres](http://sta.c64.org/cbm64mem.html),
 
 # Geheugenoverzicht
 
-Globaal overzicht:
-
-Bereik (hex) | Doel
--------------|-----
-0000-00FF    | Zero page + fast data
-0100-01FF    | Stack
-0200-03FF    | BASIC RAM (reclaimable)
-0400-07E8    | Screen RAM
-07E9-07FF    | Sprite pointers
-0800-D000    | RAM
-D000-D800    | I/O Area
-D800-DBE7    | Color RAM
-DBE8-DBFF    | RAM (let op, alleen de onderste nibble is bruikbaar!)
-DC00-DDFF    | Complex Interface Adapters
-DE00-DFFF    | I/O Area
-E000-FFFF    | KERNAL ROM
-FFFA-FFFF    | Hardware vectors
+Zie ook [globaal overzicht](https://www.c64-wiki.com/wiki/Memory_Map):
+![Global memory map](https://www.c64-wiki.com/images/5/51/Memory_Map.png)
 
 Bij startup is dit het geheugenoverzicht:
 
 Bereik (hex) | Doel
 -------------|-----
-0000-07FF    | KERNAL RAM
-0800-CFFF    | Startprogramma + loader
+0000-03FF    | KERNAL RAM
+0200-03F5    | Loader
+0400-07FF    | Screen
+0800-CFFF    | Startprogramma
+4000-591C    | Drive code (reclaimable)
 D000-DFFF    | I/O Area
 E000-FFFF    | KERNAL ROM
 
@@ -40,9 +28,13 @@ Algemeen overzicht gedurende de demo:
 
 Bereik (hex) | Doel
 -------------|-----
-0000-00FF    | Zero page + fast data
+0000-00FF    | Fast small data
 0100-01FF    | Stack
-0200-CFFF    | Code + loader + data
+0200-03FF    | Loader
+0400-CFFF    | Code + data
+0400-07FF    | Default screen + sprites
+1000-2800    | Music
+2800-3FFF    | Custom font
 D000-DFFF    | I/O Area
 E000-FFFA    | Loader part, treat as ROM
 FFFA-FFFF    | Hardware vectors
