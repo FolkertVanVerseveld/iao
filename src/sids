@@ -1,0 +1,30 @@
+6581:
+menu en of intro:
+	tune 4: /MUSICIANS/0-9/20CC/Paul_Falco/Bomberboy.sid (klinkt ook goed op 8580)
+credits (via menu):
+	/MUSICIANS/0-9/20CC/Paul_Falco/Peanut_Pleasure.sid (klinkt ook goed op 8580)
+	tune 1: /MUSICIANS/0-9/20CC/Greystorm.sid (GROOT!) (klinkt *niet* goed op 8580)
+
+intro (uva x'en in drie stappen):
+	/MUSICIANS/0-9/20CC/van_Santen_Edwin/Megamix_II_C64.sid (klinkt ook goed op 8580)
+
+8580:
+game over (fail):
+	/MUSICIANS/0-9/20CC/van_Santen_Edwin/13_Seconds_of_Massacre.sid
+in game of tutorial?
+	/MUSICIANS/0-9/20CC/van_Santen_Edwin/A_Trip_Into_E-V-Space.sid
+game intro?
+	/MUSICIANS/0-9/20CC/van_Santen_Edwin/Airwolf_Mix_v2.sid
+	/MUSICIANS/0-9/20CC/van_Santen_Edwin/Airwolf_Mix.sid (hoofdmelodie iets lager dan v2)
+
+minigame/intermezzo?
+	/MUSICIANS/0-9/20CC/van_Santen_Edwin/All_That_She_Wants.sid
+
+
+in game:
+	/MUSICIANS/0-9/20CC/van_Santen_Edwin/Popcorn_Mix.sid
+	/MUSICIANS/0-9/20CC/van_Santen_Edwin/Rettekettet.sid
+	/MUSICIANS/0-9/20CC/van_Santen_Edwin/Strike_It_Up.sid
+
+credits (game won):
+	/MUSICIANS/0-9/20CC/van_Santen_Edwin/Take_on_Me.sid

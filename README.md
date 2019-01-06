@@ -72,13 +72,11 @@ MOSCOW puntjes:
 ## Should have
 
 * Muziek (uit HVSC)
-* Loader: kandidaten: spindle, bitfire, krill
-* Joystick en/of keyboard mode driver
 
 ## Could have
 
 * Twee academisch onderzoeken op aansprekende wijze uitleggen
-* Zelf gecomponeerde muziek
+* Zelf gecomponeerde muziek en sfx
 * Wat koala plaatjes
 
 ## Nice to have
