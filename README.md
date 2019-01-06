@@ -25,18 +25,39 @@ flevosap  | Robin Wacanno
 theezakje | Sam van Kampen
 ...       | Mund Vetter
 ...       | York Broekhuizen
+...       | Auke Schuringa
 
 Taak    | Naam/namen
 --------|-----------
-code    | methos
-sfx     | flevosap
-gfx     | ...
+code    | methos, flevosap
+sfx     | hvsc, flevosap
+gfx     | methos
 font    | ...
-loader  | ...
+loader  | krill
 design  | ...
 writing | ...
-testing | ...
-linking | ...
+testing | methos
+linking | methos
+rapport | methos
+
+# DONE
+
+MOSCOW puntjes:
+
+## Must have
+
+* Één academisch onderzoek gekozen
+* Main .prg c64 demo
+* Meerdere .prg parts op d64 image
+
+## Should have
+
+* Krills loader
+* Joystick en/of keyboard mode driver
+
+## Nice to have
+
+* 2 player mode?
 
 # TODO
 
@@ -52,7 +73,7 @@ MOSCOW puntjes:
 
 * Muziek (uit HVSC)
 * Loader: kandidaten: spindle, bitfire, krill
-* Joystick en/of keyboard mode
+* Joystick en/of keyboard mode driver
 
 ## Could have
 
