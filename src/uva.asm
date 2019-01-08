@@ -19,7 +19,7 @@
 .var irq_line_middle = $3b
 .var irq_line_bottom = $f8
 
-.var fade_step = $2
+.var fade_step = $5
 
 start:
 	lda #0
@@ -97,7 +97,8 @@ irq_top:
 	irq
 
 	//inc $d020
-	jsr scroll
+scroll_vector:
+	bit scroll
 	//dec $d020
 
 	qri #irq_line_middle : #irq_music
@@ -168,11 +169,12 @@ fade_roll:
 	lda #fade_step
 	sta fade_delay
 	ldx fade_index
-	cpx #$10 - 6
+	cpx #9
 	beq !next-
 	inx
 	stx fade_index
 !wait:
+	ldx fade_delay
 	dex
 	stx fade_delay
 
@@ -281,9 +283,9 @@ scroll_coltbl:
 	.byte 3, 1, 8, 4, 2, 9, 7, 12, 6, 11, 5, 10, 13, 14, 15, 7
 
 fade_tbl:
-	// kruis is 6 rijen, dus minstens 6 ervoor en erna
-	// dan hebben we precies 4 over
-	.byte 0, 0, 0, 0, 0, 0
+	// kruis is 6 rijen, dus minstens 5 ervoor en en 6 erna
+	// dan hebben we precies 5 over, maar voor de timing halen we 1 weg.
+	.byte 0, 0, 0, 0, 0
 	.byte 9, 9, 8, 7
 	.byte 1, 1, 1, 1, 1, 1
 
@@ -295,13 +297,13 @@ fade_wait:
 fade_delay:
 	.byte fade_step
 fade_times:
-	.byte 2
+	.byte 3
 
 	// NOTE reversed order! this saves us a couple of bytes for indexing
 fade_jtlo:
-	.byte <fade_roll3, <fade_roll2
+	.byte <fade_roll_uva, <fade_roll3, <fade_roll2
 fade_jthi:
-	.byte >fade_roll3, >fade_roll2
+	.byte >fade_roll_uva, >fade_roll3, >fade_roll2
 
 //---------------------------------------------------------
 	*=music.location "Music"
@@ -338,3 +340,95 @@ image:
 	.byte	$20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $E9, $A0, $69, $5F, $A0, $DF, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20
 	.byte	$20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $5F, $69, $20, $20, $5F, $69, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20
 	.byte	$20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, 'm', 'e', 't', 'h', 'o', 's'
+
+.pc = * "code 2"
+
+fade_roll_uva:
+	// ahhhh dirty code!
+	lda #$4c
+	sta fade_roll
+
+	ldx uva_counter
+	beq !+
+	dex
+	stx uva_counter
+	rts
+
+!:
+	dec scroll_counter
+	bne !+
+	lda #$20
+	sta scroll_vector
+!:
+
+	ldx fade_index
+
+	.for (var i = 0; i < 8; i++) {
+		lda fade_tbl_uva + i, x
+		sta colram + (i + 7) * 40 + 13
+		sta colram + (i + 7) * 40 + 13 + 1
+		sta colram + (i + 7) * 40 + 13 + 2
+		sta colram + (i + 7) * 40 + 23
+		sta colram + (i + 7) * 40 + 23 + 1
+		sta colram + (i + 7) * 40 + 23 + 2
+	}
+	.for (var i = 8; i < 11; i++) {
+		lda fade_tbl_uva + i, x
+		sta colram + (i + 7) * 40 + 13
+		sta colram + (i + 7) * 40 + 13 + 1
+		sta colram + (i + 7) * 40 + 13 + 2
+		sta colram + (i + 7) * 40 + 13 + 3
+		sta colram + (i + 7) * 40 + 13 + 4
+		sta colram + (i + 7) * 40 + 13 + 5
+		sta colram + (i + 7) * 40 + 13 + 6
+		sta colram + (i + 7) * 40 + 13 + 7
+		sta colram + (i + 7) * 40 + 13 + 8
+		sta colram + (i + 7) * 40 + 13 + 9
+		sta colram + (i + 7) * 40 + 23
+		sta colram + (i + 7) * 40 + 23 + 1
+		sta colram + (i + 7) * 40 + 23 + 2
+	}
+
+	.if (false) {
+		ldx fade_index
+		stx screen + 2 * 40 + 2
+		ldx #26
+		stx screen + 3 * 40 + 2
+		ldx #1
+		stx colram + 2 * 40 + 2
+		stx colram + 3 * 40 + 2
+	}
+
+	ldx fade_delay
+	bne !wait+
+	lda #fade_step / 2
+	sta fade_delay
+	ldx fade_index
+	cpx #15
+	beq !+
+	inx
+	stx fade_index
+!wait:
+	ldx fade_delay
+	dex
+	stx fade_delay
+
+	rts
+!:
+	ldx #0
+	stx fade_times
+	rts
+
+uva_counter:
+	.byte $58
+
+scroll_counter:
+	.byte $80
+
+fade_tbl_uva:
+	// kruis is 6 rijen, dus minstens 5 ervoor en en 6 erna
+	// dan hebben we precies 5 over, maar voor de timing halen we 1 weg.
+	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 // 10, 10
+	.byte 9, 9, 8, 7 // 4, 14
+	.byte 1, 1, 1, 1, 1, 1 // 6, 20
+	.byte 1, 1, 1, 1, 1, 1 // 6, 26
