@@ -80,7 +80,17 @@ start:
 	jmp !-
 !:
 
-	jmp *
+	ldx #<file
+	ldy #>file
+	sec
+	jsr loadraw
+	bcs error
+
+	jmp (file_start)
+
+error:
+	inc $d020
+	jmp error
 
 irq_top:
 	irq
@@ -105,5 +115,17 @@ dummy:
 text_col:
 	.byte 1
 text:
-	.text "todo, load stuff"
+	.encoding "screencode_mixed"
+	.text "coole laadtekst hier... neem een bak koffie!"
 	.byte $ff
+
+file:
+	.encoding "petscii_upper"
+	.text "EUROPE.PRG"
+	.byte 0
+
+// bug in cpu: indirect jump must be page-aligned, rather than
+// aligning to 256 bytes, we can just align to word length
+.align $2
+file_start:
+	.word $80e
