@@ -226,10 +226,12 @@ file:
 	.text "FILE1.PRG"
 	.byte 0
 
+.pc = * "loader"
 org_api:
 .import binary "../tools/krill/loader/build/loader-c64.prg"
 org_api_end:
 
+.pc = * "drivecode"
 org_drv:
 .import binary "../tools/krill/loader/build/install-c64.prg"
 org_drv_end:

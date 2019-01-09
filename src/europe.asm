@@ -30,10 +30,12 @@
 .var spr_delay = 4
 .var spr_roll_steps = 12
 
-.var music = LoadSid(HVSC + "/MUSICIANS/0-9/20CC/van_Santen_Edwin/Sindision.sid")
+//.var music = LoadSid(HVSC + "/MUSICIANS/0-9/20CC/van_Santen_Edwin/Sindision.sid")
+.var music = LoadSid(HVSC + "/MUSICIANS/0-9/20CC/Paul_Falco/Bomberboy.sid")
 
 start:
-	lda #music.startSong - 1
+	lda #3
+	//lda #music.startSong - 1
 	jsr music.init
 
 	// clear screen

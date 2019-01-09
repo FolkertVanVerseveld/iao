@@ -33,7 +33,7 @@ Bereik (hex) | Doel
 0200-03FF    | Loader
 0400-CFFF    | Code + data
 0400-07FF    | Default screen + sprites
-1000-2800    | Music
+0F00-2800    | Music
 2800-3FFF    | Custom font
 D000-DFFF    | I/O Area
 E000-FFFA    | Loader part, treat as ROM
