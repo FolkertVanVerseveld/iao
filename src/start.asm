@@ -65,7 +65,9 @@ start:
 
 	sec
 	jsr install
-	bcs die
+	bcc !+
+	jmp die
+!:
 
 	// wait for good rasterline
 	bit $d011
@@ -98,7 +100,10 @@ start:
 	sei
 	lda #$35
 	sta $1
-	mov16 #irq_top : $fffe
+	lda #<irq_top
+	sta $fffe
+	lda #>irq_top
+	sta $ffff
 	// use dummy nmi and cold reset
 	lda #<dummy
 	sta $fffa
@@ -106,19 +111,33 @@ start:
 	lda #>dummy
 	sta $fffb
 	sta $fffd
-	mov #$1b : $d011
-	mov #irq_line_top : $d012
-	mov #$81 : $d01a
+	lda #$1b
+	sta $d011
+	lda #irq_line_top
+	sta $d012
+	lda #$81
+	sta $d01a
 	// init timers
-	mov #$7f : $dc0d
-	mov #$7f : $dd0d
+	lda #$7f
+	sta $dc0d
+	sta $dd0d
 	lda $dc0d
 	lda $dd0d
 	// purge pending interrupts
 	asl $d019
 	cli
 
-	jmp *
+	lda #1
+	sta colram + 3 * 40 + 2
+check_space:
+!:
+	// once text starts scrolling, `jmp' is self modified to `bit'
+	jmp !-
+	lda $dc01
+	cmp #$ef
+	bne !-
+	inc screen + 3 * 40 + 2
+	jmp !-
 
 die:
 	lda #<str_fail
@@ -297,16 +316,6 @@ irq_music:
 irq_bottom:
 	irq
 
-	lda #1
-	sta colram + 3 * 40 + 2
-
-	lda $dc01
-	cmp #$ef
-	bne !+
-	// TODO fade out
-	inc screen + 3 * 40 + 2
-!:
-
 	lda fade_times
 	bpl !+
 	jmp !done+
@@ -451,10 +460,7 @@ scroll_reset:
 	lda scroll_text
 	rts
 
-	lda #$c0
-	sta $d016
-	rts
-
+// --- ROLL UVA `U' SYMBOL --- //
 .pc = * "code 2"
 
 fade_roll_uva:
@@ -471,8 +477,12 @@ fade_roll_uva:
 !:
 	dec scroll_counter
 	bne !+
+	// start scroller
 	lda #$20
 	sta scroll_vector
+	// enable check for space
+	lda #$2c
+	sta check_space
 !:
 
 	ldx fade_index
@@ -530,12 +540,15 @@ scroll_counter:
 	.byte $80
 
 fade_tbl_uva:
-	// kruis is 6 rijen, dus minstens 5 ervoor en 6 erna
-	// dan hebben we precies 5 over, maar voor de timing halen we 1 weg.
+	// U is 11 rows, we need at least 11-1 rows
+	// we recycle the color gradient from the fade cross table
+	// and append 12 white colors making 26 total
 	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 // 10, 10
 	.byte 9, 9, 8, 7 // 4, 14
 	.byte 1, 1, 1, 1, 1, 1 // 6, 20
 	.byte 1, 1, 1, 1, 1, 1 // 6, 26
+
+.pc = * "scroll text"
 
 scroll_text:
 	.encoding "screencode_mixed"
