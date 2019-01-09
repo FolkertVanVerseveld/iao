@@ -118,6 +118,16 @@ irq_music:
 irq_bottom:
 	irq
 
+	lda #1
+	sta colram + 3 * 40 + 2
+
+	lda $dc01
+	cmp #$ef
+	bne !+
+	// TODO fade out
+	inc screen + 3 * 40 + 2
+!:
+
 	lda fade_times
 	bpl !+
 	jmp !done+
@@ -143,17 +153,13 @@ irq_bottom:
 	dec fade_times
 	ldx fade_times
 
-.if (true) {
-	// TODO advance fade color roll code
+	// advance fade color roll code
 	lda fade_jtlo, x
 	sta fade_roll + 1
 	sta screen + 2 * 40 + 2
 	lda fade_jthi, x
 	sta fade_roll + 2
 	sta screen + 2 * 40 + 3
-} else {
-	stx screen + 2 * 40 + 2
-}
 
 	rts
 
@@ -274,9 +280,6 @@ scroll_xpos:
 	.byte 0
 scroll_speed:
 	.byte 2
-scroll_text:
-	.text "integratie academisch onderzoek gemaakt door methos, flevosap, theezakje, mund en york .... ... ... .. .. . . . .                 "
-	.byte $ff
 
 scroll_coltbl:
 	.byte 3, 1, 8, 4, 2, 9, 7, 12, 6, 11, 5, 10, 13, 14, 15, 7
@@ -389,16 +392,6 @@ fade_roll_uva:
 		sta colram + (i + 7) * 40 + 23 + 2
 	}
 
-	.if (false) {
-		ldx fade_index
-		stx screen + 2 * 40 + 2
-		ldx #26
-		stx screen + 3 * 40 + 2
-		ldx #1
-		stx colram + 2 * 40 + 2
-		stx colram + 3 * 40 + 2
-	}
-
 	ldx fade_delay
 	bne !wait+
 	lda #fade_step / 2
@@ -426,9 +419,13 @@ scroll_counter:
 	.byte $80
 
 fade_tbl_uva:
-	// kruis is 6 rijen, dus minstens 5 ervoor en en 6 erna
+	// kruis is 6 rijen, dus minstens 5 ervoor en 6 erna
 	// dan hebben we precies 5 over, maar voor de timing halen we 1 weg.
 	.byte 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 // 10, 10
 	.byte 9, 9, 8, 7 // 4, 14
 	.byte 1, 1, 1, 1, 1, 1 // 6, 20
 	.byte 1, 1, 1, 1, 1, 1 // 6, 26
+
+scroll_text:
+	.text "welkom terug bij de oldskool natuurrampen simulator gemaakt op de goede oude c64 door methos, flevosap, theezakje, mund, york en auke... dit spel is in ongeveer 2 weken gemaakt dus verwacht wat dingen die ruwer en sneller gemaakt zijn. code door methos, flevosap en theezakje, tekst en sprites door mund, gfx en font door methos, york, design en testing door auke. bla bla bla.... hack spatie om door te gaan!!! !! !! ! ! !                     "
+	.byte $ff
