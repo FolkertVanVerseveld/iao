@@ -7,3 +7,4 @@ local.inc
 
 # VICE
 *.d64
+local_setup.sh
