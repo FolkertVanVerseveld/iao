@@ -1,6 +1,6 @@
 /*
 Code: methos
-Game program loader
+Game startup and program loader
 
 Install Krill's loader and start intro sequence.
 Use first vic bank for screen etc.
@@ -16,6 +16,7 @@ SID is already loaded at correct addres.
 .var vic = $0000
 .var screen = vic + $0400
 
+.var sid = $d400
 .var colram = $d800
 
 .var scroll_screen = screen
@@ -39,6 +40,8 @@ SID is already loaded at correct addres.
 .var putstr = $ab1e
 // ----------------------- //
 
+.var top_loader_start = $e000
+
 .var org_api_size = org_api_end - org_api
 .var org_drv_size = org_drv_end - org_drv
 
@@ -51,6 +54,7 @@ SID is already loaded at correct addres.
 .var fade_step = $5
 
 start:
+	cld
 	inc $d020
 
 	lda #<str_init
@@ -127,8 +131,8 @@ start:
 	asl $d019
 	cli
 
-	lda #1
-	sta colram + 3 * 40 + 2
+	jsr relocate2
+
 check_space:
 !:
 	// once text starts scrolling, `jmp' is self modified to `bit'
@@ -136,8 +140,51 @@ check_space:
 	lda $dc01
 	cmp #$ef
 	bne !-
-	inc screen + 3 * 40 + 2
-	jmp !-
+
+	// wait
+	bit $d011
+	bpl *-3
+
+	// kill irq
+	sei
+
+	lda #$1b
+	sta $d011
+	lda #$c8
+	sta $d016
+
+	lda #<dummy
+	sta $fffe
+	lda #>dummy
+	sta $ffff
+
+	cli
+
+	lda #0
+
+	// kill screen
+	ldx #0
+!:
+	sta screen + $000, x
+	sta screen + $100, x
+	sta screen + $200, x
+	sta screen + $2e8, x
+	sta colram + $000, x
+	sta colram + $100, x
+	sta colram + $200, x
+	sta colram + $2e8, x
+	dex
+	bne !-
+
+	// kill sid
+	ldx #0
+!:
+	sta sid, x
+	inx
+	cpx #$20
+	bne !-
+
+	jmp top_loader_start
 
 die:
 	lda #<str_fail
@@ -183,12 +230,21 @@ relocate:
 !s:
 	rts
 
+// install Krill's resident loader AND our own top resident helper/loader
 relocate2:
 	ldx #0
 !:
 	.for (var i = 0; i < ($01f5 - 255) / 256 + 1; i++) {
 		lda org_api + i * $100 + 2, x
 		sta resident + i * $100, x
+	}
+	inx
+	bne !-
+	ldx #0
+!:
+	.for (var i = 0; i < ($0800 - 255) / 256 + 1; i++) {
+		lda top_loader + i * $100, x
+		sta top_loader_start + i * $100, x
 	}
 	inx
 	bne !-
@@ -352,6 +408,7 @@ irq_bottom:
 	rts
 
 dummy:
+	asl $d019
 	rti
 
 // jump vector to proper roll code
@@ -547,6 +604,11 @@ fade_tbl_uva:
 	.byte 9, 9, 8, 7 // 4, 14
 	.byte 1, 1, 1, 1, 1, 1 // 6, 20
 	.byte 1, 1, 1, 1, 1, 1 // 6, 26
+
+.pc = * "top loader"
+
+top_loader:
+.import binary "top.prg", 2
 
 .pc = * "scroll text"
 
