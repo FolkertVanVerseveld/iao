@@ -1,6 +1,5 @@
 :BasicUpstart2(start)
 
-#import "local.inc"
 #import "pseudo.lib"
 
 .var vic = $0000
@@ -30,8 +29,8 @@
 .var spr_delay = 4
 .var spr_roll_steps = 12
 
-//.var music = LoadSid(HVSC + "/MUSICIANS/0-9/20CC/van_Santen_Edwin/Sindision.sid")
-.var music = LoadSid(HVSC + "/MUSICIANS/0-9/20CC/Paul_Falco/Bomberboy.sid")
+//.var music = LoadSid(HVSC + "/MUSICIANS/0-9/20CC/Paul_Falco/Bomberboy.sid")
+.var music = LoadSid("Bomberboy.sid")
 
 start:
 	lda #3

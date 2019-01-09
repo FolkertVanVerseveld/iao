@@ -9,7 +9,6 @@ SID is already loaded at correct addres.
 
 :BasicUpstart2(start)
 
-#import "local.inc"
 #import "pseudo.lib"
 
 // Use first VIC bank
@@ -45,7 +44,8 @@ SID is already loaded at correct addres.
 .var org_api_size = org_api_end - org_api
 .var org_drv_size = org_drv_end - org_drv
 
-.var music = LoadSid(HVSC + "/MUSICIANS/0-9/20CC/van_Santen_Edwin/Megamix_II_C64.sid")
+//.var music = LoadSid("/MUSICIANS/0-9/20CC/van_Santen_Edwin/Megamix_II_C64.sid")
+.var music = LoadSid("Megamix_II_C64.sid")
 
 .var irq_line_top = $20
 .var irq_line_middle = $3b
@@ -274,12 +274,12 @@ str_fail:
 // --- 1541/1581 DRIVER CODE --- //
 .pc = * "loader"
 org_api:
-.import binary "../tools/krill/loader/build/loader-c64.prg"
+.import binary "loader.bin"
 org_api_end:
 
 .pc = * "drivecode"
 org_drv:
-.import binary "../tools/krill/loader/build/install-c64.prg"
+.import binary "drivercode.bin"
 org_drv_end:
 
 .pc = * "scroll data"
