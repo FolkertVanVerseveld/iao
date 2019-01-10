@@ -32,6 +32,13 @@
 //.var music = LoadSid(HVSC + "/MUSICIANS/0-9/20CC/Paul_Falco/Bomberboy.sid")
 .var music = LoadSid("Bomberboy.sid")
 
+.var picture = LoadBinary("switch.koa", BF_KOALA)
+
+.var vic2 = $4000
+
+.var menu_screenram = vic2 + $2000
+.var menu_bitmap = vic2
+
 start:
 	lda #3
 	//lda #music.startSong - 1
@@ -139,7 +146,74 @@ start:
 	sta $d019		// Acknowledge pending interrupts
 
 	cli			// Start firing interrupts
+
+wait_logo:
+	jmp wait_logo
+
+to_menu:
+
+	// wait for good rasterline
+	bit $d011
+	bmi *-3
+
+	bit $d011
+	bpl *-3
+
+	// change irq
+	sei
+
+	lda #<irq_top_menu
+	sta $fffe
+	lda #>irq_top_menu
+	sta $ffff
+
+	cli
+
+	// kill sprites
+	lda #0
+	sta $d015
+
+	lda #CYAN
+	sta $d020
+	lda #picture.getBackgroundColor()
+	sta $d021
+
+	ldx #0
+!:
+	.for (var i = 0; i < 4; i++) {
+		lda menu_colram + i * $100, x
+		sta colram + i * $100, x
+	}
+	inx
+	bne !-
+
+	// wait
+	bit $d011
+	bmi *-3
+
+	bit $d011
+	bpl *-3
+
+	// update vic bank
+	lda #2
+	sta $dd00
+
+	// enable bitmap mode
+	lda #$3b
+	sta $d011
+
+	lda #$d8
+	sta $d016
+
+	// screen at $4000, characters at $6000
+	lda #%10000000
+	sta $d018
+
 	jmp *
+
+!:
+	inc $d018
+	jmp !-
 
 irq_top:
 	irq
@@ -283,10 +357,14 @@ spr_roll:
 !:
 	lda !cmp_counter- + 1
 	cmp #52 - 1
-	beq !+
+	beq !done+
 	lda #52 - 1
 	sta !cmp_counter- + 1
 !:
+	rts
+!done:
+	lda #$2c
+	sta wait_logo
 	rts
 !next:
 	inx
@@ -372,3 +450,29 @@ text:
 
 * = music.location "Tune"
 	.fill music.size, music.getData(i)
+
+.pc = * "menu color ram"
+
+menu_colram:
+	.fill picture.getColorRamSize(), picture.getColorRam(i)
+
+.pc = menu_bitmap "menu switch logo"
+	.fill picture.getBitmapSize(), picture.getBitmap(i)
+
+.pc = menu_screenram "ScreenRam"
+	.fill picture.getScreenRamSize(), picture.getScreenRam(i)
+
+irq_top_menu:
+	irq
+
+	inc $d020
+
+	ldx #$10
+	dex
+	bne *-1
+
+	dec $d020
+
+	asl $d019
+
+	qri
