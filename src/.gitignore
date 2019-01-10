@@ -4,3 +4,6 @@
 
 # VICE
 *.d64
+
+# C64 Debugger
+c64debugger
