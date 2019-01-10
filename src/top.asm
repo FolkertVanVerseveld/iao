@@ -7,7 +7,7 @@ High memory resident loader that waits for menu stuff to load.
 
 * = $e000
 
-#import "local.inc"
+#import "zeropage.inc"
 #import "pseudo.lib"
 
 // Use first VIC bank
@@ -80,13 +80,23 @@ start:
 	jmp !-
 !:
 
-	ldx #<file
-	ldy #>file
+.pc = * "load code"
+
+	ldx prg_index
+	lda start_tbl_lo, x
+	sta prg_start
+	lda start_tbl_hi, x
+	sta prg_start + 1
+
+	ldy name_tbl_hi, x
+	lda name_tbl_lo, x
+	tax
+
 	sec
 	jsr loadraw
 	bcs error
 
-	jmp (file_start)
+	jmp (prg_start)
 
 error:
 	inc $d020
@@ -120,14 +130,22 @@ text:
 	.text "coole laadtekst hier... neem een bak koffie!"
 	.byte $ff
 
-// TODO refactor to file table and use index
-file:
+// filetable
 	.encoding "petscii_upper"
+prg_menu:
 	.text "MENU.PRG"
 	.byte 0
 
-// bug in cpu: indirect jump must be page-aligned, rather than
-// aligning to 256 bytes, we can just align to word length
-.align $2
-file_start:
-	.word $80e
+prg_game:
+	.text "GAME.PRG"
+	.byte 0
+
+name_tbl_lo:
+	.byte <prg_menu, <prg_game
+name_tbl_hi:
+	.byte >prg_menu, >prg_game
+
+start_tbl_lo:
+	.byte <$80e, <$80e
+start_tbl_hi:
+	.byte >$80e, >$80e

@@ -9,6 +9,7 @@ SID is already loaded at correct addres.
 
 :BasicUpstart2(start)
 
+#import "zeropage.inc"
 #import "pseudo.lib"
 
 // Use first VIC bank
@@ -38,8 +39,6 @@ SID is already loaded at correct addres.
 .var chrout = $ffd2
 .var putstr = $ab1e
 // ----------------------- //
-
-.var top_loader_start = $e000
 
 .var org_api_size = org_api_end - org_api
 .var org_drv_size = org_drv_end - org_drv
@@ -184,6 +183,8 @@ check_space:
 	cpx #$20
 	bne !-
 
+	lda #0
+	sta prg_index
 	jmp top_loader_start
 
 die:
