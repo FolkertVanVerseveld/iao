@@ -114,14 +114,16 @@ dummy:
 
 text_col:
 	.byte 1
+// TODO random text?
 text:
 	.encoding "screencode_mixed"
 	.text "coole laadtekst hier... neem een bak koffie!"
 	.byte $ff
 
+// TODO refactor to file table and use index
 file:
 	.encoding "petscii_upper"
-	.text "EUROPE.PRG"
+	.text "MENU.PRG"
 	.byte 0
 
 // bug in cpu: indirect jump must be page-aligned, rather than
