@@ -1,5 +1,7 @@
 BasicUpstart2(start)
 
+#import "macros.inc"
+
 // IO addresses
 .var row_adr = $dc00
 .var col_adr = $dc01
@@ -17,8 +19,10 @@ loop:
         jsr read_key
         lda res_row
         sta $d020
+        sta $0400
         lda res_col
         sta $d021
+        sta $0401
         jmp loop
 
 
@@ -61,7 +65,7 @@ read_row:
         ldx #%11111110
         ldy #%00
 row_loop:
-        cpy #$07
+        cpy #$08
         beq no_key
         txa
         sta row_adr
@@ -79,7 +83,7 @@ read_col:
         ldx #%11111110
         ldy #%00
 col_loop:
-        cpy #$07
+        cpy #$08
         beq more_keys
         txa
         cmp col_bin
