@@ -1,15 +1,13 @@
 BasicUpstart2(start)
 
 #import "macros.inc"
+#import "zeropage.inc"
 
 // IO addresses
 .var row_adr = $dc00
 .var col_adr = $dc01
 
 // Gloal results
-.var res = $d0
-.var res_row = res+1
-.var res_col = res+2
 .var col_bin = res+3
 
 // Driver testing code
