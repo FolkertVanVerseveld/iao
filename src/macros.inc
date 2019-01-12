@@ -8,3 +8,8 @@
     sta $d021
 }
 
+.macro writeValue(addr) {
+    lda #$00
+    ldx addr
+    jsr $BDCD
+}

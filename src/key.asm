@@ -1,26 +1,12 @@
-BasicUpstart2(start)
+#import "macros.inc"
+#import "zeropage.inc"
 
 // IO addresses
 .var row_adr = $dc00
 .var col_adr = $dc01
 
 // Gloal results
-.var res = $d0
-.var res_row = res+1
-.var res_col = res+2
 .var col_bin = res+3
-
-// Driver testing code
-
-start:
-loop:
-        jsr read_key
-        lda res_row
-        sta $d020
-        lda res_col
-        sta $d021
-        jmp loop
-
 
 // Keyboard driver
 
@@ -61,7 +47,7 @@ read_row:
         ldx #%11111110
         ldy #%00
 row_loop:
-        cpy #$07
+        cpy #$08
         beq no_key
         txa
         sta row_adr
@@ -79,7 +65,7 @@ read_col:
         ldx #%11111110
         ldy #%00
 col_loop:
-        cpy #$07
+        cpy #$08
         beq more_keys
         txa
         cmp col_bin
