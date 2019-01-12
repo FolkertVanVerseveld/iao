@@ -1,3 +1,5 @@
+#importonce
+
 #import "macros.inc"
 #import "zeropage.inc"
 
