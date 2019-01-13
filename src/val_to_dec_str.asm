@@ -4,8 +4,15 @@
 #import "zeropage.inc"
 #import "pseudo.lib"
 
+.pc = * "Start"
 
 // 16 bit to decimal converter
+itoa:
+        jsr con_bit
+        jsr unpack_bcd
+        jsr val_to_char
+        rts
+
 con_bit:    
         sed
         lda #0
