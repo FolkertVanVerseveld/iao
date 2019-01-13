@@ -2,12 +2,9 @@
 
 #import "zeropage.inc"
 #import "macros.inc"
+#import "scrn_crd"
 #import "pseudo.lib"
 #import "val_to_dec_str.asm"
-
-.var vic = $0000
-.var screen = vic + $0400
-.var colram = $d800
 
 .var irq_line_top = $20
 .var irq_line_status = $ef
@@ -41,11 +38,11 @@ update_level:
 update_money:
         mov16 $c0 : c_h_hi
         jsr itoa
-        mov dec_char : screen + 961
-        mov dec_char+1 : screen + 962
-        mov dec_char+2 : screen + 963
-        mov dec_char+3 : screen + 964
-        mov dec_char+4 : screen + 965
+        mov dec_char : scr_money
+        mov dec_char+1 : scr_money+1
+        mov dec_char+2 : scr_money+2
+        mov dec_char+3 : scr_money+3
+        mov dec_char+4 : scr_money+4
         rts
 
 .pc = * "Interrupt setup"
@@ -53,7 +50,7 @@ update_money:
 setup_interrupt:
         sei
     
-        lda #GREEN
+        lda #BLACK
         sta color
     
         // Switch out all of the ROMs except I/O
@@ -79,15 +76,6 @@ setup_interrupt:
         mov #$7f : $dc0d
         mov #$7f : $dd0d
         
-        // Set timer A value
-        mov16 #time : timer_a_val16
-        
-        mov #%00010001 : timer_a_ctrl
-        
-        // Enable timer A NMI
-        lda #%10000001
-        sta $dd0d
-        
         lda $dc0d
         lda $dd0d
         
@@ -97,29 +85,22 @@ setup_interrupt:
         rts
 
 dummy:
-        pha
-        
-        jsr update_level
-
-        inc $c1
-        
-        lda $dd0d
-        sta $dd0d
-        pla
         rti
 
 irq_bgcolor_top:
         irq
         
         backgroundColor(GREEN)
+        jsr update_level
+        
+        inc $c1
         
         qri #irq_line_status : #irq_bgcolor_status
 
 irq_bgcolor_status:
         irq
         
-        lda color
-        sta $d020
+        backgroundColor(BLACK)
         
         qri #irq_line_top : #irq_bgcolor_top
 
