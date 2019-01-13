@@ -1,10 +1,11 @@
-# local stuff
-local.inc
-
 # KickAssembler
 *.prg
 *.sym
 
 # VICE
 *.d64
+
+# C64 Debugger
+c64debugger
 local_setup.sh
+breakpoint.txt

@@ -1,9 +1,12 @@
 :BasicUpstart2(start)
 
+#import "zeropage.inc"
 #import "pseudo.lib"
 
 .var vic = $0000
 .var screen = vic + $0400
+
+.var sid = $d400
 .var colram = $d800
 
 .function sinus_lo(i, amplitude, center, noOfSteps) {
@@ -31,6 +34,14 @@
 
 //.var music = LoadSid(HVSC + "/MUSICIANS/0-9/20CC/Paul_Falco/Bomberboy.sid")
 .var music = LoadSid("Bomberboy.sid")
+
+.var picture = LoadBinary("switch.koa", BF_KOALA)
+
+.var vic2 = $4000
+.var screen2 = vic2 + $2000
+
+.var menu_screenram = vic2 + $2000
+.var menu_bitmap = vic2
 
 start:
 	lda #3
@@ -139,7 +150,114 @@ start:
 	sta $d019		// Acknowledge pending interrupts
 
 	cli			// Start firing interrupts
-	jmp *
+
+wait_logo:
+	jmp wait_logo
+
+.pc = * "menu code"
+
+to_menu:
+
+	// wait for good rasterline
+	bit $d011
+	bmi *-3
+
+	bit $d011
+	bpl *-3
+
+	// change irq
+	sei
+
+	lda #<irq_top_menu
+	sta $fffe
+	lda #>irq_top_menu
+	sta $ffff
+
+	cli
+
+	// change sprites
+	lda #(spr_new_game / 64 - vic2)
+	sta screen2 + $03f8
+	lda #(spr_notes / 64 - vic2)
+	sta screen2 + $03f9
+	lda #(spr_credits / 64 - vic2)
+	sta screen2 + $03fa
+
+	lda #$7
+	sta $d015
+	lda #0
+	sta $d010
+
+	lda #CYAN
+	sta $d020
+	lda #picture.getBackgroundColor()
+	sta $d021
+
+	ldx #0
+!:
+	.for (var i = 0; i < 4; i++) {
+		lda menu_colram + i * $100, x
+		sta colram + i * $100, x
+	}
+	inx
+	bne !-
+
+	// wait
+	bit $d011
+	bmi *-3
+
+	bit $d011
+	bpl *-3
+
+	// update vic bank
+	lda #2
+	sta $dd00
+
+	// enable bitmap mode
+	lda #$3b
+	sta $d011
+
+	lda #$d8
+	sta $d016
+
+	// screen at $4000, characters at $6000
+	lda #%10000000
+	sta $d018
+
+!:
+	lda $dc01
+	cmp #$ef
+	bne !-
+
+.pc = * "load game"
+	// kill irq
+	sei
+
+	lda #$1b
+	sta $d011
+	lda #$c8
+	sta $d016
+
+	lda #<dummy
+	sta $fffe
+	lda #>dummy
+	sta $ffff
+
+	cli
+
+	// kill sid
+	ldx #0
+!:
+	sta sid, x
+	inx
+	cpx #$20
+	bne !-
+
+	lda #1
+	sta prg_index
+	jmp top_loader_start
+
+.pc = * "irqs"
 
 irq_top:
 	irq
@@ -258,6 +376,42 @@ irq_middle:
 
 	qri #irq_line_top : #irq_top
 
+irq_top_menu:
+	irq
+
+	inc $d020
+
+	jsr move_sprites
+	jsr music.play
+
+	dec $d020
+
+	asl $d019
+
+	qri
+
+move_sprites:
+
+	lda spr_menu_pos
+	clc
+	adc #1
+	and #$20 - 1
+	sta spr_menu_pos
+	tax
+	lda #$a0
+	sta $d000
+	sta $d002
+	lda spr_menu_new_y, x
+	sta $d001
+	clc
+	adc #30
+	sta $d003
+	lda #$30
+	sta $d004
+	lda spr_menu_credits_y, x
+	sta $d005
+	rts
+
 dummy:
 	rti
 
@@ -283,10 +437,14 @@ spr_roll:
 !:
 	lda !cmp_counter- + 1
 	cmp #52 - 1
-	beq !+
+	beq !done+
 	lda #52 - 1
 	sta !cmp_counter- + 1
 !:
+	rts
+!done:
+	lda #$2c
+	sta wait_logo
 	rts
 !next:
 	inx
@@ -372,3 +530,95 @@ text:
 
 * = music.location "Tune"
 	.fill music.size, music.getData(i)
+
+.pc = * "menu color ram"
+
+menu_colram:
+	.fill picture.getColorRamSize(), picture.getColorRam(i)
+
+.pc = menu_bitmap "menu switch logo"
+	.fill picture.getBitmapSize(), picture.getBitmap(i)
+
+.pc = menu_screenram "ScreenRam"
+	.fill picture.getScreenRamSize(), picture.getScreenRam(i)
+
+.align $40
+.pc = * "menu sprites"
+spr_new_game:
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %00000000,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%00000000
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%00000000,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+.align $40
+spr_notes:
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %00000000,%00000000,%00000000
+	.byte %11111111,%11111111,%11111111
+.align $40
+spr_credits:
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%00000000,%00000000
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+
+.align $40
+spr_menu_credits_y:
+	.fill $20, round($e0 + $4 * sin(toRadians(i * 360 / $20)))
+
+spr_menu_new_y:
+	.fill $20, round($38 + $4 * sin(toRadians(i * 360 / $20)))
+
+spr_menu_pos:
+	.byte 0
