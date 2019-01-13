@@ -10,6 +10,18 @@
 .var irq_line_top = $20
 .var irq_line_status = $ef
 
+.var timer_a_ctrl = $dd0e
+.var timer_b_ctrl = $dd0f
+
+.var timer_a_val16 = $dd04
+.var timer_b_val16 = $dd06
+
+.var nmi_isr = $dd0d
+
+.var color = $02
+
+.var time = $aaaa
+
 start:
     jsr load_level
     jsr setup_interrupt
@@ -17,8 +29,14 @@ start:
 loop:
     jmp loop
 
+
+.pc = * "Interrupt setup"
+
 setup_interrupt:
     sei
+
+    lda #GREEN
+    sta color
 
     // Switch out all of the ROMs except I/O
     lda #$35
@@ -39,9 +57,19 @@ setup_interrupt:
     mov16 #irq_line_top : $d012
     mov #1 : $d01a
 
-    // enable all NMIs
+    // Disable timer interrupts
     mov #$7f : $dc0d
     mov #$7f : $dd0d
+
+    // Set timer A value
+    mov16 #time : timer_a_val16
+
+    mov #%00010001 : timer_a_ctrl
+
+    // Enable timer A NMI
+    lda #%10000001
+    sta $dd0d
+
     lda $dc0d
     lda $dd0d
 
@@ -51,6 +79,14 @@ setup_interrupt:
     rts
 
 dummy:
+    pha
+
+    inc color
+
+    pla
+
+    lda $dd0d
+    sta $dd0d
     rti
 
 irq_bgcolor_top:
@@ -63,7 +99,8 @@ irq_bgcolor_top:
 irq_bgcolor_status:
     irq
 
-    backgroundColor(BLACK)
+    lda color
+    sta $d020
 
     qri #irq_line_top : #irq_bgcolor_top
 
@@ -108,3 +145,6 @@ copy_image: // Copied from uva.asm
 .pc = * "PETSCII art"
 
 #import "level1_europe.asm"
+
+.pc = * "Sprites"
+#import "sprites.inc"
