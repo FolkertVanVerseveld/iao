@@ -14,8 +14,9 @@ Code: methos, flevosap, theezakje
 
 .const joy2 = $0a
 .const joy2_dir = $0b
+.const joy2_dir_old = $0c
 
-.const jmp_buf = $0c
+.const jmp_buf = $0d
 
 // HEx to decimal chars conversion
 .var dec_char = $d0

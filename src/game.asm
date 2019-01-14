@@ -9,15 +9,19 @@ Code: methos, theezakje
 
 #import "macros.inc"
 #import "pseudo.lib"
+#import "joy.inc"
 
 .var vic = 2 * $4000
+// pointers to game screens, must be multiple of $0400
 .var screen_main      = vic + 0 * $0400
 .var screen_subsidies = vic + 1 * $0400
 .var screen_log       = vic + 2 * $0400
 .var screen_options   = vic + 3 * $0400
 .var colram = $d800
+// use last screen for sprite data
 .var sprdata = vic + 15 * $0400
 
+// open border magic happens in this irq, DO NOT CHANGE
 .var irq_middle_line = $ef
 
 start:
@@ -33,37 +37,40 @@ game_loop:
 
 joy_ctl:
 	// show joy2 for debug purposes
-	.if (false) {
-	lda #1
-	sta colram
-	sta colram + 1
-
-	lda $dc00
-	sta screen_main
-	sta joy2
-	} else {
 	lda $dc00
 	sta joy2
-	}
 
+	// if no buttons are pressed, joy2_dir = 0
 	ldx #0
 
-	cmp #$77
+	cmp #joy_right
 	bne !+
 	ldx #1
-	cpx joy2_dir
-	beq !+
-	jsr scr_next
 !:
-	cmp #$7b
+	cmp #joy_left
 	bne !+
 	ldx #2
-	cpx joy2_dir
-	beq !+
-	jsr scr_prev
 !:
 
 	stx joy2_dir
+	// if a button was pressed in previous state
+	lda joy2_dir_old
+	beq !+
+	// if now no buttons have been pressed
+	txa
+	bne !+
+	// self modify call screen routine
+	ldx joy2_dir_old
+	dex
+	lda vec_scr_lo, x
+	sta !do_scr+ + 1
+	lda vec_scr_hi, x
+	sta !do_scr+ + 2
+!do_scr:
+	jsr scr_prev
+!:
+	lda joy2_dir
+	sta joy2_dir_old
 	rts
 
 scr_next:
@@ -86,6 +93,11 @@ scr_prev:
 
 	jmp update_screen
 
+vec_scr_lo:
+	.byte <scr_next, <scr_prev
+vec_scr_hi:
+	.byte >scr_next, >scr_prev
+
 init:
 	// clear zero page area [2, $e0]
 	ldx #2
@@ -103,10 +115,14 @@ check_space:
 	beq !+
 	rts
 !:
+	.if (false) {
 	pla
 	lda #0
 	sta prg_index
 	jmp top_loader_start
+	} else {
+	jmp scr_next
+	}
 
 setup_interrupt:
 
@@ -179,6 +195,7 @@ irq_top:
 
 	qri #irq_middle_line : #irq_middle
 
+// open border magic happens in this irq
 irq_middle:
 	irq
 
@@ -202,8 +219,10 @@ init_sprites:
 	cpx #63
 	bne !-
 
+	// just use stars for all screens
 	lda #(sprdata / 64 - vic)
 
+	// store all sprite pointers
 	sta screen_main + $3f8
 	sta screen_main + $3f9
 	sta screen_main + $3fa
@@ -212,7 +231,16 @@ init_sprites:
 	sta screen_subsidies + $3f9
 	sta screen_subsidies + $3fa
 	sta screen_subsidies + $3fb
+	sta screen_log + $3f8
+	sta screen_log + $3f9
+	sta screen_log + $3fa
+	sta screen_log + $3fb
+	sta screen_options + $3f8
+	sta screen_options + $3f9
+	sta screen_options + $3fa
+	sta screen_options + $3fb
 
+	// enable sprites 3,2,1,0
 	lda #%1111
 	sta $d015
 
@@ -281,14 +309,21 @@ copy_screens:
 	lda subsidies_image  + $2e8, x
 	sta screen_subsidies + $2e8, x
 
-	lda #' '
+	lda log_image  + $000, x
 	sta screen_log + $000, x
+	lda log_image  + $100, x
 	sta screen_log + $100, x
+	lda log_image  + $200, x
 	sta screen_log + $200, x
+	lda log_image  + $2e8, x
 	sta screen_log + $2e8, x
+	lda options_image  + $000, x
 	sta screen_options + $000, x
+	lda options_image  + $100, x
 	sta screen_options + $100, x
+	lda options_image  + $200, x
 	sta screen_options + $200, x
+	lda options_image  + $2e8, x
 	sta screen_options + $2e8, x
 	dex
 	bne !-
@@ -303,7 +338,7 @@ update_screen:
 	sta jmp_buf + 1
 	jmp (jmp_buf)
 
-copy_colram0:
+goto_main:
 	lda #%00000100
 	sta $d018
 
@@ -322,7 +357,7 @@ copy_colram0:
 	bne !-
 	rts
 
-copy_colram1:
+goto_subsidies:
 	lda #%00010100
 	sta $d018
 
@@ -341,8 +376,27 @@ copy_colram1:
 	bne !-
 	rts
 
-copy_colram3:
+goto_log:
 	lda #%00100100
+	sta $d018
+
+	ldx #0
+!:
+	lda log_colors + $000, x
+	sta colram     + $000, x
+	lda log_colors + $100, x
+	sta colram     + $100, x
+	lda log_colors + $200, x
+	sta colram     + $200, x
+	lda log_colors + $2e8, x
+	sta colram     + $2e8, x
+
+	dex
+	bne !-
+	rts
+
+goto_options:
+	lda #%00110100
 	sta $d018
 
 	ldx #0
@@ -362,21 +416,24 @@ copy_colram3:
 
 // jumptable
 vec_colram_lo:
-	.byte <copy_colram0
-	.byte <copy_colram1
-	.byte <copy_colram3
-	.byte <copy_colram3
+	.byte <goto_main
+	.byte <goto_subsidies
+	.byte <goto_log
+	.byte <goto_options
 vec_colram_hi:
-	.byte >copy_colram0
-	.byte >copy_colram1
-	.byte >copy_colram3
-	.byte >copy_colram3
+	.byte >goto_main
+	.byte >goto_subsidies
+	.byte >goto_log
+	.byte >goto_options
 
 .pc = * "main screen"
 #import "level1_europe.asm"
 
 .pc = * "subsidies screen"
 #import "subsidies.asm"
+
+.pc = * "log screen"
+#import "log.asm"
 
 .pc = * "options screen"
 #import "options.asm"
