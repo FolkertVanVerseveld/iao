@@ -11,6 +11,9 @@ SID is already loaded at correct addres.
 
 #import "zeropage.inc"
 #import "pseudo.lib"
+#import "loader.inc"
+#import "kernal.inc"
+#import "basic.inc"
 
 // Use first VIC bank
 .var vic = $0000
@@ -21,24 +24,6 @@ SID is already loaded at correct addres.
 
 .var scroll_screen = screen
 .var scroll_colram = colram
-
-// BASIC device driver
-.var FA = $ba
-
-// --- KRILL's LOADER VARIABLES ---- //
-.var resident = $0200
-.var loadraw = resident
-
-.var resident_size = $01f5
-
-.var drivecode = $5000
-.var install = drivecode + $1390
-// --------------------------------- //
-
-// --- KERNAL ROUTINES --- //
-.var chrout = $ffd2
-.var putstr = $ab1e
-// ----------------------- //
 
 .var org_api_size = org_api_end - org_api
 .var org_drv_size = org_drv_end - org_drv

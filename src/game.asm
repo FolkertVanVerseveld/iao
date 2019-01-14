@@ -9,8 +9,10 @@
 .var screen = vic + $0400
 .var colram = $d800
 
-.var irq_line_top = $20
+.var irq_line_top = $00
 .var irq_line_status = $ef
+
+.var irq_line_border = $fa
 
 start:
 	jsr load_level
@@ -54,8 +56,9 @@ setup_interrupt:
 	mov #1 : $d01a
 
 	// enable all NMIs
-	mov #$7f : $dc0d
-	mov #$7f : $dd0d
+	lda #$7f
+	sta $dc0d
+	sta $dd0d
 	lda $dc0d
 	lda $dd0d
 
@@ -78,15 +81,25 @@ irq_bgcolor_top:
 irq_bgcolor_status:
 	irq
 
+	lda #$00
+	sta $d011
+
 	backgroundColor(BLACK)
+
+	qri #irq_line_border : #irq_open_border
+
+irq_open_border:
+	irq
+
+	lda #$1b
+	sta $d011
 
 	qri #irq_line_top : #irq_bgcolor_top
 
 
-
 load_level:
 	// Set level colors: border black, background green
-	borderColor(BLACK)
+	borderColor(WHITE)
 	backgroundColor(GREEN)
 
 	// fall through

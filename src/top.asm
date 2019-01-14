@@ -9,22 +9,13 @@ High memory resident loader that waits for menu stuff to load.
 
 #import "zeropage.inc"
 #import "pseudo.lib"
+#import "loader.inc"
 
 // Use first VIC bank
 .var vic = $0000
 .var screen = vic + $0400
 
 .var colram = $d800
-
-// --- KRILL's LOADER VARIABLES ---- //
-.var resident = $0200
-.var loadraw = resident
-
-.var resident_size = $01f5
-
-.var drivecode = $5000
-.var install = drivecode + $1390
-// --------------------------------- //
 
 .var irq_line_top = $20
 
@@ -65,9 +56,9 @@ start:
 
 	cli
 
+	// TODO find out why clearing screen crashes when leaving start.asm
 	// put some text on screen
 
-	// TODO move these vars to zeropage
 	ldx #0
 !:
 	lda text, x
@@ -127,7 +118,8 @@ text_col:
 // TODO random text?
 text:
 	.encoding "screencode_mixed"
-	.text "coole laadtekst hier... neem een bak koffie!"
+	//     0123456789012345678901234567890123456789
+	.text "laden... een moment geduld alstublieft"
 	.byte $ff
 
 // filetable
