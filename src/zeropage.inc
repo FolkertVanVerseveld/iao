@@ -1,7 +1,21 @@
 #importonce
 
+/*
+Zeropage constants
+Code: methos, flevosap, theezakje
+*/
+
+// top loader
 .const prg_index = $f7
 .const prg_start = $f8
+
+// general game stuff
+.const window = $09
+
+.const joy2 = $0a
+.const joy2_dir = $0b
+
+.const jmp_buf = $0c
 
 // HEx to decimal chars conversion
 .var dec_char = $d0
