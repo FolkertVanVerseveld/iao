@@ -5,18 +5,28 @@
 #import "macros.inc"
 #import "pseudo.lib"
 
-.var vic = $0000
+.var vic = 2 * $4000
 .var screen = vic + $0400
 .var colram = $d800
+.var sprdata = vic + 15 * $0400
 
-.var irq_line_top = $00
-.var irq_line_status = $ef
-
-.var irq_line_border = $fa
+.var irq_middle_line = $ef
 
 start:
 	jsr load_level
 	jsr setup_interrupt
+
+	lda #(sprdata / 64 - vic)
+	sta screen + $3f8
+	sta screen + $3f9
+	lda #%11
+	sta $d015
+	lda #$10
+	sta $d000
+	sta $d001
+	sta $d002
+	lda #$ff
+	sta $d003
 
 !:
 	lda $dc01
@@ -28,32 +38,31 @@ start:
 	jmp top_loader_start
 
 setup_interrupt:
-	sei
 
-	// Switch out all of the ROMs except I/O
+	sei
 	lda #$35
 	sta $1
 
-	lda #3
+	lda #1
 	sta $dd00
 
-	lda #0
-	sta $d015
+	lda #<irq_bottom
+	sta $fffe
+	lda #>irq_bottom
+	sta $ffff
+	lda #$1b
+	sta $d011
+	lda #$01
+	sta $d01a
+	// enable all NMIs
+	lda #$7f
+	sta $dc0d
+	sta $dd0d
+	lda $dc0d
+	lda $dd0d
 
-	// Load the dummy function for the cold reset
-	// and NMI handler
-	lda #<dummy
-	sta $fffa
-	sta $fffc
-	lda #>dummy
-	sta $fffb
-	sta $fffd
-
-	mov16 #irq_bgcolor_top : $fffe
-
-	mov #$1b : $d011
-	mov16 #irq_line_top : $d012
-	mov #1 : $d01a
+	asl $d019
+	cli
 
 	// enable all NMIs
 	lda #$7f
@@ -71,36 +80,45 @@ dummy:
 	asl $d019
 	rti
 
-irq_bgcolor_top:
+
+// bottom irq
+irq_bottom:
 	irq
-
-	backgroundColor(GREEN)
-
-	qri #irq_line_status : #irq_bgcolor_status
-
-irq_bgcolor_status:
-	irq
-
+	lda #$00
+	sta $d012
 	lda #$00
 	sta $d011
 
-	backgroundColor(BLACK)
+	qri : #irq_top
 
-	qri #irq_line_border : #irq_open_border
-
-irq_open_border:
+// top irq
+irq_top:
 	irq
-
-	lda #$1b
+	lda #$fa
+	sta $d012
+	lda #$1b //If you want to display a bitmap pic, use #$3b instead
 	sta $d011
 
-	qri #irq_line_top : #irq_bgcolor_top
-
+	qri : #irq_bottom
 
 load_level:
 	// Set level colors: border black, background green
 	borderColor(WHITE)
 	backgroundColor(GREEN)
+
+	jsr copy_image
+	jsr copy_sprites
+	rts
+
+copy_sprites:
+	ldx #0
+!:
+	lda spr_star, x
+	sta sprdata, x
+	inx
+	cpx #63
+	bne !-
+	rts
 
 	// fall through
 copy_image: // Copied from uva.asm
@@ -132,3 +150,26 @@ copy_image: // Copied from uva.asm
 .pc = * "PETSCII art"
 
 #import "level1_europe.asm"
+
+spr_star:
+	.byte %00000000,%00011000,%00000000
+	.byte %00000000,%00011000,%00000000
+	.byte %00000000,%00011000,%00000000
+	.byte %00000000,%00111100,%00000000
+	.byte %00000000,%00111100,%00000000
+	.byte %00000000,%00111100,%00000000
+	.byte %00000000,%01111110,%00000000
+	.byte %00000000,%01111110,%00000000
+	.byte %11111111,%11111111,%11111111
+	.byte %01111111,%11111111,%11111110
+	.byte %00011111,%11111111,%11111000
+	.byte %00000111,%11111111,%11100000
+	.byte %00000011,%11111111,%11000000
+	.byte %00000001,%11111111,%10000000
+	.byte %00000001,%11111111,%10000000
+	.byte %00000011,%11111111,%11000000
+	.byte %00000011,%11100111,%11000000
+	.byte %00000111,%10000001,%11100000
+	.byte %00000111,%00000000,%11100000
+	.byte %00000110,%00000000,%01100000
+	.byte %00001100,%00000000,%00110000
