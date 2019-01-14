@@ -1,3 +1,5 @@
+#importonce
+
 .macro borderColor(color) {
     lda #color
     sta $d020
