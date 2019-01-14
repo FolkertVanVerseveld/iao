@@ -12,3 +12,5 @@ Code: methos
 
 .var drivecode = $5000
 .var install = drivecode + $1390
+
+.var top_magic = $78d8
