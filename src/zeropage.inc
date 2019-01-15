@@ -18,7 +18,8 @@ Code: methos, flevosap, theezakje
 .const music_mute = $0f
 // NOTE 2 bytes long
 .const gameover_timer = $10
-.const has_top_loader = $12
+.const hide_arrow = $12
+.const has_top_loader = $13
 
 // more game stuff
 

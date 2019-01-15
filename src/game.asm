@@ -19,7 +19,7 @@ Code: methos, theezakje
 .var screen_log       = vic + 2 * $0400
 .var screen_options   = vic + 3 * $0400
 
-.var spr_enable_mask = %11111
+.var spr_enable_mask = %10001111
 
 // TODO use custom font to redefine dollar character into euro valuta
 
@@ -33,8 +33,17 @@ Code: methos, theezakje
 .var spr_settings = sprdata + 3 * 64
 .var spr_arrow    = sprdata + 4 * 64
 
+.var spr_oeps0    = sprdata + 5 * 64
+.var spr_oeps1    = sprdata + 6 * 64
+.var spr_oeps2    = sprdata + 7 * 64
+.var spr_oeps3    = sprdata + 8 * 64
+
+.var spr_empty    = sprdata + 9 * 64
+
+.var irq_text_top_line = $30
+
 // open border magic happens in this irq, DO NOT CHANGE
-.var irq_middle_line = $ef
+.var irq_magic_line = $ef
 
 .const gameover_delay = $10000 - $300
 
@@ -187,6 +196,8 @@ game_over:
 	sta window
 	jsr update_screen
 
+	inc hide_arrow
+
 	// wait till tune has stopped
 	lda #<gameover_delay
 	sta gameover_timer
@@ -299,7 +310,15 @@ irq_top:
 	lda tbl_bkg_col, x
 	sta $d021
 
+	// restore arrow sprite
+	jsr init_menu_sprites
+	jsr update_arrow
+
 	lda #spr_enable_mask
+	ldx hide_arrow
+	beq !+
+	eor #%10000000
+!:
 	sta sprmask
 
 	ldx music_mute
@@ -311,10 +330,25 @@ sid_play:
 	inc gameover_timer + 1
 !:
 
-	qri #irq_middle_line : #irq_middle
+	qri #irq_text_top_line : #irq_text_top
+
+// this irq happens just before the petscii text is being drawn
+irq_text_top:
+	irq
+
+	lda window
+	bne !+
+	lda hide_arrow
+	beq !+
+
+	// this code shows game over letters
+	jsr show_game_over
+!:
+
+	qri #irq_magic_line : #irq_magic
 
 // open border magic happens in this irq
-irq_middle:
+irq_magic:
 	irq
 
 	lda #BLACK
@@ -325,6 +359,14 @@ irq_middle:
 	sta $d012
 	lda #$1b //If you want to display a bitmap pic, use #$3b instead
 	sta $d011
+
+	// do not change anything above this line in the irq!
+
+	lda window
+	bne !+
+	lda hide_arrow
+	beq !+
+!:
 
 	qri : #irq_bottom
 
@@ -341,10 +383,37 @@ init_sprites:
 	sta spr_settings, x
 	lda data_arrow, x
 	sta spr_arrow, x
+	lda data_oeps0, x
+	sta spr_oeps0, x
+	lda data_oeps1, x
+	sta spr_oeps1, x
+	lda data_oeps2, x
+	sta spr_oeps2, x
+	lda data_oeps3, x
+	sta spr_oeps3, x
+	lda #0
+	sta spr_empty, x
 	inx
 	cpx #63
 	bne !-
 
+	lda #(spr_arrow / 64 - vic)
+
+	sta screen_main + $3ff
+	sta screen_subsidies + $3ff
+	sta screen_log + $3ff
+	sta screen_options + $3ff
+
+	lda #$18
+	sta spry7
+	lda tbl_arrow_pos_lo
+	sta sprx7
+
+	// highest bit of spr3 must be set
+	lda tbl_arrow_pos_hi
+	sta sprxhi
+
+init_menu_sprites:
 	lda #(spr_map / 64 - vic)
 
 	sta screen_main + $3f8
@@ -374,13 +443,6 @@ init_sprites:
 	sta screen_log + $3fb
 	sta screen_options + $3fb
 
-	lda #(spr_arrow / 64 - vic)
-
-	sta screen_main + $3fc
-	sta screen_subsidies + $3fc
-	sta screen_log + $3fc
-	sta screen_options + $3fc
-
 	// sprite completely visible in range [24, 320]
 	// sprite is 24 pixels wide, so:
 	lda #24 - 24 / 2 + 0 * 80 + 40
@@ -396,15 +458,8 @@ init_sprites:
 	sta spry1
 	sta spry2
 	sta spry3
-	sta spry4
-	lda tbl_arrow_pos_lo
-	sta sprx4
 
-	// highest bit of spr3 must be set
-	lda tbl_arrow_pos_hi
-	sta sprxhi
-
-	// enable sprites 4,3,2,1,0
+	// enable sprites 7,3,2,1,0
 	lda #spr_enable_mask
 	sta sprmask
 
@@ -418,8 +473,7 @@ init_sprites:
 	lda #CYAN
 	sta sprcol3
 	lda #GREEN
-	sta sprcol4
-
+	sta sprcol7
 	rts
 
 tbl_bkg_col:
@@ -486,17 +540,25 @@ copy_screens:
 
 	rts
 
-update_screen:
+update_arrow:
 	ldx window
 	lda tbl_arrow_pos_lo, x
-	sta sprx4
+	sta sprx7
 	lda tbl_arrow_pos_hi, x
 	sta sprxhi
+	rts
+
+update_screen:
+	jsr update_arrow
 	lda vec_colram_lo, x
 	sta jmp_buf
 	lda vec_colram_hi, x
 	sta jmp_buf + 1
 	jmp (jmp_buf)
+
+/////////////////////////////////
+// menu screen transition code //
+/////////////////////////////////
 
 goto_main:
 	lda #%00000100
@@ -573,6 +635,72 @@ goto_options:
 	dex
 	bne !-
 	rts
+
+show_game_over:
+	lda #(spr_oeps0 / 64 - vic)
+	sta screen_main + $3f8
+	lda #(spr_oeps1 / 64 - vic)
+	sta screen_main + $3f9
+	lda #(spr_oeps2 / 64 - vic)
+	sta screen_main + $3fa
+	lda #(spr_oeps3 / 64 - vic)
+	sta screen_main + $3fb
+
+	lda #(320 - 24 - 2 * 24) / 2 + 0 * 24 + 12
+	sta sprx0
+	lda #(320 - 24 - 2 * 24) / 2 + 1 * 24 + 12
+	sta sprx1
+	lda #(320 - 24 - 2 * 24) / 2 + 2 * 24 + 12
+	sta sprx2
+	lda #(320 - 24 - 2 * 24) / 2 + 3 * 24 + 12
+	sta sprx3
+
+	ldx game_over_index
+	lda tbl_game_over_y, x
+	sta spry0
+	lda tbl_game_over_y + 4, x
+	sta spry1
+	lda tbl_game_over_y + 8, x
+	sta spry2
+	lda tbl_game_over_y + 12, x
+	sta spry3
+
+	inx
+	txa
+	and #$20 - 1
+	sta game_over_index
+
+	ldx game_over_colindex
+
+	and #$7
+	cmp #$7
+	bne !+
+	inx
+	txa
+	and #$8 - 1
+	sta game_over_colindex
+!:
+
+	lda tbl_game_over_col, x
+	sta sprcol0
+	lda tbl_game_over_col + 1, x
+	sta sprcol1
+	lda tbl_game_over_col + 2, x
+	sta sprcol2
+	lda tbl_game_over_col + 3, x
+	sta sprcol3
+
+	lda #%1111
+	sta sprmask
+
+	lda #0
+	sta sprxhi
+	rts
+
+game_over_index:
+	.byte 0
+game_over_colindex:
+	.byte 0
 
 // jumptable
 vec_colram_lo:
@@ -663,6 +791,8 @@ data_arrow:
 	.byte $00,$0e,$00,$00,$0c,$00,$00,$08
 	.byte $00,$00,$00,$00,$00,$00,$00,$00
 
+#import "oeps.spr"
+
 tbl_arrow_pos_lo:
 	.byte -24 / 2 + 0 * 80 + 40
 	.byte -24 / 2 + 1 * 80 + 40
@@ -673,7 +803,15 @@ tbl_arrow_pos_hi:
 	.byte %00001000
 	.byte %00001000
 	.byte %00001000
-	.byte %00011000
+	.byte %10001000
+
+tbl_game_over_y:
+	.fill $20, round(90 + $8 * sin(toRadians(i * 360 / $20)))
+	.fill $20, round(90 + $8 * sin(toRadians(i * 360 / $20)))
+
+tbl_game_over_col:
+	.byte 3, 7, 9, 10, 4, 13, 11, 12
+	.byte 3, 7, 9, 10
 
 .pc = * "gameover tune"
 sid_gameover:
