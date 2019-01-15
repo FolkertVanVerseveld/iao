@@ -19,6 +19,8 @@ Code: methos, theezakje
 .var screen_log       = vic + 2 * $0400
 .var screen_options   = vic + 3 * $0400
 
+.var spr_enable_mask = %11111
+
 // TODO use custom font to redefine dollar character into euro valuta
 
 // use last screen for sprite data
@@ -29,6 +31,7 @@ Code: methos, theezakje
 .var spr_map      = sprdata + 1 * 64
 .var spr_euro     = sprdata + 2 * 64
 .var spr_settings = sprdata + 3 * 64
+.var spr_arrow    = sprdata + 4 * 64
 
 // open border magic happens in this irq, DO NOT CHANGE
 .var irq_middle_line = $ef
@@ -281,7 +284,7 @@ irq_bottom:
 	sta $d012
 	lda #$00
 	sta $d011
-	sta $d015
+	sta sprmask
 
 	qri : #irq_top
 
@@ -296,8 +299,8 @@ irq_top:
 	lda tbl_bkg_col, x
 	sta $d021
 
-	lda #%1111
-	sta $d015
+	lda #spr_enable_mask
+	sta sprmask
 
 	ldx music_mute
 	bne !+
@@ -336,6 +339,8 @@ init_sprites:
 	sta spr_euro, x
 	lda data_settings, x
 	sta spr_settings, x
+	lda data_arrow, x
+	sta spr_arrow, x
 	inx
 	cpx #63
 	bne !-
@@ -369,6 +374,13 @@ init_sprites:
 	sta screen_log + $3fb
 	sta screen_options + $3fb
 
+	lda #(spr_arrow / 64 - vic)
+
+	sta screen_main + $3fc
+	sta screen_subsidies + $3fc
+	sta screen_log + $3fc
+	sta screen_options + $3fc
+
 	// sprite completely visible in range [24, 320]
 	// sprite is 24 pixels wide, so:
 	lda #24 - 24 / 2 + 0 * 80 + 40
@@ -384,14 +396,17 @@ init_sprites:
 	sta spry1
 	sta spry2
 	sta spry3
+	sta spry4
+	lda tbl_arrow_pos_lo
+	sta sprx4
 
 	// highest bit of spr3 must be set
-	lda #%00001000
-	sta $d010
+	lda tbl_arrow_pos_hi
+	sta sprxhi
 
-	// enable sprites 3,2,1,0
-	lda #%1111
-	sta $d015
+	// enable sprites 4,3,2,1,0
+	lda #spr_enable_mask
+	sta sprmask
 
 	// setup colors
 	lda #WHITE
@@ -402,6 +417,8 @@ init_sprites:
 	sta sprcol2
 	lda #CYAN
 	sta sprcol3
+	lda #GREEN
+	sta sprcol4
 
 	rts
 
@@ -471,6 +488,10 @@ copy_screens:
 
 update_screen:
 	ldx window
+	lda tbl_arrow_pos_lo, x
+	sta sprx4
+	lda tbl_arrow_pos_hi, x
+	sta sprxhi
 	lda vec_colram_lo, x
 	sta jmp_buf
 	lda vec_colram_hi, x
@@ -632,6 +653,27 @@ data_settings:
 	.byte $07,$c0,$00,$03,$f0,$00,$01,$88
 	.byte $00,$00,$98,$00,$00,$b0,$00,$00
 	.byte $60,$00,$00,$00,$00,$00,$00,$01
+data_arrow:
+	.byte $00,$00,$00,$00,$00,$00,$00,$08
+	.byte $00,$00,$0c,$00,$00,$0e,$00,$00
+	.byte $0f,$00,$00,$0f,$80,$3f,$ff,$c0
+	.byte $3f,$ff,$e0,$3f,$ff,$f0,$3f,$ff
+	.byte $f8,$3f,$ff,$f0,$3f,$ff,$e0,$3f
+	.byte $ff,$c0,$00,$0f,$80,$00,$0f,$00
+	.byte $00,$0e,$00,$00,$0c,$00,$00,$08
+	.byte $00,$00,$00,$00,$00,$00,$00,$00
+
+tbl_arrow_pos_lo:
+	.byte -24 / 2 + 0 * 80 + 40
+	.byte -24 / 2 + 1 * 80 + 40
+	.byte -24 / 2 + 2 * 80 + 40
+	.byte -24 / 2 + 3 * 80 + 40
+
+tbl_arrow_pos_hi:
+	.byte %00001000
+	.byte %00001000
+	.byte %00001000
+	.byte %00011000
 
 .pc = * "gameover tune"
 sid_gameover:
