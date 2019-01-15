@@ -1,6 +1,5 @@
 #importonce
 
-#import "macros.inc"
 #import "zeropage.inc"
 #import "pseudo.lib"
 

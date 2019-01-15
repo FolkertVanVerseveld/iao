@@ -7,7 +7,6 @@ Code: methos, theezakje
 
 #import "zeropage.inc"
 #import "loader.inc"
-#import "macros.inc"
 #import "pseudo.lib"
 #import "joy.inc"
 #import "io.inc"
@@ -19,8 +18,17 @@ Code: methos, theezakje
 .var screen_subsidies = vic + 1 * $0400
 .var screen_log       = vic + 2 * $0400
 .var screen_options   = vic + 3 * $0400
+
+// TODO use custom font to redefine dollar character into euro valuta
+
 // use last screen for sprite data
 .var sprdata = vic + 15 * $0400
+
+// destination for sprite data
+.var spr_star     = sprdata + 0 * 64
+.var spr_map      = sprdata + 1 * 64
+.var spr_euro     = sprdata + 2 * 64
+.var spr_settings = sprdata + 3 * 64
 
 // open border magic happens in this irq, DO NOT CHANGE
 .var irq_middle_line = $ef
@@ -320,56 +328,80 @@ irq_middle:
 init_sprites:
 	ldx #0
 !:
-	lda spr_star, x
-	sta sprdata, x
+	lda data_star, x
+	sta spr_star, x
+	lda data_map, x
+	sta spr_map, x
+	lda data_euro, x
+	sta spr_euro, x
+	lda data_settings, x
+	sta spr_settings, x
 	inx
 	cpx #63
 	bne !-
 
-	// just use stars for all screens
-	lda #(sprdata / 64 - vic)
+	lda #(spr_map / 64 - vic)
 
-	// store all sprite pointers
 	sta screen_main + $3f8
-	sta screen_main + $3f9
-	sta screen_main + $3fa
-	sta screen_main + $3fb
 	sta screen_subsidies + $3f8
-	sta screen_subsidies + $3f9
-	sta screen_subsidies + $3fa
-	sta screen_subsidies + $3fb
 	sta screen_log + $3f8
-	sta screen_log + $3f9
-	sta screen_log + $3fa
-	sta screen_log + $3fb
 	sta screen_options + $3f8
+
+	lda #(spr_euro / 64 - vic)
+
+	sta screen_main + $3f9
+	sta screen_subsidies + $3f9
+	sta screen_log + $3f9
 	sta screen_options + $3f9
+
+	// TODO use other sprite for log stuff
+	lda #(spr_star / 64 - vic)
+
+	sta screen_main + $3fa
+	sta screen_subsidies + $3fa
+	sta screen_log + $3fa
 	sta screen_options + $3fa
+
+	lda #(spr_settings / 64 - vic)
+
+	sta screen_main + $3fb
+	sta screen_subsidies + $3fb
+	sta screen_log + $3fb
 	sta screen_options + $3fb
+
+	// sprite completely visible in range [24, 320]
+	// sprite is 24 pixels wide, so:
+	lda #24 - 24 / 2 + 0 * 80 + 40
+	sta sprx0
+	lda #24 - 24 / 2 + 1 * 80 + 40
+	sta sprx1
+	lda #24 - 24 / 2 + 2 * 80 + 40
+	sta sprx2
+	lda #24 - 24 / 2 + 3 * 80 + 40
+	sta sprx3
+	lda #$18
+	sta spry0
+	sta spry1
+	sta spry2
+	sta spry3
+
+	// highest bit of spr3 must be set
+	lda #%00001000
+	sta $d010
 
 	// enable sprites 3,2,1,0
 	lda #%1111
 	sta $d015
 
-	// sprite completely visible in range [24, 320]
-	// sprite is 24 pixels wide, so:
-	lda #24 - 24 / 2 + 0 * 80 + 40
-	sta $d000
-	lda #24 - 24 / 2 + 1 * 80 + 40
-	sta $d002
-	lda #24 - 24 / 2 + 2 * 80 + 40
-	sta $d004
-	lda #24 - 24 / 2 + 3 * 80 + 40
-	sta $d006
-	lda #$18
-	sta $d001
-	sta $d003
-	sta $d005
-	sta $d007
-
-	// highest bit of spr3 must be set
-	lda #%00001000
-	sta $d010
+	// setup colors
+	lda #WHITE
+	sta sprcol0
+	lda #YELLOW
+	sta sprcol1
+	lda #RED
+	sta sprcol2
+	lda #CYAN
+	sta sprcol3
 
 	rts
 
@@ -551,7 +583,25 @@ vec_colram_hi:
 #import "options.asm"
 
 .pc = * "sprites"
-spr_star:
+data_map:
+	.byte $00,$00,$00,$1f,$ff,$f8,$10,$00
+	.byte $38,$11,$c0,$78,$16,$07,$28,$14
+	.byte $0f,$88,$14,$cd,$88,$14,$4d,$88
+	.byte $13,$cf,$88,$10,$0f,$88,$10,$07
+	.byte $08,$10,$37,$08,$10,$72,$08,$10
+	.byte $e2,$08,$13,$c0,$88,$17,$01,$c8
+	.byte $1e,$00,$e8,$1c,$00,$78,$18,$00
+	.byte $38,$1f,$ff,$f8,$00,$00,$00,$01
+data_euro:
+	.byte $00,$00,$00,$00,$00,$00,$00,$00
+	.byte $00,$00,$7f,$00,$01,$c1,$c0,$01
+	.byte $00,$40,$01,$1c,$40,$01,$30,$40
+	.byte $01,$20,$40,$01,$78,$40,$01,$20
+	.byte $40,$01,$78,$40,$01,$20,$40,$01
+	.byte $30,$40,$01,$1c,$40,$01,$00,$40
+	.byte $01,$c1,$c0,$00,$7f,$00,$00,$00
+	.byte $00,$00,$00,$00,$00,$00,$00,$0d
+data_star:
 	.byte %00000000,%00011000,%00000000
 	.byte %00000000,%00011000,%00000000
 	.byte %00000000,%00011000,%00000000
@@ -573,6 +623,15 @@ spr_star:
 	.byte %00000111,%00000000,%11100000
 	.byte %00000110,%00000000,%01100000
 	.byte %00001100,%00000000,%00110000
+data_settings:
+	.byte $00,$00,$00,$00,$00,$00,$07,$00
+	.byte $00,$03,$80,$00,$00,$e0,$00,$20
+	.byte $e0,$00,$30,$e0,$00,$31,$e0,$00
+	.byte $1f,$f0,$00,$0f,$f8,$00,$00,$7c
+	.byte $00,$00,$3e,$00,$00,$0f,$80,$00
+	.byte $07,$c0,$00,$03,$f0,$00,$01,$88
+	.byte $00,$00,$98,$00,$00,$b0,$00,$00
+	.byte $60,$00,$00,$00,$00,$00,$00,$01
 
 .pc = * "gameover tune"
 sid_gameover:

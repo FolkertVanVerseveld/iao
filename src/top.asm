@@ -5,6 +5,8 @@ Menu top loader code
 High memory resident loader that waits for menu stuff to load.
 */
 
+// TODO add press space check for some load screens
+
 * = $e000
 
 #import "zeropage.inc"
@@ -22,23 +24,16 @@ High memory resident loader that waits for menu stuff to load.
 start:
 	cld
 
+	// use dummy irqs
 	sei
-
-	// character at $1000-$1FFF, screen at $0400-$07FF
-	lda #%00010100
-	sta $d018
-
-	lda #<irq_top
-	sta $fffe
-	lda #>irq_top
-	sta $ffff
-	// use dummy nmi and cold reset
 	lda #<dummy
 	sta $fffa
 	sta $fffc
+	sta $fffe
 	lda #>dummy
 	sta $fffb
 	sta $fffd
+	sta $ffff
 	lda #$1b
 	sta $d011
 	lda #irq_line_top
@@ -56,8 +51,28 @@ start:
 
 	cli
 
-	// TODO find out why clearing screen crashes when leaving start.asm
-	// put some text on screen
+	// disable sprites
+	lda #0
+	sta $d015
+
+	// clear screen
+	lda #' '
+	ldx #0
+!:
+	sta screen + $000, x
+	sta screen + $100, x
+	sta screen + $200, x
+	sta screen + $2e8, x
+	inx
+	bne !-
+	lda #WHITE
+!:
+	sta colram + $000, x
+	sta colram + $100, x
+	sta colram + $200, x
+	sta colram + $2e8, x
+	inx
+	bne !-
 
 	ldx prg_index
 	lda text_tbl_lo, x
@@ -65,20 +80,36 @@ start:
 	lda text_tbl_hi, x
 	sta fetch + 2
 
+	// put load text on screen
 	ldx #0
 !:
 fetch:
 	lda text, x
 	cmp #$ff
 	beq !+
-	sta screen, x
+	sta screen + 7 * 40, x
 	lda text_col
 	sta colram, x
 	inx
-	bne !-
-	inc fetch + 2
 	jmp !-
 !:
+
+	// setup video hardware
+
+	// character at $1000-$1FFF, screen at $0400-$07FF
+	lda #%00010100
+	sta $d018
+
+	// use first bank
+	lda #%11
+	sta $dd00
+
+	lda #$c8
+	sta $d016
+
+	lda #BLACK
+	sta $d020
+	sta $d021
 
 .pc = * "load code"
 
@@ -102,22 +133,6 @@ error:
 	inc $d020
 	jmp error
 
-irq_top:
-	irq
-
-	inc $d020
-
-	ldx #$10
-	dex
-	bne *-1
-
-	lda #$c8
-	sta $d016
-
-	dec $d020
-
-	qri
-
 dummy:
 	asl $d019
 	rti
@@ -131,11 +146,19 @@ text:
 	.text "laden... een moment geduld alstublieft"
 	.byte $ff
 
+text_game:
+	.encoding "screencode_mixed"
+	//     0123456789012345678901234567890123456789
+	.text "  zet u schrap, het spel wordt geladen! "
+	.byte $ff
+
 text_gameover:
 	.encoding "screencode_mixed"
 	//     0123456789012345678901234567890123456789
 	.text "oeps! u heeft 1 of meerdere steden niet "
-	.text "kunnen beschermen tegen de rampen.      "
+	.text "kunnen beschermen tegen de rampen. merk "
+	.text "op dat niet elke investering bij elke   "
+	.text "stad even effectief is."
 	.byte $ff
 
 // filetable
@@ -159,6 +182,6 @@ start_tbl_hi:
 	.byte >$80e, >$80e, >$80e
 
 text_tbl_lo:
-	.byte <text, <text, <text_gameover
+	.byte <text, <text_game, <text_gameover
 text_tbl_hi:
-	.byte >text, >text, >text_gameover
+	.byte >text, >text_game, >text_gameover

@@ -1,8 +1,7 @@
 :BasicUpstart2(start)
 
 #import "zeropage.inc"
-#import "macros.inc"
-#import "scrn_crd"
+#import "scrn_crd.inc"
 #import "pseudo.lib"
 #import "val_to_dec_str.asm"
 

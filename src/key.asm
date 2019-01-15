@@ -1,7 +1,7 @@
 #importonce
 
-#import "macros.inc"
 #import "zeropage.inc"
+#import "pseudo.lib"
 
 // IO addresses
 .var row_adr = $dc00
