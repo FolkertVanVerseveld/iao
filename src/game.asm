@@ -12,6 +12,10 @@ Code: methos, theezakje
 #import "io.inc"
 #import "kernal.inc"
 
+.var font = $d000
+
+.var memsetup_mask = %00001100
+
 .var vic = 2 * $4000
 // pointers to game screens, must be multiple of $0400
 .var screen_main      = vic + 0 * $0400
@@ -22,6 +26,8 @@ Code: methos, theezakje
 .var spr_enable_mask = %10001111
 
 // TODO use custom font to redefine dollar character into euro valuta
+// custom font takes two screens
+.var game_font = vic + 6 * 2 * $0400
 
 // use last screen for sprite data
 .var sprdata = vic + 15 * $0400
@@ -63,11 +69,14 @@ Code: methos, theezakje
 
 start:
 	jsr init
+	jsr change_font
 	lda #music_level.startSong - 1
 	jsr music_level.init
 	jsr setup_interrupt
 	jsr init_sprites
 	jsr copy_screens
+
+	jsr change_font
 
 game_loop:
 	jsr joy_ctl
@@ -136,6 +145,51 @@ vec_scr_lo:
 	.byte <scr_next, <scr_prev
 vec_scr_hi:
 	.byte >scr_next, >scr_prev
+
+change_font:
+	sei
+	lda $1
+	sta !restore+ + 1
+	// make char rom visible
+	lda #%00110011
+	sta $1
+	// now copy char rom
+	ldx #0
+!:
+	lda font      + $000, x
+	sta game_font + $000, x
+	lda font      + $100, x
+	sta game_font + $100, x
+	lda font      + $200, x
+	sta game_font + $200, x
+	lda font      + $300, x
+	sta game_font + $300, x
+	lda font      + $400, x
+	sta game_font + $400, x
+	lda font      + $500, x
+	sta game_font + $500, x
+	lda font      + $600, x
+	sta game_font + $600, x
+	lda font      + $700, x
+	sta game_font + $700, x
+	inx
+	bne !-
+	// restore banks to default
+!restore:
+	lda #%00110111
+	// mask bits we don't want to set
+	and #%00110111
+	sta $1
+	cli
+	// now patch dollar to euro valuta
+	ldx #0
+!:
+	lda chr_euro, x
+	sta game_font + $24 * 8, x
+	inx
+	cpx #$8
+	bne !-
+	rts
 
 init:
 	// clear zero page area [2, $e0]
@@ -505,7 +559,7 @@ copy_screens:
 	dex
 	bne !-
 
-	lda #%00000100
+	lda #memsetup_mask
 	sta $d018
 
 	// copy other screens
@@ -561,7 +615,7 @@ update_screen:
 /////////////////////////////////
 
 goto_main:
-	lda #%00000100
+	lda #memsetup_mask
 	sta $d018
 
 	ldx #0
@@ -580,7 +634,7 @@ goto_main:
 	rts
 
 goto_subsidies:
-	lda #%00010100
+	lda #memsetup_mask + %00010000
 	sta $d018
 
 	ldx #0
@@ -599,7 +653,7 @@ goto_subsidies:
 	rts
 
 goto_log:
-	lda #%00100100
+	lda #memsetup_mask + %00100000
 	sta $d018
 
 	ldx #0
@@ -618,7 +672,7 @@ goto_log:
 	rts
 
 goto_options:
-	lda #%00110100
+	lda #memsetup_mask + %00110000
 	sta $d018
 
 	ldx #0
@@ -812,6 +866,16 @@ tbl_game_over_y:
 tbl_game_over_col:
 	.byte 3, 7, 9, 10, 4, 13, 11, 12
 	.byte 3, 7, 9, 10
+
+chr_euro:
+	.byte %00111110
+	.byte %01100000
+	.byte %11111100
+	.byte %01100000
+	.byte %11111100
+	.byte %01100000
+	.byte %00111110
+	.byte %00000000
 
 .pc = * "gameover tune"
 sid_gameover:
