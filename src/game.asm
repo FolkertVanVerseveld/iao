@@ -78,6 +78,26 @@ start:
 
 	jsr change_font
 
+	// save first disaster
+	// this code must be run after all screen and video has been set up
+	ldx lfsr4_state
+	lda tbl_scr_disaster_lo, x
+	sta !fetch_ch+ + 1
+	lda tbl_scr_disaster_hi, x
+	sta !fetch_ch+ + 2
+!fetch_ch:
+	lda screen_main
+	sta disaster_chr
+	lda tbl_col0_disaster_lo, x
+	sta !fetch_col+ + 1
+	lda tbl_col0_disaster_hi, x
+	sta !fetch_col+ + 2
+!fetch_col:
+	lda level1_color_data
+	sta disaster_col
+
+	//jsr show_disasters
+
 game_loop:
 	jsr joy_ctl
 	jsr check_space
@@ -98,6 +118,10 @@ joy_ctl:
 	cmp #joy_left
 	bne !+
 	ldx #2
+!:
+	cmp #joy_fire
+	bne !+
+	ldx #3
 !:
 
 	stx joy2_dir
@@ -142,9 +166,9 @@ scr_prev:
 	jmp update_screen
 
 vec_scr_lo:
-	.byte <scr_next, <scr_prev
+	.byte <scr_next, <scr_prev, <next_disaster
 vec_scr_hi:
-	.byte >scr_next, >scr_prev
+	.byte >scr_next, >scr_prev, >next_disaster
 
 change_font:
 	sei
@@ -211,6 +235,13 @@ init:
 	ldx #1
 !:
 	stx has_top_loader
+	// initialize prng
+	lda $d012
+	bne !+
+	lda #%1100
+!:
+	and #$f
+	sta lfsr4_state
 	rts
 
 game_over:
@@ -751,6 +782,108 @@ show_game_over:
 	sta sprxhi
 	rts
 
+// FIXME figure out why previous character is not restored properly
+// see also lines 83-97
+next_disaster:
+	ldx lfsr4_state
+
+	// restore previous character
+	lda tbl_scr_disaster_lo, x
+	sta !put_ch+ + 1
+	lda tbl_scr_disaster_hi, x
+	sta !put_ch+ + 2
+	lda #0
+!put_ch:
+	sta screen_main
+	lda tbl_col0_disaster_lo, x
+	sta !put_col0+ + 1
+	lda tbl_col0_disaster_hi, x
+	sta !put_col0+ + 2
+	lda tbl_col1_disaster_lo, x
+	sta !put_col1+ + 1
+	lda tbl_col1_disaster_hi, x
+	sta !put_col1+ + 2
+	lda disaster_col
+!put_col0:
+	sta level1_color_data
+!put_col1:
+	sta colram
+
+	// now place new disaster
+	lda tbl_scr_disaster_lo, x
+	sta !put_ch+ + 1
+	lda tbl_scr_disaster_hi, x
+	sta !put_ch+ + 2
+	// cross character
+	lda #$56
+!put_ch:
+	sta screen_main
+	lda tbl_col0_disaster_lo, x
+	sta !put_col0+ + 1
+	lda tbl_col0_disaster_hi, x
+	sta !put_col0+ + 2
+!put_col0:
+	sta level1_color_data
+	// only update colram if this window is visible
+	lda window
+	bne !+
+	lda tbl_col1_disaster_lo, x
+	sta !put_col1+ + 1
+	lda tbl_col1_disaster_hi, x
+	sta !put_col1+ + 2
+	lda tbl_col_disaster, x
+!put_col1:
+	sta colram
+!:
+
+	// FALL THROUGH
+
+lfsr4_next:
+	// bit = ((lfsr >> 0) ^ (lfsr >> 1)) & 1
+	// lfsr = (lfsr >> 1) | (bit << 3)
+	lda lfsr4_state
+	lsr lfsr4_state
+	eor lfsr4_state
+	and #1
+	beq !+
+	lda #8
+	ora lfsr4_state
+	sta lfsr4_state
+!:
+	rts
+
+show_disasters:
+	ldx #0
+!:
+	lda tbl_scr_disaster_lo, x
+	sta !put_scr+ + 1
+	lda tbl_scr_disaster_hi, x
+	sta !put_scr+ + 2
+	lda #$56
+!put_scr:
+	sta screen_main
+	// NOTE we have to both update colram and the original screen data
+	// because otherwise, we can switch back and forth between screens
+	// and the wrong old colram data will show up
+	lda tbl_col0_disaster_lo, x
+	sta !put_col0+ + 1
+	lda tbl_col0_disaster_hi, x
+	sta !put_col0+ + 2
+	lda tbl_col_disaster, x
+!put_col0:
+	sta level1_color_data
+	lda tbl_col1_disaster_lo, x
+	sta !put_col1+ + 1
+	lda tbl_col1_disaster_hi, x
+	sta !put_col1+ + 2
+	lda tbl_col_disaster, x
+!put_col1:
+	sta colram
+	inx
+	cpx #16
+	bne !-
+	rts
+
 game_over_index:
 	.byte 0
 game_over_colindex:
@@ -877,6 +1010,49 @@ chr_euro:
 	.byte %00111110
 	.byte %00000000
 
+.pc = * "infrastructure data"
+
+.pc = * "disaster data"
+
+tbl_scr_disaster_lo:
+	.byte <screen_main +  0 * 40 + 19, <screen_main +  5 * 40 + 13, <screen_main + 18 * 40 +  3, <screen_main + 20 * 40 + 29
+	.byte <screen_main + 10 * 40 +  5, <screen_main +  7 * 40 + 19, <screen_main +  5 * 40 + 35, <screen_main + 19 * 40 + 18
+	.byte <screen_main +  0 * 40 + 24, <screen_main +  1 * 40 +  0, <screen_main + 18 * 40 + 34, <screen_main + 19 * 40 + 37
+	.byte <screen_main +  5 * 40 +  7, <screen_main +  6 * 40 + 16, <screen_main +  9 * 40 + 28, <screen_main + 17 * 40 + 15
+tbl_scr_disaster_hi:
+	.byte >screen_main +  0 * 40 + 19, >screen_main +  5 * 40 + 13, >screen_main + 18 * 40 +  3, >screen_main + 20 * 40 + 29
+	.byte >screen_main + 10 * 40 +  5, >screen_main +  7 * 40 + 19, >screen_main +  5 * 40 + 35, >screen_main + 19 * 40 + 18
+	.byte >screen_main +  0 * 40 + 24, >screen_main +  1 * 40 +  0, >screen_main + 18 * 40 + 34, >screen_main + 19 * 40 + 37
+	.byte >screen_main +  5 * 40 +  7, >screen_main +  6 * 40 + 16, >screen_main +  9 * 40 + 28, >screen_main + 17 * 40 + 15
+tbl_col0_disaster_lo:
+	.byte <level1_color_data +  0 * 40 + 19, <level1_color_data +  5 * 40 + 13, <level1_color_data + 18 * 40 +  3, <level1_color_data + 20 * 40 + 29
+	.byte <level1_color_data + 10 * 40 +  5, <level1_color_data +  7 * 40 + 19, <level1_color_data +  5 * 40 + 35, <level1_color_data + 19 * 40 + 18
+	.byte <level1_color_data +  0 * 40 + 24, <level1_color_data +  1 * 40 +  0, <level1_color_data + 18 * 40 + 34, <level1_color_data + 19 * 40 + 37
+	.byte <level1_color_data +  5 * 40 +  7, <level1_color_data +  6 * 40 + 16, <level1_color_data +  9 * 40 + 28, <level1_color_data + 17 * 40 + 15
+tbl_col0_disaster_hi:
+	.byte >level1_color_data +  0 * 40 + 19, >level1_color_data +  5 * 40 + 13, >level1_color_data + 18 * 40 +  3, >level1_color_data + 20 * 40 + 29
+	.byte >level1_color_data + 10 * 40 +  5, >level1_color_data +  7 * 40 + 19, >level1_color_data +  5 * 40 + 35, >level1_color_data + 19 * 40 + 18
+	.byte >level1_color_data +  0 * 40 + 24, >level1_color_data +  1 * 40 +  0, >level1_color_data + 18 * 40 + 34, >level1_color_data + 19 * 40 + 37
+	.byte >level1_color_data +  5 * 40 +  7, >level1_color_data +  6 * 40 + 16, >level1_color_data +  9 * 40 + 28, >level1_color_data + 17 * 40 + 15
+tbl_col1_disaster_lo:
+	.byte <colram +  0 * 40 + 19, <colram +  5 * 40 + 13, <colram + 18 * 40 +  3, <colram + 20 * 40 + 29
+	.byte <colram + 10 * 40 +  5, <colram +  7 * 40 + 19, <colram +  5 * 40 + 35, <colram + 19 * 40 + 18
+	.byte <colram +  0 * 40 + 24, <colram +  1 * 40 +  0, <colram + 18 * 40 + 34, <colram + 19 * 40 + 37
+	.byte <colram +  5 * 40 +  7, <colram +  6 * 40 + 16, <colram +  9 * 40 + 28, <colram + 17 * 40 + 15
+tbl_col1_disaster_hi:
+	.byte >colram +  0 * 40 + 19, >colram +  5 * 40 + 13, >colram + 18 * 40 +  3, >colram + 20 * 40 + 29
+	.byte >colram + 10 * 40 +  5, >colram +  7 * 40 + 19, >colram +  5 * 40 + 35, >colram + 19 * 40 + 18
+	.byte >colram +  0 * 40 + 24, >colram +  1 * 40 +  0, >colram + 18 * 40 + 34, >colram + 19 * 40 + 37
+	.byte >colram +  5 * 40 +  7, >colram +  6 * 40 + 16, >colram +  9 * 40 + 28, >colram + 17 * 40 + 15
+
+tbl_col_disaster:
+	.byte CYAN, CYAN, CYAN, CYAN
+	.byte YELLOW, YELLOW, YELLOW, YELLOW
+	.byte BROWN, BROWN, BROWN, BROWN
+	.byte DARK_GREY, DARK_GREY, DARK_GREY, DARK_GREY
+
 .pc = * "gameover tune"
 sid_gameover:
 	.fill music_gameover.size, music_gameover.getData(i)
+
+.pc = $8000 "data barrier"

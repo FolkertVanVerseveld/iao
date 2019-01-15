@@ -18,12 +18,17 @@ Code: methos, flevosap, theezakje
 .const joy2_dir = $0b
 .const joy2_dir_old = $0c
 // NOTE 2 bytes long
+// NOTE only irqs may use this!
 .const jmp_buf = $0d
 .const music_mute = $0f
 // NOTE 2 bytes long
 .const gameover_timer = $10
 .const hide_arrow = $12
 .const has_top_loader = $13
+
+// copy of previous value
+.const disaster_chr = $14
+.const disaster_col = $15
 
 // more game stuff
 
