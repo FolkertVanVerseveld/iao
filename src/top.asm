@@ -59,8 +59,15 @@ start:
 	// TODO find out why clearing screen crashes when leaving start.asm
 	// put some text on screen
 
+	ldx prg_index
+	lda text_tbl_lo, x
+	sta fetch + 1
+	lda text_tbl_hi, x
+	sta fetch + 2
+
 	ldx #0
 !:
+fetch:
 	lda text, x
 	cmp #$ff
 	beq !+
@@ -68,6 +75,8 @@ start:
 	lda text_col
 	sta colram, x
 	inx
+	bne !-
+	inc fetch + 2
 	jmp !-
 !:
 
@@ -122,6 +131,13 @@ text:
 	.text "laden... een moment geduld alstublieft"
 	.byte $ff
 
+text_gameover:
+	.encoding "screencode_mixed"
+	//     0123456789012345678901234567890123456789
+	.text "oeps! u heeft 1 of meerdere steden niet "
+	.text "kunnen beschermen tegen de rampen.      "
+	.byte $ff
+
 // filetable
 	.encoding "petscii_upper"
 prg_menu:
@@ -133,11 +149,16 @@ prg_game:
 	.byte 0
 
 name_tbl_lo:
-	.byte <prg_menu, <prg_game
+	.byte <prg_menu, <prg_game, <prg_menu
 name_tbl_hi:
-	.byte >prg_menu, >prg_game
+	.byte >prg_menu, >prg_game, >prg_menu
 
 start_tbl_lo:
-	.byte <$80e, <$80e
+	.byte <$80e, <$80e, <$80e
 start_tbl_hi:
-	.byte >$80e, >$80e
+	.byte >$80e, >$80e, >$80e
+
+text_tbl_lo:
+	.byte <text, <text, <text_gameover
+text_tbl_hi:
+	.byte >text, >text, >text_gameover

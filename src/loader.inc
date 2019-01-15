@@ -13,4 +13,7 @@ Code: methos
 .var drivecode = $5000
 .var install = drivecode + $1390
 
+// cld sei
 .var top_magic = $78d8
+
+.var top_loader_start = $e000

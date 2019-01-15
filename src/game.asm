@@ -6,10 +6,12 @@ Code: methos, theezakje
 */
 
 #import "zeropage.inc"
-
+#import "loader.inc"
 #import "macros.inc"
 #import "pseudo.lib"
 #import "joy.inc"
+#import "io.inc"
+#import "kernal.inc"
 
 .var vic = 2 * $4000
 // pointers to game screens, must be multiple of $0400
@@ -17,15 +19,32 @@ Code: methos, theezakje
 .var screen_subsidies = vic + 1 * $0400
 .var screen_log       = vic + 2 * $0400
 .var screen_options   = vic + 3 * $0400
-.var colram = $d800
 // use last screen for sprite data
 .var sprdata = vic + 15 * $0400
 
 // open border magic happens in this irq, DO NOT CHANGE
 .var irq_middle_line = $ef
 
+.const gameover_delay = $10000 - $300
+
+//.var music_gameover = LoadSid(HVSC + "/MUSICIANS/0-9/20CC/van_Santen_Edwin/13_Seconds_of_Massacre.sid")
+.var music_gameover = LoadSid("13_Seconds_of_Massacre.sid")
+
+//.var music_level = LoadSid(HVSC + "/MUSICIANS/0-9/20CC/van_Santen_Edwin/Rettekettet.sid")
+.var music_level = LoadSid("Rettekettet.sid")
+
+.var music_begin = min(music_gameover.location, music_level.location)
+.var music_size = max(music_gameover.size, music_level.size)
+.var music_end = music_begin + music_size + 1
+
+.print "music begin=" + toHexString(music_begin)
+.print "music size=" + toHexString(music_size)
+.print "music end=" + toHexString(music_end)
+
 start:
 	jsr init
+	lda #music_level.startSong - 1
+	jsr music_level.init
 	jsr setup_interrupt
 	jsr init_sprites
 	jsr copy_screens
@@ -107,6 +126,67 @@ init:
 	inx
 	cpx #$e0
 	bne !-
+	// check if top loader is present
+	ldx #0
+	lda top_loader_start
+	cmp #<top_magic
+	bne !+
+	lda top_loader_start + 1
+	cmp #>top_magic
+	bne !+
+	ldx #1
+!:
+	stx has_top_loader
+	rts
+
+game_over:
+	// kill sid
+	lda #0
+	ldx #0
+!:
+	sta sid, x
+	inx
+	cpx #$20
+	bne !-
+	inc music_mute
+
+	// overwrite level sid with gameover sid
+	ldx #0
+!:
+	.for (var i = 0; i < (music_gameover.size - 255) / 256 + 1; i++) {
+		lda sid_gameover + i * $100, x
+		sta music_begin  + i * $100, x
+	}
+	inx
+	bne !-
+
+	// init tune
+	lda #music_gameover.startSong - 1
+	jsr music_gameover.init
+
+	lda #<music_gameover.play
+	sta sid_play + 1
+	lda #>music_gameover.play
+	sta sid_play + 2
+
+	dec music_mute
+
+	// goto main screen
+	lda #0
+	sta window
+	jsr update_screen
+
+	// wait till tune has stopped
+	lda #<gameover_delay
+	sta gameover_timer
+	lda #>gameover_delay
+	sta gameover_timer + 1
+!:
+	lda gameover_timer + 1
+	bne !-
+	lda gameover_timer
+	bne !-
+
 	rts
 
 check_space:
@@ -115,14 +195,32 @@ check_space:
 	beq !+
 	rts
 !:
-	.if (false) {
+	jsr game_over
+
+	// go to main menu if top loader is present or soft reset
+reset_ctl:
+	lda has_top_loader
+	beq !+
 	pla
-	lda #0
+	lda #2
 	sta prg_index
 	jmp top_loader_start
-	} else {
-	jmp scr_next
-	}
+!:
+	// kill irq
+	sei
+	lda #$37
+	sta $1
+	lda #<dummy
+	sta $fffa
+	sta $fffc
+	sta $fffe
+	lda #>dummy
+	sta $fffb
+	sta $fffd
+	sta $ffff
+	cli
+	// soft reset
+	jmp reset
 
 setup_interrupt:
 
@@ -192,6 +290,15 @@ irq_top:
 
 	lda #%1111
 	sta $d015
+
+	ldx music_mute
+	bne !+
+sid_play:
+	jsr music_level.play
+	inc gameover_timer
+	bne !+
+	inc gameover_timer + 1
+!:
 
 	qri #irq_middle_line : #irq_middle
 
@@ -426,7 +533,12 @@ vec_colram_hi:
 	.byte >goto_log
 	.byte >goto_options
 
-.pc = * "main screen"
+.pc = music_begin "music area"
+
+* = music_level.location "level tune"
+	.fill music_level.size, music_level.getData(i)
+
+.pc = music_end "main screen"
 #import "level1_europe.asm"
 
 .pc = * "subsidies screen"
@@ -461,3 +573,7 @@ spr_star:
 	.byte %00000111,%00000000,%11100000
 	.byte %00000110,%00000000,%01100000
 	.byte %00001100,%00000000,%00110000
+
+.pc = * "gameover tune"
+sid_gameover:
+	.fill music_gameover.size, music_gameover.getData(i)

@@ -2,6 +2,7 @@
 
 #import "zeropage.inc"
 #import "pseudo.lib"
+#import "loader.inc"
 
 .var vic = $0000
 .var screen = vic + $0400
@@ -58,6 +59,24 @@ start:
 	sta screen + $2e8, x
 	inx
 	bne !-
+	// also set colram
+	lda #6
+!:
+	sta colram, x
+	sta colram + $100, x
+	sta colram + $200, x
+	sta colram + $2e8, x
+	inx
+	bne !-
+
+	// center text
+	lda #%00010110
+	sta $d018
+
+	// set vic bank
+	lda #%11
+	sta $dd00
+
 	// blue background and foreground
 	lda #6
 	sta $d020
@@ -262,8 +281,6 @@ to_menu:
 irq_top:
 	irq
 
-	//inc $d020
-
 	ldx #0
 !:
 	lda spr_coltbl_top, x
@@ -309,21 +326,13 @@ irq_top:
 	lda #$7f
 	sta $d015
 
-	//inc $d020
-
 	jsr spr_roll
-
-	//dec $d020
-
-	asl $d019
-	//dec $d020
+	//asl $d019
 
 	qri #irq_line_middle : #irq_middle
 
 irq_middle:
 	irq
-
-	//inc $d020
 
 	ldx #0
 !:
@@ -365,13 +374,8 @@ irq_middle:
 	lda #$1f
 	sta $d015
 
-	//inc $d020
 	jsr text_roll
-	//dec $d020
-
-	asl $d019
-	//dec $d020
-
+	//asl $d019
 	jsr music.play
 
 	qri #irq_line_top : #irq_top
@@ -379,14 +383,10 @@ irq_middle:
 irq_top_menu:
 	irq
 
-	inc $d020
-
 	jsr move_sprites
 	jsr music.play
 
-	dec $d020
-
-	asl $d019
+	//asl $d019
 
 	qri
 

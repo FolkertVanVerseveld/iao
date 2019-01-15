@@ -5,5 +5,6 @@ Common KERNAL routines
 Code: methos
 */
 
-.var chrout = $ffd2
 .var putstr = $ab1e
+.var reset  = $fce2
+.var chrout = $ffd2
