@@ -7,6 +7,10 @@ Code: methos, flevosap, theezakje
 
 // methos' stuff:
 
+.const lfsr4 = $07 // alias for lfsr4_state
+.const lfsr4_state = $07
+.const lfsr4_bit = $08
+
 // general game stuff
 .const window = $09
 // joystick driver
