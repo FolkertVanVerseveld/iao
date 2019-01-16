@@ -782,32 +782,56 @@ show_game_over:
 	sta sprxhi
 	rts
 
+hexstring:
+	.encoding "screencode_mixed"
+	.text "0123456789abcdef"
+
 // FIXME figure out why previous character is not restored properly
 // see also lines 83-97
 next_disaster:
 	ldx lfsr4_state
 
+	// store state on screen to know it should work...
+	.if (false) {
+	lda hexstring, x
+	sta screen_main
+	lda #WHITE
+	sta colram
+	}
+
+	.if (true) {
 	// restore previous character
 	lda tbl_scr_disaster_lo, x
 	sta !put_ch+ + 1
 	lda tbl_scr_disaster_hi, x
 	sta !put_ch+ + 2
-	lda #0
+	lda disaster_chr
 !put_ch:
 	sta screen_main
 	lda tbl_col0_disaster_lo, x
 	sta !put_col0+ + 1
 	lda tbl_col0_disaster_hi, x
 	sta !put_col0+ + 2
+	lda disaster_col
+!put_col0:
+	sta level1_color_data
+	// only update colram if this window is visible
+	lda window
+	bne !+
 	lda tbl_col1_disaster_lo, x
 	sta !put_col1+ + 1
 	lda tbl_col1_disaster_hi, x
 	sta !put_col1+ + 2
 	lda disaster_col
-!put_col0:
-	sta level1_color_data
 !put_col1:
 	sta colram
+!:
+	}
+
+	jsr lfsr4_next
+	ldx lfsr4_state
+
+	// TODO remember old state
 
 	// now place new disaster
 	lda tbl_scr_disaster_lo, x
@@ -822,6 +846,7 @@ next_disaster:
 	sta !put_col0+ + 1
 	lda tbl_col0_disaster_hi, x
 	sta !put_col0+ + 2
+	lda tbl_col_disaster, x
 !put_col0:
 	sta level1_color_data
 	// only update colram if this window is visible
@@ -835,8 +860,7 @@ next_disaster:
 !put_col1:
 	sta colram
 !:
-
-	// FALL THROUGH
+	rts
 
 lfsr4_next:
 	// bit = ((lfsr >> 0) ^ (lfsr >> 1)) & 1
