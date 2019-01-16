@@ -3,13 +3,13 @@
 #import "zeropage.inc"
 #import "pseudo.lib"
 
-.pc = * "Start"
+.pc = * "ITOA"
 
 // 16 bit to decimal converter
 itoa:
         jsr con_bit
         jsr unpack_bcd
-        jsr val_to_char
+        //jsr val_to_char
         rts
 
 con_bit:    
@@ -40,8 +40,9 @@ htd1:
         bpl con_loop
         cld
         rts
-        
-        
+
+.pc = * "Unpack BCD"
+
 unpack_bcd:
         ldx #$03
         ldy #$04
@@ -50,22 +51,23 @@ unpack_loop:
         pha
         and #$0f
         clc
-        //adc #$30
-        sta dec_val, y
+        adc #$30
+        sta dec_char, y
         dey
         pla
         and #$f0
-        clc
-        //adc #$30
         lsr; lsr; lsr; lsr
-        sta dec_val, y
+        clc
+        adc #$30
+        sta dec_char, y
         dex
         dey
+        bne unpack_loop
+
         lda dec_val
         clc
-        //adc #$30
-        sta dec_val
-        bne unpack_loop
+        adc #$30
+        sta dec_char
         rts
 
 
