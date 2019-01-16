@@ -4,11 +4,11 @@
 #import "pseudo.lib"
 
 // IO addresses
-.var row_adr = $dc00
-.var col_adr = $dc01
+.const row_adr = $dc00
+.const col_adr = $dc01
 
 // Gloal results
-.var col_bin = res+3
+.const col_bin = key_res+3
 
 // Keyboard driver
 

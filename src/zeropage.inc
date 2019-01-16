@@ -38,15 +38,15 @@ Code: methos, flevosap, theezakje
 // flevosap's and theezakje's stuff:
 
 // HEx to decimal chars conversion
-.var dec_char = $d0
-.var dec_val = $d5
-.var c_h_hi = $da
-.var c_h_lo = $db
+.const dec_char = $d0
+.const dec_val = $d5
+.const c_h_hi = $da
+.const c_h_lo = $db
 
 // Keyboard driver addresses
-.var key_res = $dc          // Read key result
-.var key_row = key_res+1    // Read row number
-.var key_col = key_res+2    // Read column number
+.const key_res = $dc          // Read key result
+.const key_row = key_res+1    // Read row number
+.const key_col = key_res+2    // Read column number
 
 // methos' stuff:
 

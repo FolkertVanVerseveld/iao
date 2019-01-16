@@ -11,7 +11,8 @@ Code: methos, theezakje
 #import "joy.inc"
 #import "io.inc"
 #import "kernal.inc"
-#impoty "key.asm"
+#import "key.asm"
+#import "val_to_dec_str.asm"
 
 .var font = $d000
 
@@ -102,12 +103,29 @@ start:
 game_loop:
     jsr key_ctl
 	jsr joy_ctl
-	jsr check_space
+	//jsr check_space
 	jmp game_loop
 
+
 key_ctl:
-    
+    jsr read_key
+    lda key_res
+    cmp #%10000000
+    beq no_screen_key
+    sbc #$3
+    bmi no_screen_key
+    cmp #$4
+    bpl no_screen_key
+    tax
+    lda trans_key, x
+    sta window
+    jmp update_screen
+
+no_screen_key:
     rts
+
+trans_key:
+    .byte $03, $00, $01, $02
 
 joy_ctl:
 	// show joy2 for debug purposes
