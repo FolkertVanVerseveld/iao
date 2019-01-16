@@ -786,20 +786,17 @@ hexstring:
 	.encoding "screencode_mixed"
 	.text "0123456789abcdef"
 
-// FIXME figure out why previous character is not restored properly
-// see also lines 83-97
 next_disaster:
 	ldx lfsr4_state
 
 	// store state on screen to know it should work...
-	.if (false) {
+	.if (true) {
 	lda hexstring, x
 	sta screen_main
 	lda #WHITE
 	sta colram
 	}
 
-	.if (true) {
 	// restore previous character
 	lda tbl_scr_disaster_lo, x
 	sta !put_ch+ + 1
@@ -826,12 +823,25 @@ next_disaster:
 !put_col1:
 	sta colram
 !:
-	}
 
 	jsr lfsr4_next
 	ldx lfsr4_state
 
-	// TODO remember old state
+	// remember old state
+	lda tbl_scr_disaster_lo, x
+	sta !fetch_ch+ + 1
+	lda tbl_scr_disaster_hi, x
+	sta !fetch_ch+ + 2
+!fetch_ch:
+	lda screen_main
+	sta disaster_chr
+	lda tbl_col0_disaster_lo, x
+	sta !fetch_col+ + 1
+	lda tbl_col0_disaster_hi, x
+	sta !fetch_col+ + 2
+!fetch_col:
+	lda colram
+	sta disaster_col
 
 	// now place new disaster
 	lda tbl_scr_disaster_lo, x
