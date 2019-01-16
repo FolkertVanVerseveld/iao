@@ -44,9 +44,9 @@ Code: methos, flevosap, theezakje
 .var c_h_lo = $db
 
 // Keyboard driver addresses
-.var res = $dc          // Read key result
-.var res_row = res+1    // Read row number
-.var res_col = res+2    // Read column number
+.var key_res = $dc          // Read key result
+.var key_row = key_res+1    // Read row number
+.var key_col = key_res+2    // Read column number
 
 // methos' stuff:
 

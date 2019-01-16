@@ -11,6 +11,7 @@ Code: methos, theezakje
 #import "joy.inc"
 #import "io.inc"
 #import "kernal.inc"
+#impoty "key.asm"
 
 .var font = $d000
 
@@ -99,9 +100,14 @@ start:
 	//jsr show_disasters
 
 game_loop:
+    jsr key_ctl
 	jsr joy_ctl
 	jsr check_space
 	jmp game_loop
+
+key_ctl:
+    
+    rts
 
 joy_ctl:
 	// show joy2 for debug purposes
