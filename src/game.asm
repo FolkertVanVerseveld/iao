@@ -13,17 +13,9 @@ Code: methos, theezakje
 #import "kernal.inc"
 #import "key.asm"
 #import "val_to_dec_str.asm"
+#import "date.asm"
+#import "scrn_addr.inc"
 
-.var font = $d000
-
-.var memsetup_mask = %00001100
-
-.var vic = 2 * $4000
-// pointers to game screens, must be multiple of $0400
-.var screen_main      = vic + 0 * $0400
-.var screen_subsidies = vic + 1 * $0400
-.var screen_log       = vic + 2 * $0400
-.var screen_options   = vic + 3 * $0400
 
 .var spr_enable_mask = %10001111
 
@@ -76,6 +68,7 @@ start:
 	jsr music_level.init
 	jsr setup_interrupt
 	jsr init_sprites
+    jsr init_date
 	jsr copy_screens
 
 	jsr change_font
@@ -104,6 +97,7 @@ game_loop:
     jsr key_ctl
 	jsr joy_ctl
 	//jsr check_space
+    jsr update_date
 	jmp game_loop
 
 
@@ -478,6 +472,13 @@ irq_magic:
 !:
 
 	qri : #irq_bottom
+
+
+init_date:
+        mov #$01 : date_month
+        mov #$0b : date_year
+        mov #$40 : date_last
+        rts
 
 init_sprites:
 	ldx #0

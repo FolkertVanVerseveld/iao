@@ -5,6 +5,9 @@ Zeropage constants sorted in address ascending order
 Code: methos, flevosap, theezakje
 */
 
+// global status flags
+.const stat_flg = $0d
+
 // methos' stuff:
 
 .const lfsr4 = $07 // alias for lfsr4_state
@@ -53,3 +56,9 @@ Code: methos, flevosap, theezakje
 // top loader
 .const prg_index = $f7
 .const prg_start = $f8
+
+
+// date stuff
+.const date_month = $0e
+.const date_year = $0f
+.const date_last = $10
