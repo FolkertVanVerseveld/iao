@@ -9,7 +9,6 @@
 itoa:
         jsr con_bit
         jsr unpack_bcd
-        jsr val_to_char
         rts
 
 con_bit:    
@@ -49,14 +48,22 @@ unpack_loop:
         lda dec_val - 1, x
         pha
         and #$0f
+        clc
+        adc #$30
         sta dec_val, y
         dey
         pla
         and #$f0
+        clc
+        adc #$30
         lsr; lsr; lsr; lsr
         sta dec_val, y
         dex
         dey
+        lda dec_val
+        clc
+        adc #$30
+        sta dec_val
         bne unpack_loop
         rts
 
