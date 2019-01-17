@@ -48,7 +48,8 @@ Code: methos, flevosap, theezakje
 
 // Keyboard driver addresses
 .const key_res = $dc          // Read key result
-.const key_row = key_res+1    // Read row number
+.const key_row = key_:w
+res+1    // Read row number
 .const key_col = key_res+2    // Read column number
 
 // methos' stuff:
@@ -62,3 +63,6 @@ Code: methos, flevosap, theezakje
 .const date_month = $0e
 .const date_year = $0f
 .const date_last = $10
+
+// investment stuff
+.const itb = $70
