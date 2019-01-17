@@ -11,9 +11,6 @@ Code: methos, theezakje
 #import "joy.inc"
 #import "io.inc"
 #import "kernal.inc"
-#import "key.asm"
-#import "val_to_dec_str.asm"
-#import "date.asm"
 #import "scrn_addr.inc"
 
 
@@ -960,6 +957,9 @@ vec_colram_hi:
 	.byte >goto_log
 	.byte >goto_options
 
+#import "val_to_dec_str.asm"
+#import "date.asm"
+
 .pc = music_begin "music area"
 
 * = music_level.location "level tune"
@@ -1036,6 +1036,10 @@ data_arrow:
 	.byte $ff,$c0,$00,$0f,$80,$00,$0f,$00
 	.byte $00,$0e,$00,$00,$0c,$00,$00,$08
 	.byte $00,$00,$00,$00,$00,$00,$00,$00
+
+.pc = * "keyboard driver"
+
+#import "key.asm"
 
 #import "oeps.spr"
 
