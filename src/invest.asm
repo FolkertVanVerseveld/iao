@@ -14,5 +14,12 @@ recalc_itb:
         rts
 
 write_itb:
+        ldx #$00
+
+w_itb_loop:
         
         rts
+
+itb_buf_chr:
+        .byte 
+    
