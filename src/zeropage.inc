@@ -5,6 +5,9 @@ Zeropage constants sorted in address ascending order
 Code: methos, flevosap, theezakje
 */
 
+// global status flags
+.const stat_flg = $0d
+
 // methos' stuff:
 
 .const lfsr4 = $07 // alias for lfsr4_state
@@ -38,18 +41,27 @@ Code: methos, flevosap, theezakje
 // flevosap's and theezakje's stuff:
 
 // HEx to decimal chars conversion
-.var dec_char = $d0
-.var dec_val = $d5
-.var c_h_hi = $da
-.var c_h_lo = $db
+.const dec_char = $d0
+.const dec_val = $d5
+.const c_h_hi = $da
+.const c_h_lo = $db
 
 // Keyboard driver addresses
-.var res = $dc          // Read key result
-.var res_row = res+1    // Read row number
-.var res_col = res+2    // Read column number
+.const key_res = $dc          // Read key result
+.const key_row = key_res+1    // Read row number
+.const key_col = key_res+2    // Read column number
 
 // methos' stuff:
 
 // top loader
 .const prg_index = $f7
 .const prg_start = $f8
+
+
+// date stuff
+.const date_month = $0e
+.const date_year = $0f
+.const date_last = $10
+
+// investment stuff
+.const itb = $70

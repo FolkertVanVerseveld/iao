@@ -91,3 +91,7 @@
     lda #p1
     sta dec_val+4
 }
+
+.function coordToAddr(x, y) {
+    .return y*40 + x
+}

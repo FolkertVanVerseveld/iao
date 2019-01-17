@@ -11,17 +11,11 @@ Code: methos, theezakje
 #import "joy.inc"
 #import "io.inc"
 #import "kernal.inc"
+#import "key.asm"
+#import "val_to_dec_str.asm"
+#import "date.asm"
+#import "scrn_addr.inc"
 
-.var font = $d000
-
-.var memsetup_mask = %00001100
-
-.var vic = 2 * $4000
-// pointers to game screens, must be multiple of $0400
-.var screen_main      = vic + 0 * $0400
-.var screen_subsidies = vic + 1 * $0400
-.var screen_log       = vic + 2 * $0400
-.var screen_options   = vic + 3 * $0400
 
 .var spr_enable_mask = %10001111
 
@@ -74,6 +68,7 @@ start:
 	jsr music_level.init
 	jsr setup_interrupt
 	jsr init_sprites
+    jsr init_date
 	jsr copy_screens
 
 	jsr change_font
@@ -99,9 +94,32 @@ start:
 	//jsr show_disasters
 
 game_loop:
+    jsr key_ctl
 	jsr joy_ctl
-	jsr check_space
+	//jsr check_space
+    jsr update_date
 	jmp game_loop
+
+
+key_ctl:
+    jsr read_key
+    lda key_res
+    cmp #%10000000
+    beq no_screen_key
+    sbc #$3
+    bmi no_screen_key
+    cmp #$4
+    bpl no_screen_key
+    tax
+    lda trans_key, x
+    sta window
+    jmp update_screen
+
+no_screen_key:
+    rts
+
+trans_key:
+    .byte $03, $00, $01, $02
 
 joy_ctl:
 	// show joy2 for debug purposes
@@ -454,6 +472,13 @@ irq_magic:
 !:
 
 	qri : #irq_bottom
+
+
+init_date:
+        mov #$01 : date_month
+        mov #$0b : date_year
+        mov #$40 : date_last
+        rts
 
 init_sprites:
 	ldx #0

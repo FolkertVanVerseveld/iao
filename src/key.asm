@@ -4,45 +4,45 @@
 #import "pseudo.lib"
 
 // IO addresses
-.var row_adr = $dc00
-.var col_adr = $dc01
+.const row_adr = $dc00
+.const col_adr = $dc01
 
 // Gloal results
-.var col_bin = res+3
+.const col_bin = key_res+3
 
 // Keyboard driver
 
 read_key:
         lda #$00
-        sta res
+        sta key_res
         jmp read_row
 back_row:
-        sty res_row
+        sty key_row
         tya 
         rol; rol; rol
-        sta res
+        sta key_res
         jmp read_col
 back_col:
-        sty res_col
-        lda res
-        adc res_col
-        sta res
+        sty key_col
+        lda key_res
+        adc key_col
+        sta key_res
         rts
 
 no_key:
         lda #%10000000
-        sta res
+        sta key_res
         lda #$00
-        sta res_row
-        sta res_col
+        sta key_row
+        sta key_col
         rts
 
 more_keys:
         lda #%01000000
-        sta res
+        sta key_res
         lda #$00
-        sta res_row
-        sta res_col
+        sta key_row
+        sta key_col
         rts
 
 read_row:
