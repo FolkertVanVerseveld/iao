@@ -48,7 +48,7 @@ Code: methos, flevosap, theezakje
 
 // Keyboard driver addresses
 .const key_res = $dc          // Read key result
-.const key_row = key_:w
+.const key_row = key
 res+1    // Read row number
 .const key_col = key_res+2    // Read column number
 
