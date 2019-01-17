@@ -58,8 +58,10 @@ loop:
         // 1*** **** (no keys are pressed)
         bmi loop
         // *1** **** (multiple keys)
+        tax
         and #%01000000
         beq loop
+        txa
         // Now ignore bits 6 and 7
         and #%00111111
         // Store original in x
