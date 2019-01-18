@@ -33,6 +33,12 @@ Code: methos, flevosap, theezakje
 .const disaster_chr = $14
 .const disaster_col = $15
 
+
+// date stuff
+.const date_month = $16
+.const date_year = $17
+.const date_last = $18
+
 // more game stuff
 
 // NOTE 2 bytes long
@@ -56,12 +62,6 @@ Code: methos, flevosap, theezakje
 // top loader
 .const prg_index = $f7
 .const prg_start = $f8
-
-
-// date stuff
-.const date_month = $0e
-.const date_year = $0f
-.const date_last = $10
 
 // investment stuff
 .const itb = $70
