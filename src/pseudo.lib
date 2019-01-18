@@ -4,7 +4,17 @@
 
 //------------------------------------
 // Basic commands
-//------------------------------------
+      //------------------------------------
+.pseudocommand add arg {
+    clc
+    adc arg
+}
+
+.pseudocommand sub arg {
+    sec
+    sbc arg
+}
+
 .pseudocommand mov arg1:arg2 {
 	lda arg1
 	sta arg2
@@ -25,6 +35,26 @@
 //------------------------------------
 // Irq commands
 //------------------------------------
+.pseudocommand cia_nmi {
+	pha
+	txa
+	pha
+	tya
+	pha
+}
+
+.pseudocommand imn_aic {
+    pla
+    tay
+    pla
+	tax
+
+	lda $dd0d
+	sta $dd0d
+	pla
+	rti
+}
+
 .pseudocommand irq {
 	pha // 3, 3
 	txa // 2, 5
