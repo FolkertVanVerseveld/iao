@@ -1,6 +1,5 @@
 :BasicUpstart2(start)
 
-#import "local.inc"
 #import "pseudo.lib"
 
 .var vic = $0000
