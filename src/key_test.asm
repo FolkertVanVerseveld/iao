@@ -57,25 +57,53 @@ loop:
         lda key_res
         // 1*** **** (no keys are pressed)
         bmi loop
-        // *1** **** (multiple keys)
         tax
+        // *1** **** (multiple keys)
         and #%01000000
+        cmp #%01000000
         beq loop
         txa
         // Now ignore bits 6 and 7
         and #%00111111
         // Store original in x
         tax
+        // Store last 3 bits in y for col comparison
         and #%00000111
-        // Store in y for col comparison
         tay
         // Original back in A
         txa
+
+////////// QUICK TEST REMOVE AFTER /////////////
+//         and #%00000111
+//         cmp #%00000111
+//         beq !+
+//         jmp loop
+// !:
+//         lda #'?'
+//         sta table_char_val
+//         nop
+//         nop
+//         nop
+//         nop
+//         nop
+//         nop
+//         nop
+//         nop
+//         nop
+//         nop
+//         nop
+//         nop
+//         nop
+//         nop
+//         nop
+//         lda #' '
+//         sta table_char_val
+//         txa
+////////// END QUICK TEST ////////////////
 determine_row:
         // Only compare row
-        
         and #%00111000
-        
+        cmp #%00000000
         // jmps?
         beq !row0_jmp+ // r0  (all 0's)
         cmp #%00001000 // r1
@@ -113,9 +141,9 @@ determine_row:
         jmp !row7+
 !row0:
         tya
-        // 'DELETE' input
-        lda #$14 // c0  (all 0's)
-        sta table_char_val
+        cmp #$00 // c0 (all 0's)
+        beq !c0+
+        // sta table_char_val
         cmp #%00000001 // c1
         beq !c1+
         cmp #%00000010 // c2
@@ -132,40 +160,59 @@ determine_row:
         beq !c7+
         // Something went wrong if we get here
         jmp loop
-
+!c0:
+        // 'DELETE' input
+        // lda #$14
+!c0:
+        jmp loop
 !c1:
-        lda #'3'
-        sta table_char_val
+        // 'RETURN' input
+        // lda #$0D
         jmp loop
 !c2:
-        lda #'5'
-        sta table_char_val
+        // 'RIGHT' input
         jmp loop
 !c3:
-        lda #'7'
+        // 'F7' input
+        lda #'f'
+        // lda #$88
         sta table_char_val
+        lda #'7'
+        sta table_char_val + 1
         jmp loop
 !c4:
-        lda #'9'
+        // 'F1' input
+        lda #'f'
+        // lda #$85
         sta table_char_val
+        lda #'1'
+        sta table_char_val + 1
         jmp loop
 !c5:
-        lda #'+'
+        // 'F3' input
+        lda #'f'
+        // lda #$86
         sta table_char_val
+        lda #'3'
+        sta table_char_val + 1
         jmp loop
 !c6:
-        lda #'$'
+        // 'F5' input
+        lda #'f'
+        // lda #$87
         sta table_char_val
+        lda #'5'
+        sta table_char_val + 1
         jmp loop
 !c7:
-        lda #'1'
-        sta table_char_val
+        // 'DOWN' input
+        // sta table_char_val
         jmp loop
 !row1:
         tya
-        // 'RETURN' input
-        lda #$0D // c0  (all 0's)
-        sta table_char_val
+        cmp #$00 // c0 (all 0's)
+        beq !c0+
+        // sta table_char_val
         cmp #%00000001 // c1
         beq !c1+
         cmp #%00000010 // c2
@@ -182,41 +229,46 @@ determine_row:
         beq !c7+
         // Something went wrong if we get here
         jmp loop
-
+!c0:
+        lda #'3'
+        sta table_char_val
+        jmp loop
 !c1:
         lda #'w'
         sta table_char_val
         jmp loop
 !c2:
-        lda #'r'
+        lda #'a'
         sta table_char_val
         jmp loop
 !c3:
-        lda #'y'
+        lda #'4'
         sta table_char_val
         jmp loop
 !c4:
-        lda #'i'
+        lda #'z'
         sta table_char_val
         jmp loop
 !c5:
-        lda #'p'
+        lda #'s'
         sta table_char_val
         jmp loop
 !c6:
-        lda #'*'
+        lda #'e'
         sta table_char_val
         jmp loop
 !c7:
-        // Left-arrow input
-        lda #$5f
-        sta table_char_val
+        // Left-Shift input
+        // lda #$5f <- left arrow
+        // sta table_char_val
         jmp loop
 !row2:
         tya
+        cmp #$00 // c0 (all 0's)
+        beq !c0+
         // 'Right' input
-        lda #$1D // c0  (all 0's)
-        sta table_char_val
+        // lda #$1D // c0  (all 0's)
+        // sta table_char_val
         cmp #%00000001 // c1
         beq !c1+
         cmp #%00000010 // c2
@@ -233,9 +285,12 @@ determine_row:
         beq !c7+
         // Something went wrong if we get here
         jmp loop
-
+!c0:
+        lda #'5'
+        sta table_char_val
+        jmp loop
 !c1:
-        lda #'a'
+        lda #'r'
         sta table_char_val
         jmp loop
 !c2:
@@ -243,31 +298,32 @@ determine_row:
         sta table_char_val
         jmp loop
 !c3:
-        lda #'g'
+        lda #'6'
         sta table_char_val
         jmp loop
 !c4:
-        lda #'j'
+        lda #'c'
         sta table_char_val
         jmp loop
 !c5:
-        lda #'l'
+        lda #'f'
         sta table_char_val
         jmp loop
 !c6:
-        lda #';'
+        lda #'t'
         sta table_char_val
         jmp loop
 !c7:
-        // Supposed to be CONTROL ($ )
-        // lda #$
-        // sta table_char_val
+        lda #'x'
+        sta table_char_val
         jmp loop
 !row3:
         tya
+        cmp #$00 // c0 (all 0's)
+        beq !c0+
         // 'F7' input
-        lda #$88 // c0  (all 0's)
-        sta table_char_val
+        // lda #$88 // c0  (all 0's)
+        // sta table_char_val
         cmp #%00000001 // c1
         beq !c1+
         cmp #%00000010 // c2
@@ -284,13 +340,16 @@ determine_row:
         beq !c7+
         // Something went wrong if we get here
         jmp loop
-
+!c0:
+        lda #'7'
+        sta table_char_val
+        jmp loop
 !c1:
-        lda #'4'
+        lda #'y'
         sta table_char_val
         jmp loop
 !c2:
-        lda #'6'
+        lda #'g'
         sta table_char_val
         jmp loop
 !c3:
@@ -298,27 +357,29 @@ determine_row:
         sta table_char_val
         jmp loop
 !c4:
-        lda #'0'
+        lda #'b'
         sta table_char_val
         jmp loop
 !c5:
-        lda #'-'
+        lda #'h'
         sta table_char_val
         jmp loop
 !c6:
         // HOME
-        lda #$13
+        lda #'u'
         sta table_char_val
         jmp loop
 !c7:
-        lda #'2'
+        lda #'v'
         sta table_char_val
         jmp loop
 !row4:
         tya
+        cmp #$00 // c0 (all 0's)
+        beq !c0+
         // 'F1' input
-        lda #$85 // c0  (all 0's)
-        sta table_char_val
+        // lda #$85 // c0  (all 0's)
+        // sta table_char_val
         cmp #%00000001 // c1
         beq !c1+
         cmp #%00000010 // c2
@@ -335,17 +396,20 @@ determine_row:
         beq !c7+
         // Something went wrong if we get here
         jmp loop
-
+!c0:
+        lda #'9'
+        sta table_char_val
+        jmp loop
 !c1:
-        lda #'z'
+        lda #'i'
         sta table_char_val
         jmp loop
 !c2:
-        lda #'c'
+        lda #'j'
         sta table_char_val
         jmp loop
 !c3:
-        lda #'b'
+        lda #'0'
         sta table_char_val
         jmp loop
 !c4:
@@ -353,24 +417,25 @@ determine_row:
         sta table_char_val
         jmp loop
 !c5:
-        lda #'.'
+        lda #'k'
         sta table_char_val
         jmp loop
 !c6:
-        // Right-shift (I think)
-        // lda #$
-        // sta table_char_val
+        lda #'o'
+        sta table_char_val
         jmp loop
 !c7:
         // space
-        lda #' '
+        lda #'n'
         sta table_char_val
         jmp loop
 !row5:
         tya
+        cmp #$00 // c0 (all 0's)
+        beq !c0+
         // 'F3' input
-        lda #$86 // c0  (all 0's)
-        sta table_char_val
+        // lda #$86 // c0  (all 0's)
+        // sta table_char_val
         cmp #%00000001 // c1
         beq !c1+
         cmp #%00000010 // c2
@@ -387,21 +452,24 @@ determine_row:
         beq !c7+
         // Something went wrong if we get here
         jmp loop
-
+!c0:
+        lda #'+'
+        sta table_char_val
+        jmp loop
 !c1:
-        lda #'s'
+        lda #'p'
         sta table_char_val
         jmp loop
 !c2:
-        lda #'f'
+        lda #'l'
         sta table_char_val
         jmp loop
 !c3:
-        lda #'h'
+        lda #'-'
         sta table_char_val
         jmp loop
 !c4:
-        lda #'k'
+        lda #'.'
         sta table_char_val
         jmp loop
 !c5:
@@ -409,19 +477,20 @@ determine_row:
         sta table_char_val
         jmp loop
 !c6:
-        lda #'='
+        lda #'@'
         sta table_char_val
         jmp loop
 !c7:
-        // Commodore button
-        // lda #$
-        // sta table_char_val
+        lda #','
+        sta table_char_val
         jmp loop
 !row6:
         tya
+        cmp #$00 // c0 (all 0's)
+        beq !c0+
         // 'F5' input
-        lda #$87 // c0  (all 0's)
-        sta table_char_val
+        // lda #$87 // c0  (all 0's)
+        // sta table_char_val
         cmp #%00000001 // c1
         beq !c1+
         cmp #%00000010 // c2
@@ -438,25 +507,30 @@ determine_row:
         beq !c7+
         // Something went wrong if we get here
         jmp loop
-
+!c0:
+        lda #'$'
+        sta table_char_val
+        jmp loop
 !c1:
-        lda #'e'
+        lda #'*'
         sta table_char_val
         jmp loop
 !c2:
-        lda #'t'
+        lda #';'
         sta table_char_val
         jmp loop
 !c3:
-        lda #'u'
-        sta table_char_val
+        // HOME
+        // lda #'u'
+        // sta table_char_val
         jmp loop
 !c4:
-        lda #'o'
-        sta table_char_val
+        // RIGHT_SHIFT
+        // lda #'o'
+        // sta table_char_val
         jmp loop
 !c5:
-        lda #'@'
+        lda #'='
         sta table_char_val
         jmp loop
 !c6:
@@ -464,14 +538,16 @@ determine_row:
         sta table_char_val
         jmp loop
 !c7:
-        lda #'q'
+        lda #'/'
         sta table_char_val
         jmp loop
 !row7:
         tya
+        cmp #$00 // c0 (all 0's)
+        beq !c0+
         // 'Down' input
-        lda #$11 // c0  (all 0's)
-        sta table_char_val
+        // lda #$11 // c0  (all 0's)
+        // sta table_char_val
         cmp #%00000001 // c1
         beq !c1+
         cmp #%00000010 // c2
@@ -488,30 +564,34 @@ determine_row:
         beq !c7+
         // Something went wrong if we get here
         jmp loop
-
-!c1:
-        // Left-shift
-        // lda #'4'
-        // sta table_char_val
-        jmp loop
-!c2:
-        lda #'x'
+!c0:
+        lda #'1'
         sta table_char_val
         jmp loop
+!c1:
+        lda #'<'
+        sta table_char_val
+        jmp loop
+!c2:
+        // CONTROL
+        // lda #'x'
+        // sta table_char_val
+        jmp loop
 !c3:
-        lda #'v'
+        lda #'2'
         sta table_char_val
         jmp loop
 !c4:
-        lda #'n'
+        lda #' '
         sta table_char_val
         jmp loop
 !c5:
-        lda #','
-        sta table_char_val
+        // COMMODORE
+        // lda #','
+        // sta table_char_val
         jmp loop
 !c6:
-        lda #'/'
+        lda #'q'
         sta table_char_val
         jmp loop
 !c7:
@@ -549,6 +629,12 @@ copy_screen:
         bne !-
         rts
 
+set_row_selector:
+        sta table_row_val
+        rts
+set_col_selector:
+        sta table_col_val
+        rts
 text:
         .text "row: $     col: $     char: $"
 text_end:
