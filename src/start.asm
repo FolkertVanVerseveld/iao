@@ -600,5 +600,5 @@ top_loader:
 
 scroll_text:
 	.encoding "screencode_mixed"
-	.text "welkom terug bij de oldskool natuurrampen simulator gemaakt op de goede oude c64 door methos, flevosap, theezakje, mund, york en auke... dit spel is in ongeveer 2 weken gemaakt dus verwacht wat dingen die ruwer en sneller gemaakt zijn. code door methos, flevosap en theezakje, tekst en sprites door mund, gfx en font door methos, york, design en testing door auke. bla bla bla.... hack spatie om door te gaan!!! !! !! ! ! !                     "
+	.text "welkom bij de old school natuurrampen simulator gebaseerd op het drip-onderzoek gemaakt op en voor de commodore 64 door folkert, sam, robin, mund, york en auke. deze eerste versie van dit spel is in ongeveer 5 weken gemaakt. de code is ontwikkeld door folkert, sam, robin en york. de teksten zijn geschreven door mund. sprites zijn gemaakt door robin, mund en auke. het font is ontworpen door folkert. druk op spatie om door te gaan!!!"
 	.byte $ff
