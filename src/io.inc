@@ -35,5 +35,13 @@ Code: methos
 .const sprcol6 = $d02d
 .const sprcol7 = $d02e
 
+.function sprpos(vic_start, pos) {
+	.return pos / 64 - vic_start
+}
+
+.function sprptr(screen, n) {
+	.return screen + $3f8 + n
+}
+
 .const sid = $d400
 .const colram = $d800

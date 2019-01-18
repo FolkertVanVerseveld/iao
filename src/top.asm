@@ -24,8 +24,12 @@ High memory resident loader that waits for menu stuff to load.
 start:
 	cld
 
-	// use dummy irqs
 	sei
+	// reset stack
+	ldx #$ff
+	tsx
+
+	// use dummy irqs
 	lda #<dummy
 	sta $fffa
 	sta $fffc
@@ -143,7 +147,7 @@ text_col:
 text:
 	.encoding "screencode_mixed"
 	//     0123456789012345678901234567890123456789
-	.text "laden... een moment geduld alstublieft"
+	.text " laden... een moment geduld alstublieft "
 	.byte $ff
 
 text_game:
