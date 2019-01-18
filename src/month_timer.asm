@@ -20,6 +20,13 @@ initialize_month_timer:
     lda #>nmi_handler
     sta $fffb
 
+    lda #<dummy
+    sta $fffc
+    sta $fffe
+    lda #>dummy
+    sta $fffd
+    sta $ffff
+
     mov16 #timer_a_max_val : timer_a_val_register
     mov16 #timer_b_val     : timer_b_val_register
 
@@ -33,7 +40,7 @@ initialize_month_timer:
 
     // Timer counts timer A underflows (6, 5), load start value (4),
     // start timer (0).
-    mov16 #%00110001 : timer_b_control
+    mov16 #%01010001 : timer_b_control
 
     // Acknowledge any CIA 2 NMI interrupts.
     lda cia_nmi_service_register
@@ -42,11 +49,14 @@ initialize_month_timer:
 loop:
     jmp loop
 
+dummy:
+    rti
+
 .pc = * "Month timer handler"
 
 nmi_handler:
     cia_nmi
 
-    .byte $02
+    
 
     imn_aic
