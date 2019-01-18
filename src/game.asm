@@ -102,7 +102,7 @@ key_ctl:
 	lda key_res
 	cmp #%10000000
 	beq no_screen_key
-	sbc #$3
+	sbc #$2
 	bmi no_screen_key
 	cmp #$4
 	bpl no_screen_key
