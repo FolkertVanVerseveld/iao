@@ -4,7 +4,17 @@
 
 //------------------------------------
 // Basic commands
-//------------------------------------
+      //------------------------------------
+.pseudocommand add arg {
+    clc
+    adc arg
+}
+
+.pseudocommand sub arg {
+    sec
+    sbc arg
+}
+
 .pseudocommand mov arg1:arg2 {
 	lda arg1
 	sta arg2
