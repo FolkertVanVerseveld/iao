@@ -5,7 +5,6 @@
 //    c1541 -format test,id d64 test.d64 -write loader.prg -write file1.prg
 :BasicUpstart2(start)
 
-#import "local.inc"
 #import "pseudo.lib"
 
 .var vic = $0000

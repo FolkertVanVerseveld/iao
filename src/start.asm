@@ -29,7 +29,7 @@ SID is already loaded at correct addres.
 .var org_drv_size = org_drv_end - org_drv
 
 //.var music = LoadSid("/MUSICIANS/0-9/20CC/van_Santen_Edwin/Megamix_II_C64.sid")
-.var music = LoadSid("Megamix_II_C64.sid")
+.var music = LoadSid("assets/Megamix_II_C64.sid")
 
 .var irq_line_top = $20
 .var irq_line_middle = $3b

@@ -1,8 +1,8 @@
 #importonce
 
-#import "zeropage.inc"
+#import "../zeropage.inc"
+#import "../pseudo.lib"
 #import "scrn_addr.inc"
-#import "pseudo.lib"
 #import "val_to_dec_str.asm"
 
 update_date:
@@ -24,7 +24,7 @@ write_date:
 
         mov dec_char+3 : screen_subsidies+coordToAddr(33, 24)
         mov dec_char+4 : screen_subsidies+coordToAddr(34, 24)
-        
+
         mov dec_char+3 : screen_log+coordToAddr(33, 24)
         mov dec_char+4 : screen_log+coordToAddr(34, 24)
         // write year
@@ -38,7 +38,7 @@ write_date:
 
         //mov dec_char+3 : screen_subsidies+coordToAddr(38, 24)
        // mov dec_char+4 : screen_subsidies+coordToAddr(39, 24)
-        
+
         //mov dec_char+3 : screen_log+coordToAddr(38, 24)
         //mov dec_char+4 : screen_log+coordToAddr(39, 24)
         rts
@@ -52,11 +52,11 @@ new_year:
         lda #$01
         sta date_month
         jmp write_date
-        
+
 last_reached:
         lda stat_flg
         ora #%01000000
         sta stat_flg
         rts
-        
-        
+
+

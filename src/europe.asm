@@ -30,7 +30,7 @@
 .var spr_roll_steps = 12
 
 //.var music = LoadSid(HVSC + "/MUSICIANS/0-9/20CC/Paul_Falco/Bomberboy.sid")
-.var music = LoadSid("Bomberboy.sid")
+.var music = LoadSid("assets/Bomberboy.sid")
 
 start:
 	lda #3

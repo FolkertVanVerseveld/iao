@@ -11,8 +11,7 @@ Code: methos, theezakje
 #import "joy.inc"
 #import "io.inc"
 #import "kernal.inc"
-#import "scrn_addr.inc"
-
+#import "engine/scrn_addr.inc"
 
 .var spr_enable_mask = %10001111
 
@@ -45,10 +44,10 @@ Code: methos, theezakje
 .const gameover_delay = $10000 - $300
 
 //.var music_gameover = LoadSid(HVSC + "/MUSICIANS/0-9/20CC/van_Santen_Edwin/13_Seconds_of_Massacre.sid")
-.var music_gameover = LoadSid("13_Seconds_of_Massacre.sid")
+.var music_gameover = LoadSid("assets/13_Seconds_of_Massacre.sid")
 
 //.var music_level = LoadSid(HVSC + "/MUSICIANS/0-9/20CC/van_Santen_Edwin/Rettekettet.sid")
-.var music_level = LoadSid("Rettekettet.sid")
+.var music_level = LoadSid("assets/Rettekettet.sid")
 
 .var music_begin = min(music_gameover.location, music_level.location)
 .var music_size = max(music_gameover.size, music_level.size)
@@ -65,7 +64,6 @@ start:
 	jsr music_level.init
 	jsr setup_interrupt
 	jsr init_sprites
-	jsr init_date
 	jsr copy_screens
 
 	jsr change_font
@@ -91,9 +89,10 @@ start:
 	//jsr show_disasters
 
 game_loop:
+	// process keyboard and joystick
 	jsr key_ctl
 	jsr joy_ctl
-	//jsr check_space
+	// do game tick
 	jsr update_date
 	jmp game_loop
 
@@ -117,6 +116,8 @@ no_screen_key:
 
 trans_key:
 	.byte $03, $00, $01, $02
+
+// joystick control
 
 joy_ctl:
 	// show joy2 for debug purposes
@@ -180,10 +181,14 @@ scr_prev:
 
 	jmp update_screen
 
+// joystick control data
+
 vec_scr_lo:
 	.byte <scr_next, <scr_prev, <next_disaster
 vec_scr_hi:
 	.byte >scr_next, >scr_prev, >next_disaster
+
+// more init code
 
 change_font:
 	sei
@@ -230,6 +235,10 @@ change_font:
 	bne !-
 	rts
 
+/*
+clear zeropage data section and initialize
+global game state, joystick driver, rng and date stuff
+*/
 init:
 	// clear zero page area [2, $e0]
 	ldx #2
@@ -257,6 +266,11 @@ init:
 !:
 	and #$f
 	sta lfsr4_state
+
+	// initialize date stuff
+        mov #1 : date_month
+        mov #11 : date_year
+        mov #64 : date_last
 	rts
 
 game_over:
@@ -310,14 +324,6 @@ game_over:
 	bne !-
 
 	rts
-
-check_space:
-	lda $dc01
-	cmp #$ef
-	beq !+
-	rts
-!:
-	jsr game_over
 
 	// go to main menu if top loader is present or soft reset
 reset_ctl:
@@ -469,13 +475,6 @@ irq_magic:
 !:
 
 	qri : #irq_bottom
-
-
-init_date:
-        mov #$01 : date_month
-        mov #$0b : date_year
-        mov #$40 : date_last
-        rts
 
 init_sprites:
 	ldx #0
@@ -957,8 +956,8 @@ vec_colram_hi:
 	.byte >goto_log
 	.byte >goto_options
 
-#import "val_to_dec_str.asm"
-#import "date.asm"
+#import "engine/val_to_dec_str.asm"
+#import "engine/date.asm"
 
 .pc = music_begin "music area"
 
