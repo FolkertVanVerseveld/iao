@@ -1,6 +1,10 @@
 :BasicUpstart2(start)
 
-#import "local.inc"
+/*
+simple demo using kernal routines.
+code: methos
+*/
+
 #import "pseudo.lib"
 
 .var vic = $0000

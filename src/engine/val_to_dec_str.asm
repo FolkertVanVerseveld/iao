@@ -1,7 +1,7 @@
 #importonce
 
-#import "zeropage.inc"
-#import "pseudo.lib"
+#import "../zeropage.inc"
+#import "../pseudo.lib"
 
 .pc = * "ITOA"
 
@@ -12,7 +12,7 @@ itoa:
         //jsr val_to_char
         rts
 
-con_bit:    
+con_bit:
         sed
         lda #0
         sta dec_val
@@ -33,7 +33,7 @@ con_loop:
         lda dec_val
         adc dec_table,X
         sta dec_val
-htd1:  
+htd1:
         dex
         dex
         dex
@@ -84,8 +84,8 @@ char_loop:
         plp
         bne char_loop
         rts
-    
-        
+
+
 dec_table:
     .byte    $0, $0,  $1,  $0, $0,  $2,  $0, $0,  $4,  $0, $0,  $8
     .byte    $0, $0,  $16, $0, $0,  $32, $0, $0,  $64, $0, $1,  $28

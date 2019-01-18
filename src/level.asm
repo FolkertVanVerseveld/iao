@@ -1,9 +1,10 @@
 :BasicUpstart2(start)
 
 #import "zeropage.inc"
-#import "scrn_crd.inc"
+#import "io.inc"
 #import "pseudo.lib"
-#import "val_to_dec_str.asm"
+#import "engine/scrn_addr.inc"
+#import "engine/val_to_dec_str.asm"
 
 .var irq_line_top = $20
 .var irq_line_status = $ef
@@ -20,6 +21,10 @@
 
 .var time = $ffff
 
+// FIXME
+.var screen = $0400
+.var scr_money = screen
+
 start:
         jsr load_level
         jsr setup_interrupt
@@ -28,7 +33,7 @@ start:
 
 loop:
         jmp loop
-    
+
 update_level:
         // Hierin wordt het geld, de hartjes, etc. geüpdatet
         jsr update_money
@@ -48,10 +53,10 @@ update_money:
 
 setup_interrupt:
         sei
-    
+
         lda #BLACK
         sta color
-    
+
         // Switch out all of the ROMs except I/O
         lda #$35
         sta $1
@@ -66,21 +71,21 @@ setup_interrupt:
         sta $fffd
 
         mov16 #irq_bgcolor_top : $fffe
-        
+
         mov #$1b : $d011
         mov16 #irq_line_top : $d012
         mov #1 : $d01a
-        
+
         // Disable timer interrupts
         mov #$7f : $dc0d
         mov #$7f : $dd0d
-        
+
         lda $dc0d
         lda $dd0d
-        
+
         asl $d019
         cli
-        
+
         rts
 
 dummy:
@@ -88,19 +93,19 @@ dummy:
 
 irq_bgcolor_top:
         irq
-        
+
         backgroundColor(GREEN)
         jsr update_level
-        
+
         inc $c1
-        
+
         qri #irq_line_status : #irq_bgcolor_status
 
 irq_bgcolor_status:
         irq
-        
+
         backgroundColor(BLACK)
-        
+
         qri #irq_line_top : #irq_bgcolor_top
 
 
@@ -109,12 +114,12 @@ load_level:
         // Set level colors: border black, background green
         borderColor(BLACK)
         backgroundColor(GREEN)
-        
+
         jsr copy_image
         rts
 
 
-    
+
 copy_image: // Copied from uva.asm
         ldx #0
 !l:

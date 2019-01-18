@@ -8,7 +8,7 @@
 .const col_adr = $dc01
 
 // Gloal results
-.const col_bin = key_res+3
+.var col_bin = key_res+3
 
 // Keyboard driver
 
@@ -25,6 +25,7 @@ back_row:
 back_col:
         sty key_col
         lda key_res
+        clc
         adc key_col
         sta key_res
         rts
