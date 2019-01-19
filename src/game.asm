@@ -371,8 +371,15 @@ setup_interrupt:
 	lda #1
 	sta $dd00
 
-	lda #<irq_bottom
+	lda #<dummy
+	sta $fffc
 	sta $fffe
+	lda #>dummy
+	sta $fffb
+	sta $fffc
+
+	lda #<irq_bottom
+	sta $fffa
 	lda #>irq_bottom
 	sta $ffff
 	lda #$1b

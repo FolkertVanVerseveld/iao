@@ -1,6 +1,14 @@
 // Assembler: KickAssembler 4.4
 // rollende tekst
 
+/*
+rol credits
+recycled from old hcc release
+
+code: methos
+font: some free web font
+*/
+
 BasicUpstart2(start)
 
 #import "pseudo.lib"
@@ -25,7 +33,8 @@ BasicUpstart2(start)
 
 // Update these to your HVSC directory
 
-.var music = LoadSid("/home/methos/Music/HVSC69/MUSICIANS/0-9/20CC/Paul_Falco/Peanut_Pleasure.sid")
+//.var music = LoadSid("/home/methos/Music/HVSC69/MUSICIANS/0-9/20CC/Paul_Falco/Peanut_Pleasure.sid")
+.var music = LoadSid("Peanut_Pleasure.sid")
 //.var music = LoadSid("/home/methos/Music/C64Music/MUSICIANS/T/Tel_Jeroen/Fun_Fun.sid")
 //.var music = LoadSid("/home/methos/Music/C64Music/MUSICIANS/T/Tel_Jeroen/Alternative_Fuel.sid")
 
@@ -40,7 +49,7 @@ BasicUpstart2(start)
 .var irq_line_top = $20
 .var irq_line_grond = $b0
 .var irq_line_bottom = $e2
-.var irq_line_bottom2 = $30
+.var irq_line_bottom2 = $130
 
 .var scroll_screen = scherm + 20 * 40
 .var scroll_colram = colram + 20 * 40
@@ -71,53 +80,65 @@ scroll_oud:
 	.byte 0
 
 irq_init:
-	// zet irq done
+
 	sei
+	lda #$35
+	sta $1
+
+	lda #3
+	sta $dd00
+
+	lda #<dummy
+	sta $fffa
+	sta $fffc
+	lda #>dummy
+	sta $fffb
+	sta $fffd
+
 	lda #<irq_top
-	sta $0314
+	sta $fffe
 	lda #>irq_top
-	sta $0315
-	// zorg dat de irq gebruikt wordt
-	asl $d019
-
-	// geen idee wat dit precies doet
-	// het zet alle interrupts eerst uit en dan
-	// de volgende aan: timer a, timer b, flag pin, serial shift
-	lda #$7b
-	sta $dc0d
-
-	// zet raster interrupt aan
-	lda #$81
+	sta $ffff
+	lda #$1b
+	sta $d011
+	lda #$01
 	sta $d01a
+	// enable all NMIs
+	lda #$7f
+	sta $dc0d
+	sta $dd0d
+	lda $dc0d
+	lda $dd0d
 
-	// bit-7 van de te schrijven waarde is bit-8 van de interruptregel (hier 0)
-	// tekst mode (bit-5 uit)
-	// scherm aan (bit-4 aan)
-	// 25 rijen (bit-3 aan)
-	// y scroll = 3 (bits 0-2)
-	lda $d011
-	and #%01111111
-	sta $d011
+	asl $d019
+	cli
 
-	// de onderste 8-bits van de interruptregel.
-	// dus: regel $80 (128)
-	lda #irq_line_top
-	sta $d012
-	lda $d011
-	and #$7F
-	sta $d011
+	// enable all NMIs
+	lda #$7f
+	sta $dc0d
+	sta $dd0d
+	lda $dc0d
+	lda $dd0d
 
-	// vanaf nu kunnen de interrupts gevuurd worden
+	asl $d019
 	cli
 
 	rts
+
+dummy:
+	asl $d019
+	rti
 
 spr_init:
 	// setup sprite at $0340 (== 13 * 64)
 	lda #(spr_data - vic + 0 * 64) / 64
 	sta scherm + $03f8
+	sta scherm + $03fa
+	sta scherm + $03fc
 	lda #(spr_data - vic + 1 * 64) / 64
 	sta scherm + $03f9
+	sta scherm + $03fb
+	sta scherm + $03fd
 	// copy sprites
 	ldx #0
 !l:
@@ -128,17 +149,29 @@ spr_init:
 	inx
 	cpx #64
 	bne !l-
+
+	// place sprites off screen,
+	// let irqs do proper sprite blitting
+	lda #0
+	ldx #0
+!:
+	sta sprx0, x
+	sta spry0, x
+	inx
+	cpx #8
+	bne !-
+
 	// show sprites
-	lda #%11
+	lda #%111111
 	sta $d015
 	lda #BLUE
 	sta sprcol0
 	sta sprcol1
-
-	lda #$70
-	sta $d000
-	lda #$80
-	sta $d001
+	sta sprcol4
+	sta sprcol5
+	lda #WHITE
+	sta sprcol2
+	sta sprcol3
 	rts
 
 // add 8-bit constant to 16-bit number
@@ -158,16 +191,38 @@ balon:
 	lda sinus, x
 	sta spry0
 	sta spry1
+	clc
+	adc #4
+	sta spry2
+	sta spry3
+	sec
+	sbc #10
+	sta spry4
+	clc
+	adc #4
+	sta spry5
 	lda sinus2, x
 	sta sprx0
 	clc
-	adc #24
+	adc #7
+	sta sprx2
+	adc #10
+	sta sprx4
+	adc #40 - 10 - 7
 	sta sprx1
+	adc #7 + 8
+	sta sprx3
+	adc #10
+	sta sprx5
 	inc balon_pos
+	lda #%111111
+	sta $d01d
+	lda #0
+	sta $d017
 	rts
 
 irq_top:
-	asl $d019
+	irq
 
 	lda mem_old
 	and #$f0
@@ -175,51 +230,27 @@ irq_top:
 	sta $d018
 
 	// BEGIN kernel
-	//inc $d020
 	jsr scroll_tekst
 	jsr balon
 	jsr music.play
 
-	lda #<irq_grond
-	sta $0314
-	lda #>irq_grond
-	sta $0315
-
-	lda #irq_line_grond
-	sta $d012
-
-	//dec $d020
-	// EIND kernel
-	qri
+	qri #irq_line_grond : #irq_grond
 
 mem_old:
 	.byte 0
 
 irq_grond:
-	asl $d019
-	// BEGIN kernel
-	//inc $d020
+	irq
 
 	jsr scroll
 
 	lda mem_old
 	sta $d018
 
-	//dec $d020
-
-	lda #<irq_bottom
-	sta $0314
-	lda #>irq_bottom
-	sta $0315
-
-	lda #irq_line_bottom
-	sta $d012
-
-	// EIND kernel
-	qri
+	qri #irq_line_bottom : #irq_bottom
 
 irq_bottom:
-	asl $d019
+	irq
 	// BEGIN kernel
 	nop
 	nop
@@ -233,40 +264,17 @@ irq_bottom:
 	lda scroll_oud
 	sta $d016
 
-	lda #<irq_bottom2
-	sta $0314
-	lda #>irq_bottom2
-	sta $0315
-
-	lda #irq_line_bottom2
-	sta $d012
-	lda $d011
-	ora #$80
-	sta $d011
-
-	// EIND kernel
-	qri
+	qri2 #irq_line_bottom2 : #irq_bottom2
 
 irq_bottom2:
-	asl $d019
+	irq
 
 	lda #$03
 	sta $d020
 	sta $d021
 
-	lda #<irq_top
-	sta $0314
-	lda #>irq_top
-	sta $0315
-
-	lda #irq_line_top
-	sta $d012
-	lda $d011
-	and #$7f
-	sta $d011
-
 	// EIND kernel
-	qri
+	qri2 #irq_line_top : #irq_top
 
 scr_clear:
 	lda #scr_clear_char
@@ -403,9 +411,9 @@ scroll_text2:
 .align $40
 m0spr:
 	.byte %00000000,%00000000,%00000000
-	.byte %00000000,%00000000,%01111111
-	.byte %00000000,%00000001,%11111111
-	.byte %00000000,%00000011,%11111111
+	.byte %00000000,%00000000,%01111100
+	.byte %00000000,%00000001,%11111110
+	.byte %00000000,%00000011,%11111110
 	.byte %00000000,%00000111,%11111111
 	.byte %00000000,%11111111,%11111111
 	.byte %00000011,%11111111,%11111111
@@ -446,33 +454,6 @@ m1spr:
 	.byte %11111111,%00000000,%00000000
 	.byte %11110000,%00000000,%00000000
 	.byte %00000000,%00000000,%00000000
-
-regel24_links:
-	.text "demo uit te brenge"
-regel24_rechts:
-	.byte 'n'
-	.byte 0
-
-regel25_links:
-	.text "we zijn voornamelijk dinge"
-regel25_rechts:
-	.byte 'n'
-	.byte 0
-regel26_links:
-	.text "aan het proberen en uitdenke"
-regel26_rechts:
-	.byte 'n'
-	.byte 0
-regel27_links:
-	.text "maar we zien nog we"
-regel27_rechts:
-	.byte 'l'
-	.byte 0
-regel28_links:
-	.text "of het allemaal gaat lukken"
-regel28_rechts:
-	.byte '!'
-	.byte 0
 
 .var stappen = 120
 
@@ -656,118 +637,100 @@ regel_tabel_rechts_eind:
 
 	.byte 0
 regel1_links:
-	.text "yo, daar zijn we weer"
-regel1_rechts:
+	.text "bedankt voor het spelen"
 	.byte 0
-regel2_links:
-	.text "gezellig bij de hcc"
+	.text "van ons spel drip"
 regel2_rechts:
 	.byte '!'
 	.byte 0
 regel3_links:
-	.text "laten we eens iets moois maken"
-regel3_rechts:
-	.byte '!'
+	.text "dit is gemaakt voor de"
 	.byte 0
-regel4_links:
-	.text "dit is een klein probeelse"
+	.text "universiteit van amsterda"
 regel4_rechts:
-	.byte 'l'
+	.byte 'm'
 	.byte 0
 regel5_links:
-	.text "dit was een paar uurtjes wer"
-regel5_rechts:
-	.byte 'k'
+	.text "in ongeveer 5 weken"
 	.byte 0
-regel6_links:
-	.text "geinig toch"
+	.text "hebben we dit gemaak"
 regel6_rechts:
-	.byte '?'
-	.byte 0
-regel7_links:
-	.text "code door metho"
-regel7_rechts:
-	.byte 's'
-	.byte 0
-regel8_links:
-	.text "muziek door wav"
-regel8_rechts:
-	.byte 'e'
-	.byte 0
-regel9_links:
-	.text "vriendelijke groeten aa"
-regel9_rechts:
-	.byte 'n'
-	.byte 0
-regel10_links:
-	.text "jan, wolf, fred, dunca"
-regel10_rechts:
-	.byte 'n'
-	.byte 0
-regel11_links:
-	.text "shape, abyss connection, censo"
-regel11_rechts:
-	.byte 'r'
-	.byte 0
-regel12_links:
-	.text "f4cg, fairlight, genesis p, monocero"
-regel12_rechts:
-	.byte 's'
-	.byte 0
-regel13_links:
-	.text "bij revision 2018 had i"
-regel13_rechts:
-	.byte 'k'
-	.byte 0
-regel14_links:
-	.text "mijn eerste demo uitgebrach"
-regel14_rechts:
 	.byte 't'
 	.byte 0
-regel15_links:
-	.text "en sinds kort ben ik li"
-regel15_rechts:
-	.byte 'd'
+regel7_links:
+	.text "code door methos, flevosap"
 	.byte 0
-regel16_links:
-	.text "van de demogroep f4cg"
-regel16_rechts:
-	.byte '!'
+	.text "theezakje en yor"
+regel8_rechts:
+	.byte 'k'
 	.byte 0
-regel17_links:
-	.text "ze smasher had me gevraag"
-regel17_rechts:
-	.byte 'd'
+regel9_links:
+	.text "gfx door methos, flevosap"
 	.byte 0
-regel18_links:
-	.text "en dat vond ik heel gaaf"
-regel18_rechts:
-	.byte '!'
+	.text "pepermunt, york en auk"
+regel10_rechts:
+	.byte 'e'
 	.byte 0
-regel19_links:
-	.text "daarnaast ben ik met anto"
-regel19_rechts:
-	.byte 'n'
+regel11_links:
+	.text "muziek door 20cc"
 	.byte 0
-regel20_links:
-	.text "een scener die een winterslaap ha"
-regel20_rechts:
-	.byte 'd'
+	.text "sprites door methos en pepermun"
+regel12_rechts:
+	.byte 't'
 	.byte 0
-regel21_links:
-	.text "begonnen om een groe"
-regel21_rechts:
+regel13_links:
+	.text "intro en credits door methos"
+	.byte 0
+	.text "design door methos en flevosa"
+regel14_rechts:
 	.byte 'p'
 	.byte 0
-regel22_links:
-	.text "op te richte"
+regel15_links:
+	.text "linken en codemagie door methos"
+	.byte 0
+regel16_rechts:
+	.byte 0
+regel17_links:
+	.text "tekst door methos en auke"
+	.byte 0
+	.text "testen door het drip tea"
+regel18_rechts:
+	.byte 'm'
+	.byte 0
+regel19_links:
+	.text "we hopen dat u net zoveel plezier"
+	.byte 0
+	.text "heeft als wij met het maken ervan"
+regel20_rechts:
+	.byte '!'
+	.byte 0
+regel21_links:
+	.text "groetjes aan de c64 demoscene"
+	.byte 0
+	.text "en onze vrienden op de un"
 regel22_rechts:
-	.byte 'n'
+	.byte 'i'
 	.byte 0
 regel23_links:
-	.text "we hopen op x2018 een cool"
-regel23_rechts:
-	.byte 'e'
+	.text "en dank aan marco en robert voor"
+	.byte 0
+	.text "het geven van uitstel voor het spe"
+regel24_rechts:
+	.byte 'l'
+	.byte 0
+regel25_links:
+	.text "zo hebben we het spel"
+	.byte 0
+	.text "goed kunnen testen en afronden"
+regel26_rechts:
+	.byte '!'
+	.byte 0
+regel27_links:
+	.text "druk op spatie om terug"
+	.byte 0
+	.text "te gaan naar het hoofdmen"
+regel28_rechts:
+	.byte 'u'
 	.byte 0
 
 	* = font "font"
