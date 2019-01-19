@@ -13,6 +13,7 @@ Code: methos, theezakje, flevosap
 #import "kernal.inc"
 #import "consts.inc"
 #import "engine/scrn_addr.inc"
+#import "money.asm"
 
 .var spr_enable_mask = %10001111
 
@@ -102,6 +103,7 @@ game_loop:
 	and STAT_TIMER_OCCURRED
 	beq game_loop
 	jsr update_date
+    jsr update_money
 
 	lda stat_flg
 	and #~STAT_TIMER_OCCURRED

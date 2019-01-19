@@ -55,6 +55,10 @@ Code: methos, flevosap, theezakje
 .const disaster_timer = $ce
 
 // flevosap's and theezakje's stuff:
+// Finance
+.const money = $c0
+.const subsidy = $c2
+.const expenditure = $c4
 
 // HEx to decimal chars conversion
 .const dec_char = $d0
