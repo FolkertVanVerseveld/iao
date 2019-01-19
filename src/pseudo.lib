@@ -4,15 +4,15 @@
 
 //------------------------------------
 // Basic commands
-      //------------------------------------
+//------------------------------------
 .pseudocommand add arg {
-    clc
-    adc arg
+	clc
+	adc arg
 }
 
 .pseudocommand sub arg {
-    sec
-    sbc arg
+	sec
+	sbc arg
 }
 
 .pseudocommand mov arg1:arg2 {
@@ -44,9 +44,9 @@
 }
 
 .pseudocommand imn_aic {
-    pla
-    tay
-    pla
+	pla
+	tay
+	pla
 	tax
 
 	lda $dd0d
@@ -99,28 +99,28 @@
 // border color stuff
 
 .macro borderColor(color) {
-    lda #color
-    sta $d020
+	lda #color
+	sta $d020
 }
 
 .macro backgroundColor(color) {
-    lda #color
-    sta $d021
+	lda #color
+	sta $d021
 }
 
 .macro storeDecVal(p5, p4, p3, p2, p1) {
-    lda #p5
-    sta dec_val
-    lda #p4
-    sta dec_val+1
-    lda #p3
-    sta dec_val+2
-    lda #p2
-    sta dec_val+3
-    lda #p1
-    sta dec_val+4
+	lda #p5
+	sta dec_val
+	lda #p4
+	sta dec_val+1
+	lda #p3
+	sta dec_val+2
+	lda #p2
+	sta dec_val+3
+	lda #p1
+	sta dec_val+4
 }
 
 .function coordToAddr(x, y) {
-    .return y*40 + x
+	.return y*40 + x
 }
