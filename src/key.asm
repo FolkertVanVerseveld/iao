@@ -13,6 +13,8 @@
 // Keyboard driver
 
 read_key:
+        lda #$1
+        sta $DC02
         jsr check_joy
         lda #$00
         sta key_res
