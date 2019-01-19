@@ -3,6 +3,9 @@
 
 BasicUpstart2(start)
 
+#import "pseudo.lib"
+#import "io.inc"
+
 .var scr_clear_char = ' '
 .var scr_clear_color = $00
 
@@ -11,7 +14,7 @@ BasicUpstart2(start)
 .var vic = $0000
 
 .var scherm = $0400
-.var spr_data = vic + $2400
+.var spr_data = vic + $3000
 
 .var font = vic + $2800
 
@@ -37,9 +40,7 @@ BasicUpstart2(start)
 .var irq_line_top = $20
 .var irq_line_grond = $b0
 .var irq_line_bottom = $e2
-.var irq_line_bottom2 = $20
-
-.var colram = $d800
+.var irq_line_bottom2 = $30
 
 .var scroll_screen = scherm + 20 * 40
 .var scroll_colram = colram + 20 * 40
@@ -113,22 +114,26 @@ irq_init:
 
 spr_init:
 	// setup sprite at $0340 (== 13 * 64)
-	lda #(spr_data - vic + 64 * 0) / 64
+	lda #(spr_data - vic + 0 * 64) / 64
 	sta scherm + $03f8
+	lda #(spr_data - vic + 1 * 64) / 64
+	sta scherm + $03f9
 	// copy sprites
 	ldx #0
 !l:
 	lda m0spr, x
-	sta spr_data + 64 * 0, x
-	// sprite 4 is identical to sprite 3
+	sta spr_data + 0 * 64, x
+	lda m1spr, x
+	sta spr_data + 1 * 64, x
 	inx
 	cpx #64
 	bne !l-
 	// show sprites
-	lda #$01
+	lda #%11
 	sta $d015
-	lda #$04
-	sta $d027
+	lda #BLUE
+	sta sprcol0
+	sta sprcol1
 
 	lda #$70
 	sta $d000
@@ -151,9 +156,13 @@ add8_16:
 balon:
 	ldx balon_pos
 	lda sinus, x
-	sta $d001
+	sta spry0
+	sta spry1
 	lda sinus2, x
-	sta $d000
+	sta sprx0
+	clc
+	adc #24
+	sta sprx1
 	inc balon_pos
 	rts
 
@@ -181,12 +190,7 @@ irq_top:
 
 	//dec $d020
 	// EIND kernel
-	pla
-	tay
-	pla
-	tax
-	pla
-	rti
+	qri
 
 mem_old:
 	.byte 0
@@ -212,12 +216,7 @@ irq_grond:
 	sta $d012
 
 	// EIND kernel
-	pla
-	tay
-	pla
-	tax
-	pla
-	rti
+	qri
 
 irq_bottom:
 	asl $d019
@@ -246,12 +245,7 @@ irq_bottom:
 	sta $d011
 
 	// EIND kernel
-	pla
-	tay
-	pla
-	tax
-	pla
-	rti
+	qri
 
 irq_bottom2:
 	asl $d019
@@ -272,12 +266,7 @@ irq_bottom2:
 	sta $d011
 
 	// EIND kernel
-	pla
-	tay
-	pla
-	tax
-	pla
-	rti
+	qri
 
 scr_clear:
 	lda #scr_clear_char
@@ -411,30 +400,52 @@ scroll_text2:
 	.print "music_init = $" + toHexString(music.init)
 	.print "music_play = $" + toHexString(music.play)
 
-.align $100
+.align $40
 m0spr:
-	.byte %00000000, %01111111, %00000000
-	.byte %00000001, %11111111, %11000000
-	.byte %00000011, %11111111, %11100000
-	.byte %00000011, %11100011, %11100000
-	.byte %00000111, %11011100, %11110000
-	.byte %00000111, %11011101, %11110000
-	.byte %00000111, %11011100, %11110000
-	.byte %00000011, %11100011, %11100000
-	.byte %00000011, %11111111, %11100000
-	.byte %00000011, %11111111, %11100000
-	.byte %00000010, %11111111, %10100000
-	.byte %00000001, %01111111, %01000000
-	.byte %00000001, %00111110, %01000000
-	.byte %00000000, %10011100, %10000000
-	.byte %00000000, %10011100, %10000000
-	.byte %00000000, %01001001, %00000000
-	.byte %00000000, %01001001, %00000000
-	.byte %00000000, %00111110, %00000000
-	.byte %00000000, %00111110, %00000000
-	.byte %00000000, %00111110, %00000000
-	.byte %00000000, %00011100, %00000000
-	.byte 0
+	.byte %00000000,%00000000,%00000000
+	.byte %00000000,%00000000,%01111111
+	.byte %00000000,%00000001,%11111111
+	.byte %00000000,%00000011,%11111111
+	.byte %00000000,%00000111,%11111111
+	.byte %00000000,%11111111,%11111111
+	.byte %00000011,%11111111,%11111111
+	.byte %00000111,%11111111,%11111111
+	.byte %00000111,%11111111,%11111111
+	.byte %00011111,%11111111,%11111111
+	.byte %00111111,%11111111,%11111111
+	.byte %01111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %11111111,%11111111,%11111111
+	.byte %01111111,%11111111,%11111111
+	.byte %00011111,%11111111,%11111111
+	.byte %00000001,%11111111,%11111111
+	.byte %00000000,%00111111,%11111111
+	.byte %00000000,%00000011,%11111111
+	.byte %00000000,%00000000,%00000000
+.align $40
+m1spr:
+	.byte %00000000,%00000000,%00000000
+	.byte %11100000,%00000000,%00000000
+	.byte %11111110,%00000000,%00000000
+	.byte %11111111,%00000000,%00000000
+	.byte %11111111,%00000000,%00000000
+	.byte %11111111,%11100000,%00000000
+	.byte %11111111,%11110000,%00000000
+	.byte %11111111,%11111000,%00000000
+	.byte %11111111,%11111000,%00000000
+	.byte %11111111,%11111000,%00000000
+	.byte %11111111,%11111000,%00000000
+	.byte %11111111,%11111100,%00000000
+	.byte %11111111,%11111110,%00000000
+	.byte %11111111,%11111110,%00000000
+	.byte %11111111,%11111110,%00000000
+	.byte %11111111,%11111100,%00000000
+	.byte %11111111,%11111100,%00000000
+	.byte %11111111,%11111000,%00000000
+	.byte %11111111,%00000000,%00000000
+	.byte %11110000,%00000000,%00000000
+	.byte %00000000,%00000000,%00000000
 
 regel24_links:
 	.text "demo uit te brenge"
