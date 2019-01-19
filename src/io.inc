@@ -26,6 +26,9 @@ Code: methos
 
 .const sprmask = $d015
 
+.const sprdh = $d017
+.const sprdw = $d01d
+
 .const sprcol0 = $d027
 .const sprcol1 = $d028
 .const sprcol2 = $d029

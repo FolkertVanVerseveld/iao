@@ -13,6 +13,8 @@ BasicUpstart2(start)
 
 #import "pseudo.lib"
 #import "io.inc"
+#import "loader.inc"
+#import "joy.inc"
 
 .var scr_clear_char = ' '
 .var scr_clear_color = $00
@@ -74,7 +76,42 @@ start:
 	jsr music.init
 	jsr spr_init
 	jsr irq_init
-	jmp *
+
+	// TODO wait for space
+	// wacht op spatie of joystick vuurknop
+!:
+	lda $dc00
+	cmp #$ef
+	bne !-
+
+	// kill irq
+	sei
+
+	lda #$1b
+	sta $d011
+	lda #$c8
+	sta $d016
+
+	lda #<dummy
+	sta $fffe
+	lda #>dummy
+	sta $ffff
+
+	cli
+
+	// kill sid
+	lda #0
+	ldx #0
+!:
+	sta sid, x
+	inx
+	cpx #$20
+	bne !-
+
+	// TODO
+	lda #0
+	sta prg_index
+	jmp top_loader_start
 
 scroll_oud:
 	.byte 0
@@ -103,16 +140,6 @@ irq_init:
 	sta $d011
 	lda #$01
 	sta $d01a
-	// enable all NMIs
-	lda #$7f
-	sta $dc0d
-	sta $dd0d
-	lda $dc0d
-	lda $dd0d
-
-	asl $d019
-	cli
-
 	// enable all NMIs
 	lda #$7f
 	sta $dc0d
@@ -726,7 +753,7 @@ regel26_rechts:
 	.byte '!'
 	.byte 0
 regel27_links:
-	.text "druk op spatie om terug"
+	.text "druk op de vuurknop om terug"
 	.byte 0
 	.text "te gaan naar het hoofdmen"
 regel28_rechts:

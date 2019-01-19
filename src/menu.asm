@@ -96,7 +96,7 @@ start:
 	ldx #8
 !:
 	dex
-	sta $d027, x
+	sta sprcol0, x
 	bne !-
 	// setup sprite data
 	ldx #8
@@ -117,6 +117,8 @@ start:
 	sta $d018
 
 	ldx #0
+	stx sprdh
+	stx sprdw
 	lda #6
 !:
 	sta colram + 8 * 40 + 13, x
@@ -306,7 +308,7 @@ menu_start:
 	jmp top_loader_start
 
 tbl_prg:
-	.byte 1, 1, 1
+	.byte 1, 1, 3
 
 .pc = * "irqs"
 

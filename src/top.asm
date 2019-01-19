@@ -147,13 +147,13 @@ text_col:
 text:
 	.encoding "screencode_mixed"
 	//     0123456789012345678901234567890123456789
-	.text " laden... een moment geduld alstublieft "
+	.text " laden... een moment geduld alstublieft"
 	.byte $ff
 
 text_game:
 	.encoding "screencode_mixed"
 	//     0123456789012345678901234567890123456789
-	.text "  zet u schrap, het spel wordt geladen! "
+	.text "  zet u schrap, het spel wordt geladen!"
 	.byte $ff
 
 text_gameover:
@@ -163,6 +163,12 @@ text_gameover:
 	.text "kunnen beschermen tegen de rampen. merk "
 	.text "op dat niet elke investering bij elke   "
 	.text "stad even effectief is."
+	.byte $ff
+
+text_credits:
+	.encoding "screencode_mixed"
+	//     0123456789012345678901234567890123456789
+	.text "  bedankt voor het spelen van ons spel!"
 	.byte $ff
 
 // filetable
@@ -175,17 +181,21 @@ prg_game:
 	.text "GAME.PRG"
 	.byte 0
 
+prg_credits:
+	.text "CREDITS.PRG"
+	.byte 0
+
 name_tbl_lo:
-	.byte <prg_menu, <prg_game, <prg_menu
+	.byte <prg_menu, <prg_game, <prg_menu, <prg_credits
 name_tbl_hi:
-	.byte >prg_menu, >prg_game, >prg_menu
+	.byte >prg_menu, >prg_game, >prg_menu, >prg_credits
 
 start_tbl_lo:
-	.byte <$80e, <$80e, <$80e
+	.byte <$80e, <$80e, <$80e, <$80e
 start_tbl_hi:
-	.byte >$80e, >$80e, >$80e
+	.byte >$80e, >$80e, >$80e, >$80e
 
 text_tbl_lo:
-	.byte <text, <text_game, <text_gameover
+	.byte <text, <text_game, <text_gameover, <text_credits
 text_tbl_hi:
-	.byte >text, >text_game, >text_gameover
+	.byte >text, >text_game, >text_gameover, >text_credits
