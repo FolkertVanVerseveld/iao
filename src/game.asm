@@ -372,14 +372,14 @@ setup_interrupt:
 	sta $dd00
 
 	lda #<dummy
+	sta $fffa
 	sta $fffc
-	sta $fffe
 	lda #>dummy
 	sta $fffb
-	sta $fffc
+	sta $fffd
 
 	lda #<irq_bottom
-	sta $fffa
+	sta $fffe
 	lda #>irq_bottom
 	sta $ffff
 	lda #$1b
