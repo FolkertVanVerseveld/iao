@@ -5,6 +5,15 @@
 #import "engine/scrn_addr.inc"
 #import "engine/val_to_dec_str.asm"
 
+init_money:
+        lda #$00
+        sta money
+        sta money+1
+
+        sta subsidy+1
+        lda #$10
+        sta subsidy
+
 update_money:
         // add subsidy to balance
         clc
@@ -37,6 +46,7 @@ update_money:
         ora #%10000000
         sta stat_flg
 !end:
+        jsr write_money
         rts
 
 //TODO
@@ -69,22 +79,22 @@ write_money:
         jsr itoa
         // update screen 1
         mov dec_char : screen_main+coordToAddr(1, 24)
-        mov dec_char : screen_main+coordToAddr(2, 24)
-        mov dec_char : screen_main+coordToAddr(3, 24)
-        mov dec_char : screen_main+coordToAddr(4, 24)
-        mov dec_char : screen_main+coordToAddr(5, 24)
+        mov dec_char+1 : screen_main+coordToAddr(2, 24)
+        mov dec_char+2 : screen_main+coordToAddr(3, 24)
+        mov dec_char+3 : screen_main+coordToAddr(4, 24)
+        mov dec_char+4 : screen_main+coordToAddr(5, 24)
         // update screen 2
         mov dec_char : screen_subsidies+coordToAddr(1, 24)
-        mov dec_char : screen_subsidies+coordToAddr(2, 24)
-        mov dec_char : screen_subsidies+coordToAddr(3, 24)
-        mov dec_char : screen_subsidies+coordToAddr(4, 24)
-        mov dec_char : screen_subsidies+coordToAddr(5, 24)
+        mov dec_char+1 : screen_subsidies+coordToAddr(2, 24)
+        mov dec_char+2 : screen_subsidies+coordToAddr(3, 24)
+        mov dec_char+3 : screen_subsidies+coordToAddr(4, 24)
+        mov dec_char+4 : screen_subsidies+coordToAddr(5, 24)
         // update screen 3
         mov dec_char : screen_log+coordToAddr(1, 24)
-        mov dec_char : screen_log+coordToAddr(2, 24)
-        mov dec_char : screen_log+coordToAddr(3, 24)
-        mov dec_char : screen_log+coordToAddr(4, 24)
-        mov dec_char : screen_log+coordToAddr(5, 24)
+        mov dec_char+1 : screen_log+coordToAddr(2, 24)
+        mov dec_char+2 : screen_log+coordToAddr(3, 24)
+        mov dec_char+3 : screen_log+coordToAddr(4, 24)
+        mov dec_char+4 : screen_log+coordToAddr(5, 24)
         rts
 
 write_subsidy:

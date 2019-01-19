@@ -67,6 +67,7 @@ start:
 	jsr initialize_month_timer
 	jsr init_sprites
 	jsr copy_screens
+    jsr init_money
 
 	jsr change_font
 
