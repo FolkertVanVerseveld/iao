@@ -21,8 +21,13 @@ BasicUpstart2(start)
 .const table_char_val = $041C
 
 start:
-        // Vanilla version:
-        // Copy sub_table for testing
+        // Use to set 6510 to multi-color mode:
+        // lda $d016
+        // ora #%10000
+        // sta $d016
+
+
+        // Copy sub_table for testing purposes
         jsr copy_screen
         borderColor(BLACK)
         backgroundColor(BLACK)
