@@ -7,9 +7,16 @@
 
 // 16 bit to decimal converter
 itoa:
+        txa
+        pha
+        tya
+        pha
         jsr con_bit
         jsr unpack_bcd
-        //jsr val_to_char
+        pla
+        tay
+        pla
+        tax
         rts
 
 con_bit:
