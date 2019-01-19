@@ -56,6 +56,8 @@ Code: methos, flevosap, theezakje
 
 // flevosap's and theezakje's stuff:
 // Finance
+.const investment_table = $98
+
 .const money = $c0
 .const subsidy = $c2
 .const expenditure = $c4

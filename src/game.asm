@@ -13,7 +13,6 @@ Code: methos, theezakje, flevosap
 #import "kernal.inc"
 #import "consts.inc"
 #import "engine/scrn_addr.inc"
-#import "money.asm"
 
 .var spr_enable_mask = %10001111
 
@@ -1131,6 +1130,9 @@ tbl_col_disaster:
 .pc = * "gameover tune"
 sid_gameover:
 	.fill music_gameover.size, music_gameover.getData(i)
+
+.pc = * "money routines"
+#import "money.asm"
 
 .pc = * "month timer code"
 #import "month_timer.asm"
