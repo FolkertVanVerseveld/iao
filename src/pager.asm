@@ -322,4 +322,4 @@ text:
 	.text "                                        "
 	.text "Genoeg gepraat! Het is de hoogste tijd  "
 	.text "dat u begint aan het redden van de we-  "
-	.text "reld."
+	.text "reld.                                   "
