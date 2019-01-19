@@ -6,7 +6,7 @@ Code: methos, flevosap, theezakje
 */
 
 // global status flags
-.const stat_flg = $0d
+.const stat_flg = $20
 
 // methos' stuff:
 

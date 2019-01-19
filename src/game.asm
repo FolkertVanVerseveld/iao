@@ -2,7 +2,7 @@
 
 /*
 Core game mechanics
-Code: methos, theezakje
+Code: methos, theezakje, flevosap
 */
 
 #import "zeropage.inc"
