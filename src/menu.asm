@@ -359,7 +359,6 @@ irq_top:
 	sta $d015
 
 	jsr spr_roll
-	//asl $d019
 
 	qri #irq_line_middle : #irq_middle
 

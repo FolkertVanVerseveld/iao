@@ -415,6 +415,10 @@ irq_bottom:
 	sta $d011
 	sta sprmask
 
+	// fix bug in video chip
+	lda #$ff
+	sta vic + $3fff
+
 	qri : #irq_top
 
 // top irq
