@@ -1,4 +1,4 @@
-characters:
+special_characters:
     .byte   $3C,$66,$6E,$6E,$60,$62,$3C,$00
     .byte   $18,$3C,$66,$7E,$66,$66,$66,$00
     .byte   $7C,$66,$66,$7C,$66,$66,$7C,$00
