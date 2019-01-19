@@ -10,6 +10,7 @@ Code: methos, theezakje, flevosap
 #import "pseudo.lib"
 #import "joy.inc"
 #import "io.inc"
+#import "cia.inc"
 #import "kernal.inc"
 #import "consts.inc"
 #import "engine/scrn_addr.inc"
@@ -98,15 +99,11 @@ game_loop:
 	jsr joy_ctl
 	// do game tick
 
-	lda stat_flg
-	and STAT_TIMER_OCCURRED
+	lda cia_timer_register
+	and #2
 	beq game_loop
 	jsr update_date
-    jsr update_money
-
-	lda stat_flg
-	and #~STAT_TIMER_OCCURRED
-	sta stat_flg
+	jsr update_money
 
 	jmp game_loop
 

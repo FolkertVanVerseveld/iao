@@ -10,17 +10,11 @@
 initialize_month_timer:
     mov #$7f : $dc0d
 
-    // Load the NMI handler into the NMI vector.
-    lda #<nmi_handler
-    sta $fffa
-    lda #>nmi_handler
-    sta $fffb
-
     mov16 #timer_a_max_val : timer_a_val_register
     mov16 #timer_b_val     : timer_b_val_register
 
-    // Enable Timer B interrupt
-    mov #%10000010 : cia_nmi_service_register
+    // Disable interrupts
+    mov #%01111111 : cia_nmi_service_register
 
     // Bit 4 (load start value), 3 (restart upon underflow),
     // Bit 0 (start timer)
@@ -35,15 +29,3 @@ initialize_month_timer:
     lda cia_nmi_service_register
 
     rts
-
-
-.pc = * "Month timer handler"
-
-nmi_handler:
-    cia_nmi
-
-    lda stat_flg
-    ora #STAT_TIMER_OCCURRED
-    sta stat_flg
-
-    imn_aic

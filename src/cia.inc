@@ -9,6 +9,7 @@
 .const timer_b_val_register = $dd06
 
 .const cia_nmi_service_register = $dd0d
+.const cia_timer_register = $dd0d
 
 
 
