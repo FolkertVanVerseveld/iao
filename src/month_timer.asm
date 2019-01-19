@@ -1,5 +1,6 @@
 #import "pseudo.lib"
 #import "cia.inc"
+#import "consts.inc"
 
 .const timer_a_max_val = $ffff // 65535 ticks at 1Mhz = 65 ms
 .const timer_b_val = 77 // Number of 65ms ticks (77*.065 = 5 s)
@@ -33,15 +34,16 @@ initialize_month_timer:
     // Acknowledge any CIA 2 NMI interrupts.
     lda cia_nmi_service_register
 
+    rts
 
-!loop:
-    jmp !loop-
 
 .pc = * "Month timer handler"
 
 nmi_handler:
     cia_nmi
 
-    jsr update_date
+    lda stat_flg
+    ora #STAT_TIMER_OCCURRED
+    sta stat_flg
 
     imn_aic

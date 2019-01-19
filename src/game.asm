@@ -11,6 +11,7 @@ Code: methos, theezakje, flevosap
 #import "joy.inc"
 #import "io.inc"
 #import "kernal.inc"
+#import "consts.inc"
 #import "engine/scrn_addr.inc"
 
 .var spr_enable_mask = %10001111
@@ -63,6 +64,7 @@ start:
 	lda #music_level.startSong - 1
 	jsr music_level.init
 	jsr setup_interrupt
+	jsr initialize_month_timer
 	jsr init_sprites
 	jsr copy_screens
 
@@ -88,14 +90,24 @@ start:
 
 	//jsr show_disasters
 
+.pc = * "Game loop"
+
 game_loop:
 	// process keyboard and joystick
 	jsr key_ctl
 	jsr joy_ctl
 	// do game tick
-	jsr update_date
-	jmp game_loop
 
+	lda stat_flg
+	and STAT_TIMER_OCCURRED
+	beq game_loop
+	jsr update_date
+
+	lda stat_flg
+	and #~STAT_TIMER_OCCURRED
+	sta stat_flg
+
+	jmp game_loop
 
 key_ctl:
 	jsr read_key
@@ -1117,5 +1129,8 @@ tbl_col_disaster:
 .pc = * "gameover tune"
 sid_gameover:
 	.fill music_gameover.size, music_gameover.getData(i)
+
+.pc = * "month timer code"
+#import "month_timer.asm"
 
 .pc = $8000 "data barrier"

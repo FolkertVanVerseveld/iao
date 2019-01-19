@@ -50,7 +50,6 @@
 	tax
 
 	lda $dd0d
-	sta $dd0d
 	pla
 	rti
 }

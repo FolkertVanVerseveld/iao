@@ -9,7 +9,7 @@ top.prg: zeropage.inc pseudo.lib loader.inc top.asm
 	kickass top.asm
 menu.prg: zeropage.inc loader.inc pseudo.lib menu.asm
 	kickass menu.asm
-game.prg: zeropage.inc loader.inc pseudo.lib joy.inc io.inc kernal.inc game.asm
+game.prg: zeropage.inc loader.inc pseudo.lib joy.inc io.inc kernal.inc game.asm month_timer.asm
 	kickass game.asm
 
 clean:
