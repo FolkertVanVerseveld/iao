@@ -13,12 +13,13 @@
 // Keyboard driver
 
 read_key:
+        jsr check_joy
         lda #$00
         sta key_res
         jmp read_row
 back_row:
         sty key_row
-        tya 
+        tya
         rol; rol; rol
         sta key_res
         jmp read_col
@@ -78,3 +79,10 @@ col_loop:
         tax
         iny
         jmp col_loop
+
+
+check_joy:
+        lda $dc00
+        and #%00011111
+        sta joy2
+        rts
