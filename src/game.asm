@@ -69,6 +69,7 @@ start:
 	jsr init_sprites
 	jsr copy_screens
     jsr init_money
+    jsr init_itb
 
 	jsr change_font
 
@@ -105,6 +106,7 @@ game_loop:
 	beq game_loop
 	jsr update_date
 	jsr update_money
+    jsr update_itb
 
 	jmp game_loop
 
@@ -979,9 +981,6 @@ vec_colram_hi:
 	.byte >goto_log
 	.byte >goto_options
 
-#import "engine/val_to_dec_str.asm"
-#import "engine/date.asm"
-
 .pc = music_begin "music area"
 
 * = music_level.location "level tune"
@@ -1145,5 +1144,11 @@ sid_gameover:
 
 .pc = * "month timer code"
 #import "month_timer.asm"
+
+.pc = * "itb routines"
+#import "invest.asm"
+
+#import "engine/val_to_dec_str.asm"
+#import "engine/date.asm"
 
 .pc = $8000 "data barrier"
