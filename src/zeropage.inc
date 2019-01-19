@@ -5,6 +5,16 @@ Zeropage constants sorted in address ascending order
 Code: methos, flevosap, theezakje
 */
 
+/*** GLOBAL SECTION, DO NOT CHANGE ***/
+
+// methos' stuff:
+
+// top loader
+.const prg_index = $f7
+.const prg_start = $f8
+
+/*** GAME SECTION ***/
+
 // global status flags
 .const stat_flg = $20
 
@@ -57,11 +67,13 @@ Code: methos, flevosap, theezakje
 .const key_row = key_res+1    // Read row number
 .const key_col = key_res+2    // Read column number
 
-// methos' stuff:
-
-// top loader
-.const prg_index = $f7
-.const prg_start = $f8
-
 // investment stuff
 .const itb = $70
+
+/*** MENU SECTION ***/
+
+.const menu_opt_main = $02
+.const menu_opt_irq = $03
+
+.const menu_main_buf = $04
+.const menu_btn = $06
