@@ -35,7 +35,7 @@ update_money:
 
         // subtract expenditure from balance
         lda money
-        clc
+        sec
         sbc expenditure
         lda money + 1
         sbc expenditure + 1
