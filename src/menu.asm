@@ -541,6 +541,7 @@ dummy:
 
 joy_ctl:
 	lda $dc00
+	and #%11111
 	sta joy2
 
 	jsr joy_btn_release
@@ -584,15 +585,18 @@ joy_btn_release:
 	lda joy2
 	ldx #0
 
-	cmp #joy_down
+	// down
+	cmp #%11101
 	bne !+
 	ldx #1
 !:
-	cmp #joy_up
+	// up
+	cmp #%11110
 	bne !+
 	ldx #2
 !:
-	cmp #joy_fire
+	// fire
+	cmp #%01111
 	bne !+
 	ldx #3
 !:

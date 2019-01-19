@@ -15,9 +15,6 @@ Code: methos, flevosap, theezakje
 
 /*** GAME SECTION ***/
 
-// global status flags
-.const stat_flg = $20
-
 // methos' stuff:
 
 .const lfsr4 = $07 // alias for lfsr4_state
@@ -48,6 +45,9 @@ Code: methos, flevosap, theezakje
 .const date_month = $16
 .const date_year = $17
 .const date_last = $18
+
+// global status flags
+.const stat_flg = $20
 
 // more game stuff
 
