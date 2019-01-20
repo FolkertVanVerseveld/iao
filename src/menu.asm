@@ -288,6 +288,12 @@ handle_input:
 	beq menu_start
 !no_alpha:
 	ldx key_x
+	cpx #1
+	bne !+
+	lda #3
+	sta menu_opt_main
+	jmp menu_start
+!:
 	cpx #%10000
 	bne !+
 	lda #0
@@ -355,7 +361,7 @@ menu_start:
 	jmp top_loader_start
 
 tbl_prg:
-	.byte 1, 4, 3
+	.byte 1, 4, 3, 5
 
 .pc = * "irqs"
 
