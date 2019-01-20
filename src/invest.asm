@@ -90,7 +90,7 @@ write_investments:
         ldy #$00
 write_investments_loop:
         // city 1
-        lda investment_table, X
+        lda investment_table, y
         sta c_h_lo
         jsr itoa
         mov dec_char+2 : screen_subsidies+coordToAddr(11, 3), X
@@ -98,7 +98,7 @@ write_investments_loop:
         mov dec_char+4 : screen_subsidies+coordToAddr(13, 3), X
 
         // city 2
-        lda investment_table+5, X
+        lda investment_table+5, y
         sta c_h_lo
         jsr itoa
         mov dec_char+2 : screen_subsidies+coordToAddr(11, 6), X
@@ -107,7 +107,7 @@ write_investments_loop:
 
 
         // city 3
-        lda investment_table+10, X
+        lda investment_table+10, y
         sta c_h_lo
         jsr itoa
         mov dec_char+2 : screen_subsidies+coordToAddr(11, 9), X
@@ -116,7 +116,7 @@ write_investments_loop:
 
 
         // city 4
-        lda investment_table+15, X
+        lda investment_table+15, y
         sta c_h_lo
         jsr itoa
         mov dec_char+2 : screen_subsidies+coordToAddr(11, 12), X
