@@ -46,7 +46,7 @@ write_date:
 new_year:
         lda date_year
         cmp date_last
-        //beq last_reached
+        beq last_reached
         adc #$01
         sta date_year
         lda #$01
@@ -54,9 +54,40 @@ new_year:
         jmp write_date
 
 last_reached:
-        lda stat_flg
-        ora #%01000000
-        sta stat_flg
-        rts
+        lda #0
+        sta $d01c
+
+.pc = * "positive game over"
+        // kill irq
+        sei
+
+        lda #$1b
+        sta $d011
+        lda #$c8
+        sta $d016
+
+        lda #<dummy
+        sta $fffa
+        sta $fffc
+        sta $fffe
+        lda #>dummy
+        sta $fffb
+        sta $fffd
+        sta $ffff
+
+        cli
+
+        // kill sid
+        ldx #0
+!:
+        sta sid, x
+        inx
+        cpx #$20
+        bne !-
+
+        // de prg index
+        lda #4
+        sta prg_index
+        jmp top_loader_start
 
 
