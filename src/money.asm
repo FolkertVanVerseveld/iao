@@ -11,8 +11,11 @@ init_money:
         sta money+1
 
         sta subsidy+1
+        sta expenditure+1
         lda #$10
         sta subsidy
+        lda #$03
+        sta expenditure
 
 .pc = * "Update Money"
 
@@ -74,6 +77,7 @@ update_expenditure:
         dex                                             // 2
         bne !loop-                                      // 2/3/4
         sta expenditure                                 // 3
+        jsr write_expenditure
         rts                                             // 6
 
         // ~670 cycles
@@ -100,4 +104,10 @@ write_subsidy:
         rts
 
 write_expenditure:
+        mov16 expenditure : c_h_lo
+        //jsr itoa
+
+        mov_money_str16(screen_main, 23, 24)
+        mov_money_str16(screen_subsidies, 23, 24)
+        mov_money_str16(screen_log, 23, 24)
         rts
