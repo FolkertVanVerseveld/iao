@@ -5,6 +5,9 @@
 # VICE
 *.d64
 
+# Local include
+local.inc
+
 # C64 Debugger
 c64debugger
 local_setup.sh

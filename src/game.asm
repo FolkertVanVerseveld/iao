@@ -126,6 +126,8 @@ game_loop:
 	bne !s+
 	jsr next_disaster
 	jsr update_disaster
+	jsr copy_impact
+	jsr subtract_impact
 	lda $d012
 	and #%11
 	bne !+
@@ -1060,10 +1062,6 @@ show_game_over:
 	sta sprxhi
 	rts
 
-hexstring:
-	.encoding "screencode_mixed"
-	.text "0123456789abcdef"
-
 next_disaster:
 	lda #1
 	sta disaster_occurred
@@ -1613,5 +1611,14 @@ sub_row_col_hi:
 	.for (var i=0; i<4; i++) {
 	.byte >colram + coordToAddr(0, 3 + 3 * i)
 	}
+
+.pc = * "Impact calculation code"
+#import "impact.asm"
+
+.pc = * "Hex string data"
+hexstring:
+	.encoding "screencode_mixed"
+	.text "0123456789abcdef"
+
 
 .pc = $8000 "data barrier"
