@@ -761,33 +761,19 @@ texts:
 	.text "   gemaakt aan de uva   "
 	.text " code: methos, flevosap "
 	.text "     theezakje, york    "
+	.text "                        "
 	// nog meer tekst, verzin iets leuks :p
-	.text "       gfx: snorro      "
-	.text "  font: methos & snorro "
-	.text "       sid: evs         "
+	.text "  Wij willen graag de   "
+	.text "volgende mensen bedanken" 
 	.text "------------------------"
-	.text "      greetings to:     "
-	.text "    abyss connection,   "
-	.text "  bonzai, booze design, "
-	.text " camelot, crest, chorus,"
-	.text "   delysid, fairlight,  "
-	.text "     fantastic four     "
-	.text "     cracking group,    "
-	.text "hitman, hoaxers, laxity,"
-	.text "house designs, lft, mon,"
-	.text "  mayday, panda design, "
-	.text "plush, prosonix, oxyron,"
-	.text "  wilfred, duncantwain, "
-	.text " smash designs, scs*trc,"
-	.text "      triad, trsi,      "
-	.text "   acc, via, flevosap,  "
-	.text " odymeister, gorgelmel, "
-	.text "          and           "
-	.text "       finally...       "
-	.text "  !!! wolf from ac !!!  "
+	.text " Marco en Robert van AVI"
+	.text "      Barack Obama      "
+	.text " En uiteraard ook ...   "
+	.text " onze moeders. :)       "
+	// Verdere groetjes?
 	.text "------------------------"
 	.text " wir wuenschen euch ein "
-	.text "glueckliches neues jahr!"
+	.text "   glueckliches 2019!   "
 	.text "------------------------"
 	.text "                        "
 	.text "                        "
@@ -795,8 +781,6 @@ texts_end:
 
 scroll_text:
 	.text "goed gedaan! u heeft de wereld behoed van rampen en de verenigde naties zijn erg tevreden met uw werk! "
-
-	.text "snorro signing off, because i do not know what to write anymore.... ... ... .. .. .. . . . . .                       "
 	.text "bedankt voor het spelen van ons spel drip! "
 	.text "dit is gemaakt voor de universiteit van amsterdam "
 	.text "in ongeveer 5 weken hebben we dit gemaakt"
@@ -806,7 +790,7 @@ regel6_rechts:
 regel7_links:
 	.text "code door methos, flevosap"
 	.byte ' '
-	.text "theezakje en yor"
+	.text "theezakje en york"
 regel8_rechts:
 	.byte 'k'
 	.byte ' '
