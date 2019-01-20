@@ -109,7 +109,7 @@ write_disaster_impact:
         jsr itoa
         mov dec_chars : screen_log+coordToAddr(11, 21)
         mov dec_chars+1 : screen_log+coordToAddr(11, 21)+1
-        mov dec_chars+2 : screen_log+coordToAddr(11, 21+2
+        mov dec_chars+2 : screen_log+coordToAddr(11, 21)+2
         rts
 
 
