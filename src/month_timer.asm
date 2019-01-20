@@ -3,7 +3,7 @@
 #import "consts.inc"
 
 .const timer_a_max_val = $ffff // 65535 ticks at 1Mhz = 65 ms
-.const timer_b_val = 77 // Number of 65ms ticks (77*.065 = 5 s)
+.const timer_b_val = 923 // Number of 65ms ticks (923*.065 = 60 s)
 
 .pc = * "Month Timer Init"
 
