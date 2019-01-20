@@ -125,9 +125,9 @@ game_loop:
 	dec disaster_timer
 	bne !s+
 	jsr next_disaster
-	jsr update_disaster
 	jsr copy_impact
 	jsr subtract_impact
+	jsr update_disaster
 	lda $d012
 	and #%11
 	bne !+
