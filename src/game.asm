@@ -59,6 +59,8 @@ Code: methos, theezakje, flevosap
 .print "music size=" + toHexString(music_size)
 .print "music end=" + toHexString(music_end)
 
+.pc = * "Game start"
+
 start:
 	jsr init
 	jsr change_font
