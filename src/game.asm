@@ -146,7 +146,18 @@ handle_key:
 	ldx window
 	cpx #1
 	bne !+
-	jsr subsidies_handle_key
+	jmp subsidies_handle_key
+!:
+
+	// If m is pressed, toggle music
+	// Options screen
+	cpx #3
+	bne !+
+	// On options screen
+	// Should key already be loaded in to accumulator??
+	cmp #'m' // m
+	bne !+
+	jmp toggle_music
 !:
 	rts
 
@@ -347,6 +358,7 @@ change_font:
 	sta game_font + $700, x
 	inx
 	bne !-
+
 	// restore banks to default
 !restore:
 	lda #%00110111
@@ -790,6 +802,42 @@ update_screen:
 	lda vec_colram_hi, x
 	sta jmp_buf + 1
 	jmp (jmp_buf)
+
+toggle_music:
+	ldx music_mute // Should be 0 if playing, non-zero if muted
+	beq !+
+	// Turn on here
+	ldx #$00
+	stx music_mute
+	// Set chars in screen
+	lda #'a'
+	sta screen_options + (5 * 40) + 26
+	lda #'a'
+	sta screen_options + (5 * 40) + 27
+	lda #'n'
+	sta screen_options + (5 * 40) + 28
+	rts
+!:
+	// Turn off here
+	ldx #$01
+	stx music_mute
+	// kill sid
+	lda #0
+	ldx #0
+!:
+	sta sid, x
+	inx
+	cpx #$20
+	bne !-
+
+	// Set chars in screen
+	lda #'u'
+	sta screen_options + (5 * 40) + 26
+	lda #'i'
+	sta screen_options + (5 * 40) + 27
+	lda #'t'
+	sta screen_options + (5 * 40) + 28
+	rts
 
 /////////////////////////////////
 // menu screen transition code //
