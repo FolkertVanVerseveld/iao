@@ -1694,6 +1694,12 @@ fix_yorks_characters:
     sta game_font+114*8,x
     lda special_characters+32,x
     sta game_font+195*8,x
+    lda special_characters+40,x
+    sta game_font+94*8,x
+    lda special_characters+48,x
+    sta game_font+222*8,x
+    lda special_characters+56,x
+    sta game_font+156*8,x
     inx
     cpx #8
     bne !loop-
