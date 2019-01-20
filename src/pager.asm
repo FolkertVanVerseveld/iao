@@ -432,7 +432,7 @@ goto_menu:
 text:
 	.text "Gebruik joy2 om te scrollen! Voor de    "
 	.text "bediening van het spel moet je de joy-  "
-	.text "tick en het toetsenbord gebruiken. Dit  "
+	.text "stick en het toetsenbord gebruiken. Dit "
 	.text "wordt allemaal duidelijk gedurende het  "
 	.text "spel. Nu volgt een korte uitleg over het"
 	.text "onderzoek dat in dit spel is verwerkt.  "
