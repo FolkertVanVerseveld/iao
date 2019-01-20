@@ -126,6 +126,8 @@ game_loop:
 	bne !s+
 	jsr next_disaster
 	jsr update_disaster
+	jsr copy_impact
+	jsr subtract_impact
 	lda $d012
 	and #%11
 	bne !+
@@ -1613,5 +1615,8 @@ sub_row_col_hi:
 	.for (var i=0; i<4; i++) {
 	.byte >colram + coordToAddr(0, 3 + 3 * i)
 	}
+
+.pc = * "Impact calculation code"
+#import "impact.asm"
 
 .pc = $8000 "data barrier"
