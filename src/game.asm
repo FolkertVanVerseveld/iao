@@ -497,17 +497,8 @@ setup_interrupt:
 	sta $d011
 	lda #$01
 	sta $d01a
-	// enable all NMIs
-	lda #$7f
-	sta $dc0d
-	sta $dd0d
-	lda $dc0d
-	lda $dd0d
 
-	asl $d019
-	cli
-
-	// enable all NMIs
+	// disable all NMIs
 	lda #$7f
 	sta $dc0d
 	sta $dd0d
