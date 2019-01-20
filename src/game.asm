@@ -398,6 +398,7 @@ change_font:
 	inx
 	cpx #$8
 	bne !-
+    jsr fix_yorks_characters
 	rts
 
 /*
@@ -1675,5 +1676,27 @@ hexstring:
 	.encoding "screencode_mixed"
 	.text "0123456789abcdef"
 
+
+.pc = * "Other assorti"
+#import "char_set.asm"
+
+fix_yorks_characters:
+    ldx #0
+
+!loop:
+    lda special_characters,x
+    sta game_font+88*8,x
+    lda special_characters+8,x
+    sta game_font+91*8,x
+    lda special_characters+16,x
+    sta game_font+107*8,x
+    lda special_characters+24,x
+    sta game_font+114*8,x
+    lda special_characters+32,x
+    sta game_font+195*8,x
+    inx
+    cpx #8
+    bne !loop-
+    rts
 
 .pc = $8000 "data barrier"
