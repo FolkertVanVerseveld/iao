@@ -78,6 +78,7 @@ start:
 	jsr init_inv
 	jsr init_disaster
 	//jsr init_disaster_sprite
+    jsr write_itb
     jsr write_date
     jsr write_subsidy
     jsr write_expenditure
