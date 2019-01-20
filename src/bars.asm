@@ -761,33 +761,21 @@ texts:
 	.text "   gemaakt aan de uva   "
 	.text " code: methos, flevosap "
 	.text "     theezakje, york    "
+	.text "                        "
 	// nog meer tekst, verzin iets leuks :p
-	.text "       gfx: snorro      "
-	.text "  font: methos & snorro "
-	.text "       sid: evs         "
+	.text "  wij willen graag de   "
+	.text "volgende mensen bedanken"
 	.text "------------------------"
-	.text "      greetings to:     "
-	.text "    abyss connection,   "
-	.text "  bonzai, booze design, "
-	.text " camelot, crest, chorus,"
-	.text "   delysid, fairlight,  "
-	.text "     fantastic four     "
-	.text "     cracking group,    "
-	.text "hitman, hoaxers, laxity,"
-	.text "house designs, lft, mon,"
-	.text "  mayday, panda design, "
-	.text "plush, prosonix, oxyron,"
-	.text "  wilfred, duncantwain, "
-	.text " smash designs, scs*trc,"
-	.text "      triad, trsi,      "
-	.text "   acc, via, flevosap,  "
-	.text " odymeister, gorgelmel, "
-	.text "          and           "
-	.text "       finally...       "
-	.text "  !!! wolf from ac !!!  "
+	.text " marco en robert van avi"
+	.text "      barack obama      "
+	.text "  fuat ozman voor zijn  "
+	.text "  heerlijke kapsalons!  "
+	.text "  en uiteraard ook ...  "
+	.text "  onze moeders. :)      "
+	// Verdere groetjes?
 	.text "------------------------"
 	.text " wir wuenschen euch ein "
-	.text "glueckliches neues jahr!"
+	.text "   glueckliches 2019!   "
 	.text "------------------------"
 	.text "                        "
 	.text "                        "
@@ -795,85 +783,28 @@ texts_end:
 
 scroll_text:
 	.text "goed gedaan! u heeft de wereld behoed van rampen en de verenigde naties zijn erg tevreden met uw werk! "
-
-	.text "snorro signing off, because i do not know what to write anymore.... ... ... .. .. .. . . . . .                       "
 	.text "bedankt voor het spelen van ons spel drip! "
 	.text "dit is gemaakt voor de universiteit van amsterdam "
-	.text "in ongeveer 5 weken hebben we dit gemaakt"
-regel6_rechts:
-	.byte 't'
-	.byte ' '
-regel7_links:
-	.text "code door methos, flevosap"
-	.byte ' '
-	.text "theezakje en yor"
-regel8_rechts:
-	.byte 'k'
-	.byte ' '
-regel9_links:
-	.text "gfx door methos, flevosap"
-	.byte ' '
-	.text "pepermunt, york en auk"
-regel10_rechts:
-	.byte 'e'
-	.byte ' '
-regel11_links:
-	.text "muziek door 20cc"
-	.byte ' '
-	.text "sprites door methos en pepermun"
-regel12_rechts:
-	.byte 't'
-	.byte ' '
-regel13_links:
-	.text "intro en credits door methos"
-	.byte ' '
-	.text "design door methos en flevosa"
-regel14_rechts:
-	.byte 'p'
-	.byte ' '
-regel15_links:
-	.text "linken en codemagie door methos"
-	.byte ' '
-regel16_rechts:
-	.byte ' '
-regel17_links:
-	.text "tekst door methos en auke"
-	.byte ' '
-	.text "testen door het drip tea"
-regel18_rechts:
-	.byte 'm'
-	.byte ' '
-regel19_links:
-	.text "we hopen dat u net zoveel plezier"
-	.byte ' '
-	.text "heeft als wij met het maken ervan"
-regel20_rechts:
-	.byte '!'
-	.byte ' '
-regel21_links:
-	.text "groetjes aan de c64 demoscene"
-	.byte ' '
-	.text "en onze vrienden op de un"
-regel22_rechts:
-	.byte 'i'
-	.byte ' '
-regel23_links:
-	.text "en dank aan marco en robert voor"
-	.byte ' '
-	.text "het geven van uitstel voor het spe"
-regel24_rechts:
-	.byte 'l'
-	.byte ' '
-regel25_links:
-	.text "zo hebben we het spel"
-	.byte ' '
-	.text "goed kunnen testen en afronden"
-regel26_rechts:
-	.byte '!'
-	.byte ' '
-regel27_links:
-	.text "druk op spatie om terug"
-	.byte ' '
-	.text "te gaan naar het hoofdmen"
-	.byte 'u'
+	.text "in ongeveer 5 weken hebben we dit gemaakt "
+	.text "code door methos, flevosap "
+	.text "theezakje en york "
+	.text "gfx door methos, flevosap "
+	.text "pepermunt, york en auke "
+	.text "muziek door 20cc "
+	.text "sprites door methos en pepermunt "
+	.text "intro en credits door methos "
+	.text "design door methos en flevosap "
+	.text "linken en codemagie door methos "
+	.text "tekst door methos en auke "
+	.text "testen door het drip team"
+	.text "we hopen dat u net zoveel plezier "
+	.text "heeft als wij met het maken ervan!"
+	.text "groetjes aan de c64 demoscene "
+	.text "en onze vrienden op de uni"
+	.text "en dank aan marco en robert voor "
+	.text "het geven van uitstel voor het spel"
+	.text "zo hebben we het spel "
+	.text "goed kunnen testen en afronden!"
+	.text "druk op spatie om terug "
+	.text "te gaan naar het hoofdmenu... .. .. . . .              "
 	.byte $ff
