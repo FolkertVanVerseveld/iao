@@ -1062,10 +1062,6 @@ show_game_over:
 	sta sprxhi
 	rts
 
-hexstring:
-	.encoding "screencode_mixed"
-	.text "0123456789abcdef"
-
 next_disaster:
 	lda #1
 	sta disaster_occurred
@@ -1618,5 +1614,11 @@ sub_row_col_hi:
 
 .pc = * "Impact calculation code"
 #import "impact.asm"
+
+.pc = * "Hex string data"
+hexstring:
+	.encoding "screencode_mixed"
+	.text "0123456789abcdef"
+
 
 .pc = $8000 "data barrier"
