@@ -106,9 +106,9 @@ game_loop:
 	jsr update_date
 	jsr update_money
 	jsr update_subsidy
-    jsr update_itb
-    jsr next_disaster
-    jsr update_disaster
+	jsr update_itb
+	jsr next_disaster
+	jsr update_disaster
 
 	jmp game_loop
 
@@ -1388,6 +1388,8 @@ subsidies_handle_key:
 
 	ldx scratch_main + 1
 	sta investment_table, x
+
+	jsr write_investments
 !:
 
 !skip:
@@ -1425,6 +1427,8 @@ subsidies_handle_key:
 	ldx #WHITE
 	stx colram
 	}
+
+	jsr write_investments
 !skip:
 	rts
 

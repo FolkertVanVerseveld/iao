@@ -18,7 +18,7 @@ init_itb_loop:
 update_itb:
         jsr recalc_itb
         jsr write_itb
-        rts
+	jmp write_investments
 
 recalc_itb:
         ldx #$00
@@ -84,3 +84,6 @@ write_itb_loop:
         bne write_itb_loop
         rts
 
+write_investments:
+	// FIXME stub
+	rts
