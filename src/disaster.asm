@@ -22,6 +22,7 @@ update_disaster:
         sta disaster_num
         jsr clear_disaster_text
         jsr write_disaster_txt
+        jsr write_disaster_date
         rts
 
 read_disaster:
@@ -70,6 +71,13 @@ clear_disaster_text_loop:
         bpl clear_disaster_text_loop
         rts
 
+write_disaster_date:
+        ldx #$06
+write_disaster_date_loop:
+        mov screen_log+coordToAddr(33, 24), X : screen_log+coordToAddr(9, 7), X
+        dex
+        bpl write_disaster_date_loop
+        rts
 
 
 text_length:
