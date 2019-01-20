@@ -658,11 +658,32 @@ import_characters:
         // lda #%11011111
         // sta $d016
 
-        // Horizontal line
+        
         ldx #0
         .for (var i = 0; i < 8; i++) {
-                lda special_characters + ($1c * 8) + i
-                sta char_set_ram + ($1c * 8) + i
+                // With hex values:
+                
+                // Horizontal line
+                lda special_characters + (195 * 8) + i
+                sta char_set_ram + (195 * 8) + i
+                // T pipe
+                lda special_characters + (88 * 8) + i, x
+                sta char_set_ram + (88 * 8) + i, x
+                // // Corner piece
+                lda special_characters + (114 * 8) + i, x
+                sta char_set_ram + (114 * 8) + i, x
+                // // Sideways T pipe
+                lda special_characters + (107 * 8) + i, x
+                sta char_set_ram + (107 * 8) + i, x
+                // // Cross piece
+                lda special_characters + (91 * 8) + i, x
+                sta char_set_ram + (91 * 8) + i, x
+                
+                // With decimal values:
+                
+                // Horizontal line
+                // lda special_characters + (195 * 8) + i
+                // sta char_set_ram + (195 * 8) + i
                 // T pipe
                 // lda special_characters + (88 * 8) + i, x
                 // sta char_set_ram + (88 * 8) + i, x
