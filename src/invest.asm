@@ -5,6 +5,17 @@
 #import "engine/val_to_dec_str.asm"
 #import "engine/scrn_addr.inc"
 
+
+init_inv:
+        lda #$00
+        ldx #$00
+init_inv_loop:
+        sta investment_table, X
+        inx
+        cpx #$23
+        bne init_inv=_loop
+        rts
+
 init_itb:
         lda #$00
         ldx #$00
@@ -18,13 +29,14 @@ init_itb_loop:
 update_itb:
         jsr recalc_itb
         jsr write_itb
-	jmp write_investments
+        rts
+
 
 recalc_itb:
         ldx #$00
 recalc_itb_loop:
         lda itb, X
-        add #$10
+        add investment_table, X
         bcc recalc_itb_no_overflow
         lda #$ff
 recalc_itb_no_overflow:

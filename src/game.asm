@@ -70,6 +70,7 @@ start:
 	jsr copy_screens
 	jsr init_money
 	jsr init_itb
+    jsr init_inv
 	jsr init_disaster
 
 	jsr change_font
