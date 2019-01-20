@@ -13,7 +13,7 @@ init_inv_loop:
         sta investment_table, X
         inx
         cpx #$23
-        bne init_inv=_loop
+        bne init_inv_loop
         rts
 
 init_itb:
