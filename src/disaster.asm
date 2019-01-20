@@ -79,6 +79,41 @@ write_disaster_date_loop:
         bpl write_disaster_date_loop
         rts
 
+write_disaster_impact:
+        lda #$00
+        sta c_h_hi
+
+        lda impact_table
+        sta c_h_lo
+        jsr itoa
+        mov dec_chars : screen_log+coordToAddr(11, 13)
+        mov dec_chars+1 : screen_log+coordToAddr(11, 13)+1
+        mov dec_chars+2 : screen_log+coordToAddr(11, 13)+2
+
+        lda impact_table+1
+        sta c_h_lo
+        jsr itoa
+        mov dec_chars : screen_log+coordToAddr(11, 16)
+        mov dec_chars+1 : screen_log+coordToAddr(11, 16)+1
+        mov dec_chars+2 : screen_log+coordToAddr(11, 16)+2
+
+        lda impact_table+2
+        sta c_h_lo
+        jsr itoa
+        mov dec_chars : screen_log+coordToAddr(11, 19)
+        mov dec_chars+1 : screen_log+coordToAddr(11, 19)+1
+        mov dec_chars+2 : screen_log+coordToAddr(11, 19)+2
+
+        lda impact_table+3
+        sta c_h_lo
+        jsr itoa
+        mov dec_chars : screen_log+coordToAddr(11, 21)
+        mov dec_chars+1 : screen_log+coordToAddr(11, 21)+1
+        mov dec_chars+2 : screen_log+coordToAddr(11, 21+2
+        rts
+
+
+
 
 text_length:
         .byte $0c, $0c, $0a, $0b
