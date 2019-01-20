@@ -24,7 +24,17 @@ init_itb_loop:
         inx
         cpx #$23
         bne init_itb_loop
+        jsr init_health
         rts
+
+init_health:
+        lda #$ff
+        sta itb+4
+        sta itb+9
+        sta itb+14
+        sta itb+19
+        rts
+
 
 update_itb:
         jsr recalc_itb

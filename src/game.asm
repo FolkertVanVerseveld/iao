@@ -632,13 +632,14 @@ irq_text_top:
 	sta sprmask
 
 	lda lfsr4_state
+    tax
+    ldy tbl_col_disaster, X
 	lsr; lsr
 	tax
 	lda tbl_dis_spr, x
 	sta screen_log + $3f8 + 4
 
-	lda #WHITE
-	sta sprcol4
+	sty sprcol4
 	lda #$20
 	sta sprx4
 	lda #$40
