@@ -17,6 +17,12 @@ Code: methos, flevosap, theezakje
 
 // methos' stuff:
 
+// cia1 state
+.const key_x = $03
+.const key_y = $04
+.const key_ddr0 = $05
+.const key_ddr1 = $06
+
 .const lfsr4 = $07 // alias for lfsr4_state
 .const lfsr4_state = $07
 .const lfsr4_bit = $08

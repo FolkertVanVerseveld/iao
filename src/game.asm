@@ -68,8 +68,8 @@ start:
 	jsr initialize_month_timer
 	jsr init_sprites
 	jsr copy_screens
-    jsr init_money
-    jsr init_itb
+	jsr init_money
+	jsr init_itb
 
 	jsr change_font
 
@@ -96,9 +96,7 @@ start:
 .pc = * "Game loop"
 
 game_loop:
-	// process keyboard and joystick
-	jsr key_ctl
-	jsr joy_ctl
+	jsr handle_input
 	// do game tick
 
 	lda cia_timer_register
@@ -106,24 +104,92 @@ game_loop:
 	beq game_loop
 	jsr update_date
 	jsr update_money
-    jsr update_itb
+	jsr update_itb
 
 	jmp game_loop
 
-key_ctl:
-	jsr read_key
-	lda key_res
-	cmp #%10000000
-	beq no_screen_key
-	sec
-	sbc #$3
-	bmi no_screen_key
-	cmp #$4
-	bpl no_screen_key
-	tax
-	lda trans_key, x
-	sta window
-	jmp update_screen
+// NOTE inlined: kbdjoy.asm
+// process keyboard and joystick
+handle_input:
+	// save cia1 state
+	lda $dc02
+	sta key_ddr0
+	lda $dc03
+	sta key_ddr1
+	jsr Keyboard
+	bcs !+
+	stx key_x
+	sty key_y
+	cmp #$ff
+	beq !no_alpha+
+	// TODO handle alphanumeric key
+	.if (true) {
+	cmp #$20
+	bne !+
+	jmp game_over
+!:
+}
+	.if (true) {
+	sta screen_main
+	lda #BLACK
+	sta colram
+	}
+!no_alpha:
+	// TODO handle X-Y key
+	// either X or Y is nonzero
+	ldy key_y
+	ldx key_x
+	bne !+
+	// check if run/stop has been pressed
+	cpy #%10000000
+	bne !+
+	jmp game_over
+!:
+	.if (true) {
+	lda #BLACK
+	sta colram + 1
+	sta colram + 2
+	stx screen_main + 1
+	sty screen_main + 2
+	}
+	//inc $d020
+!:
+	// restore cia1 state
+	//lda key_ddr0
+	lda #0
+	sta $dc02
+	lda key_ddr1
+	sta $dc03
+	// read joy2 state
+	lda $dc00
+	and #%11111
+	// TODO handle joystick
+	jmp joy_ctl
+	sta joy2
+
+	// debug stuff
+	.if (true) {
+	lda #BLACK
+	sta colram
+	lda joy2
+	sta screen_main
+	}
+	rts
+
+//key_ctl:
+//	jsr read_key
+//	lda key_res
+//	cmp #%10000000
+//	beq no_screen_key
+//	sec
+//	sbc #$3
+//	bmi no_screen_key
+//	cmp #$4
+//	bpl no_screen_key
+//	tax
+//	lda trans_key, x
+//	sta window
+//	jmp update_screen
 
 no_screen_key:
 	rts
@@ -134,9 +200,11 @@ trans_key:
 // joystick control
 
 joy_ctl:
+	.if (false) {
 	// show joy2 for debug purposes
 	lda $dc00
 	sta joy2
+	}
 
 	// if no buttons are pressed, joy2_dir = 0
 	ldx #0
@@ -336,8 +404,6 @@ game_over:
 	bne !-
 	lda gameover_timer
 	bne !-
-
-	rts
 
 	// go to main menu if top loader is present or soft reset
 reset_ctl:
@@ -836,7 +902,7 @@ next_disaster:
 	ldx lfsr4_state
 
 	// store state on screen to know it should work...
-	.if (true) {
+	.if (false) {
 	lda hexstring, x
 	sta screen_main
 	lda #WHITE
@@ -1060,7 +1126,7 @@ data_arrow:
 
 .pc = * "keyboard driver"
 
-#import "key.asm"
+#import "kbd.asm"
 
 #import "oeps.spr"
 
