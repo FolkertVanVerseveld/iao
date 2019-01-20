@@ -38,6 +38,10 @@ Code: methos, theezakje, flevosap
 
 .var spr_empty    = sprdata + 9 * 64
 
+.var spr_water	  = sprdata + 10 * 64
+.var spr_elec	  = sprdata + 11 * 64
+.var spr_cyb	  = sprdata + 12 * 64
+
 .var irq_text_top_line = $30
 
 // open border magic happens in this irq, DO NOT CHANGE
@@ -74,6 +78,7 @@ start:
 	jsr init_itb
     jsr init_inv
 	jsr init_disaster
+	jsr init_disaster_sprite
 
 	jsr change_font
 
@@ -628,6 +633,12 @@ init_sprites:
 	sta spr_oeps3, x
 	lda #0
 	sta spr_empty, x
+	lda data_water, X
+	sta spr_water, X
+	lda data_elec, X
+	sta spr_elec, X
+	lda data_cyb, X
+	sta spr_cyb, X
 	inx
 	cpx #63
 	bne !-
@@ -711,6 +722,20 @@ init_menu_sprites:
 	sta sprcol7
 	rts
 
+init_disaster_sprite:
+	lda #sprpos(vic, spr_water)
+	sta sprptr(screen_log, 4)
+	lda #$30
+	sta sprx4
+	sta spry4
+	//lda #%000010000
+	//sta sprdw
+	//sta sprdh
+	rts
+
+set_dis_spr:
+	rts
+
 tbl_bkg_col:
 	// screens: map, money, log, settings
 	.byte GREEN, BLACK, GREY, BLACK
@@ -784,6 +809,18 @@ update_arrow:
 	rts
 
 update_screen:
+	lda window
+	cmp #$02
+	bne not_dis_scr
+	lda sprmask
+	add #%00010000
+	sta sprmask
+	jmp jmp_dis_scr
+not_dis_scr:
+	lda sprmask
+	and #%11101111
+	sta sprmask
+jmp_dis_scr:
 	jsr update_arrow
 	lda vec_colram_lo, x
 	sta jmp_buf
@@ -938,6 +975,8 @@ hexstring:
 
 next_disaster:
 	ldx lfsr4_state
+
+	jsr set_dis_spr
 
 	// store state on screen to know it should work...
 	.if (false) {
@@ -1148,6 +1187,33 @@ data_arrow:
 	.byte $ff,$c0,$00,$0f,$80,$00,$0f,$00
 	.byte $00,$0e,$00,$00,$0c,$00,$00,$08
 	.byte $00,$00,$00,$00,$00,$00,$00,$00
+data_water:
+	.byte $00,$00,$00,$00,$00,$00,$00,$18
+	.byte $00,$00,$18,$00,$00,$18,$00,$00
+	.byte $3c,$00,$00,$3c,$00,$00,$7e,$00
+	.byte $00,$7e,$00,$00,$ff,$00,$00,$ff
+	.byte $00,$01,$ff,$80,$01,$ff,$80,$01
+	.byte $ff,$80,$01,$ff,$80,$01,$ff,$80
+	.byte $00,$ff,$00,$00,$7e,$00,$00,$3c
+	.byte $00,$00,$00,$00,$00,$00,$00,$06
+data_elec:
+	.byte $00,$00,$00,$00,$1f,$c0,$00,$1f
+	.byte $c0,$00,$3f,$80,$00,$3f,$00,$00
+	.byte $7e,$00,$00,$7c,$00,$00,$f8,$00
+	.byte $00,$3f,$00,$00,$3e,$00,$00,$7c
+	.byte $00,$00,$78,$00,$00,$f0,$00,$00
+	.byte $e0,$00,$01,$c0,$00,$01,$80,$00
+	.byte $03,$00,$00,$02,$00,$00,$04,$00
+	.byte $00,$00,$00,$00,$00,$00,$00,$07
+data_cyb:
+	.byte $00,$00,$00,$00,$00,$00,$00,$3c
+	.byte $00,$00,$3c,$00,$00,$3c,$00,$00
+	.byte $3c,$00,$0c,$3c,$30,$0f,$3c,$f0
+	.byte $1f,$ff,$f8,$1f,$ff,$f8,$0f,$ff
+	.byte $f0,$03,$ff,$c0,$00,$ff,$00,$01
+	.byte $ff,$80,$01,$ff,$80,$03,$ff,$c0
+	.byte $07,$e7,$e0,$07,$c3,$e0,$03,$81
+	.byte $c0,$00,$00,$00,$00,$00,$00,$05
 
 .pc = * "keyboard driver"
 
