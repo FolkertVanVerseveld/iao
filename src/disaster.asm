@@ -62,7 +62,7 @@ write_disaster_done:
         rts
 
 clear_disaster_text:
-        lda #$32
+        lda #$20
         ldx #$10
 clear_disaster_text_loop:
         sta screen_log+coordToAddr(14, 2), X
