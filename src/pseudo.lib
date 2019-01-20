@@ -127,6 +127,8 @@
 !zero_loop:
 	inx
 	lda dec_char,x
+	cpx #4
+	beq !copy_loop+
 	cmp #$30
     beq !zero_loop-
 !copy_loop:
