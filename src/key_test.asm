@@ -16,7 +16,9 @@ BasicUpstart2(start)
 
 .const screen = $0400
 .const colram = $d800
-.const char_set_ram = $2000
+.const char_set_ram = $d000
+
+// .var game_font = vic + 6 * 2 * $0400
 
 .const table_row_val = $0405
 .const table_col_val = $0410
@@ -651,28 +653,30 @@ import_characters:
         // and #%11011111
         // sta $d016
 
-        lda #%10111111
-        sta $d011
-        lda #%11011111
-        sta $d016
+        // lda #%10111111
+        // sta $d011
+        // lda #%11011111
+        // sta $d016
 
         // Horizontal line
+        ldx #0
         .for (var i = 0; i < 8; i++) {
-                lda special_characters + 195 + i, x
-                sta char_set_ram + 195 + i, x
+                lda special_characters + ($1C * 8) + i, x
+                sta char_set_ram + (195 * 8) + i, x
                 // T pipe
-                lda special_characters + 88 + i, x
-                sta char_set_ram + 88 + i, x
-                // Corner piece
-                lda special_characters + 114 + i, x
-                sta char_set_ram + 114 + i, x
-                // Sideways T pipe
-                lda special_characters + 107 + i, x
-                sta char_set_ram + 107 + i, x
-                // Cross piece
-                lda special_characters + 91 + i, x
-                sta char_set_ram + 91 + i, x
+                // lda special_characters + (88 * 8) + i, x
+                // sta char_set_ram + (88 * 8) + i, x
+                // // Corner piece
+                // lda special_characters + (114 * 8) + i, x
+                // sta char_set_ram + (114 * 8) + i, x
+                // // Sideways T pipe
+                // lda special_characters + (107 * 8) + i, x
+                // sta char_set_ram + (107 * 8) + i, x
+                // // Cross piece
+                // lda special_characters + (91 * 8) + i, x
+                // sta char_set_ram + (91 * 8) + i, x
         }
+        rts
         // .for (var i = 0; i < 8; i++) {
 	// 	lda yorks_characters + i, x
         //         sta char_set_ram + (i * 8)
