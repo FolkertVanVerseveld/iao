@@ -106,13 +106,24 @@ game_loop:
 	lda cia_timer_register
 	and #2
 	beq game_loop
+
 	jsr update_date
 	jsr update_money
 	jsr update_subsidy
 	jsr update_expenditure
 	jsr update_itb
+
+	// check if we have a new disaster
+	dec disaster_timer
+	bne !+
 	jsr next_disaster
 	jsr update_disaster
+	ldx $d012
+	inx
+	txa
+	and #%11
+	sta disaster_timer
+!:
 
 	jmp game_loop
 
@@ -412,6 +423,13 @@ init:
         mov #1 : date_month
         mov #11 : date_year
         mov #64 : date_last
+
+	// disaster_prng
+	ldx $d012
+	inx
+	txa
+	and #%11
+	sta disaster_timer
 	rts
 
 game_over:
