@@ -48,10 +48,7 @@ update_money:
         bcs !end+
 
         // Negative overflow, we've spent more than we have
-        lda stat_flg
-        ora #%10000000
-        sta stat_flg
-        rts
+        jmp game_over
 !end:
         sta money + 1
         jsr write_money
