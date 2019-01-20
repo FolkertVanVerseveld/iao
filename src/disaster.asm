@@ -108,9 +108,9 @@ write_disaster_impact:
         lda impact_table+3
         sta c_h_lo
         jsr itoa
-        mov dec_chars : screen_log+coordToAddr(11, 21)
-        mov dec_chars+1 : screen_log+coordToAddr(11, 21)+1
-        mov dec_chars+2 : screen_log+coordToAddr(11, 21)+2
+        mov dec_chars : screen_log+coordToAddr(11, 22)
+        mov dec_chars+1 : screen_log+coordToAddr(11, 22)+1
+        mov dec_chars+2 : screen_log+coordToAddr(11, 22)+2
         rts
 
 
