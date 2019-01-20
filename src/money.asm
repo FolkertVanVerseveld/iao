@@ -6,13 +6,13 @@
 #import "engine/val_to_dec_str.asm"
 
 init_money:
-        lda #$00
+        lda #$01
         sta money
         sta money+1
 
         sta subsidy+1
         sta expenditure+1
-        lda #$10
+        lda #$e3
         sta subsidy
         lda #$00
         sta expenditure
