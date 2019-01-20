@@ -105,6 +105,7 @@ game_loop:
 	beq game_loop
 	jsr update_date
 	jsr update_money
+	jsr update_subsidy
     jsr update_itb
     jsr next_disaster
     jsr update_disaster

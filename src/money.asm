@@ -14,6 +14,8 @@ init_money:
         lda #$10
         sta subsidy
 
+.pc = * "Update Money"
+
 update_money:
         // add subsidy to balance
         clc
@@ -39,7 +41,7 @@ update_money:
         sbc expenditure
         lda money + 1
         sbc expenditure + 1
-        bcc !end+
+        bcs !end+
 
         // Negative overflow, we've spent more than we have
         lda stat_flg
@@ -51,7 +53,10 @@ update_money:
 
 //TODO
 update_subsidy:
+        jsr write_subsidy
         rts
+
+.pc = * "Update Expenditure"
 
 update_expenditure:
         ldx #35                                         // 2
@@ -74,31 +79,24 @@ update_expenditure:
         // ~670 cycles
 
 
+.pc = * "Write money"
+
 write_money:
         mov16 money : c_h_lo
         jsr itoa
-        // update screen 1
-        mov dec_char : screen_main+coordToAddr(1, 24)
-        mov dec_char+1 : screen_main+coordToAddr(2, 24)
-        mov dec_char+2 : screen_main+coordToAddr(3, 24)
-        mov dec_char+3 : screen_main+coordToAddr(4, 24)
-        mov dec_char+4 : screen_main+coordToAddr(5, 24)
-        // update screen 2
-        mov dec_char : screen_subsidies+coordToAddr(1, 24)
-        mov dec_char+1 : screen_subsidies+coordToAddr(2, 24)
-        mov dec_char+2 : screen_subsidies+coordToAddr(3, 24)
-        mov dec_char+3 : screen_subsidies+coordToAddr(4, 24)
-        mov dec_char+4 : screen_subsidies+coordToAddr(5, 24)
-        // update screen 3
-        mov dec_char : screen_log+coordToAddr(1, 24)
-        mov dec_char+1 : screen_log+coordToAddr(2, 24)
-        mov dec_char+2 : screen_log+coordToAddr(3, 24)
-        mov dec_char+3 : screen_log+coordToAddr(4, 24)
-        mov dec_char+4 : screen_log+coordToAddr(5, 24)
+
+        mov_money_str16(screen_main, 1, 24)
+        mov_money_str16(screen_subsidies, 1, 24)
+        mov_money_str16(screen_log, 1, 24)
         rts
 
 write_subsidy:
+        mov16 subsidy : c_h_lo
+        jsr itoa
 
+        mov_money_str16(screen_main, 11, 24)
+        mov_money_str16(screen_subsidies, 11, 24)
+        mov_money_str16(screen_log, 11, 24)
         rts
 
 write_expenditure:
