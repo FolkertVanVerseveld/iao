@@ -17,6 +17,12 @@ Code: methos, flevosap, theezakje
 
 // methos' stuff:
 
+// cia1 state
+.const key_x = $03
+.const key_y = $04
+.const key_ddr0 = $05
+.const key_ddr1 = $06
+
 .const lfsr4 = $07 // alias for lfsr4_state
 .const lfsr4_state = $07
 .const lfsr4_bit = $08
@@ -49,12 +55,26 @@ Code: methos, flevosap, theezakje
 // global status flags
 .const stat_flg = $20
 
+/*** KEYBOARD DRIVER. DO NOT CHANGE ***/
+
+.const ScanResult       = $50  // 8 bytes
+.const BufferNew        = $58  // 3 bytes
+.const KeyQuantity      = $5b  // 1 byte
+.const NonAlphaFlagX    = $5c  // 1 byte
+.const NonAlphaFlagY    = $5d  // 1 byte
+.const TempZP           = $5e  // 1 byte
+.const SimultaneousKeys = $5f  // 1 byte
+
 // more game stuff
 
 // NOTE 2 bytes long
 .const disaster_timer = $ce
 
 // flevosap's and theezakje's stuff:
+// Disaster
+.const impact_table = $60
+.const disaster_num = $67
+
 // Finance
 .const investment_table = $98
 

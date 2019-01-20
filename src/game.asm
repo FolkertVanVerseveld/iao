@@ -70,6 +70,7 @@ start:
 	jsr copy_screens
     jsr init_money
     jsr init_itb
+    jsr init_disaster
 
 	jsr change_font
 
@@ -96,9 +97,7 @@ start:
 .pc = * "Game loop"
 
 game_loop:
-	// process keyboard and joystick
-	jsr key_ctl
-	jsr joy_ctl
+	jsr handle_input
 	// do game tick
 
 	lda cia_timer_register
@@ -107,23 +106,131 @@ game_loop:
 	jsr update_date
 	jsr update_money
     jsr update_itb
+    jsr next_disaster
+    jsr update_disaster
 
 	jmp game_loop
 
-key_ctl:
-	jsr read_key
-	lda key_res
-	cmp #%10000000
-	beq no_screen_key
-	sec
-	sbc #$3
-	bmi no_screen_key
-	cmp #$4
-	bpl no_screen_key
-	tax
-	lda trans_key, x
+.pc = * "Input handling"
+
+/*
+handle normal key
+
++=================================================+
+|             Returned in Accumulator             |
++===========+===========+=============+===========+
+|  $00 - @  |  $10 - p  |  $20 - SPC  |  $30 - 0  |
+|  $01 - a  |  $11 - q  |  $21 -      |  $31 - 1  |
+|  $02 - b  |  $12 - r  |  $22 -      |  $32 - 2  |
+|  $03 - c  |  $13 - s  |  $23 -      |  $33 - 3  |
+|  $04 - d  |  $14 - t  |  $24 -      |  $34 - 4  |
+|  $05 - e  |  $15 - u  |  $25 -      |  $35 - 5  |
+|  $06 - f  |  $16 - v  |  $26 -      |  $36 - 6  |
+|  $07 - g  |  $17 - w  |  $27 -      |  $37 - 7  |
+|  $08 - h  |  $18 - x  |  $28 -      |  $38 - 8  |
+|  $09 - i  |  $19 - y  |  $29 -      |  $39 - 9  |
+|  $0a - j  |  $1a - z  |  $2a - *    |  $3a - :  |
+|  $0b - k  |  $1b -    |  $2b - +    |  $3b - ;  |
+|  $0c - l  |  $1c - £  |  $2c - ,    |  $3c -    |
+|  $0d - m  |  $1d -    |  $2d - -    |  $3d - =  |
+|  $0e - n  |  $1e - ^  |  $2e - .    |  $3e -    |
+|  $0f - o  |  $1f - <- |  $2f - /    |  $3f -    |
++-----------+-----------+-------------+-----------+
+*/
+handle_key:
+	rts
+
+/*
+handle function key
++================================================================================
+|                             Return in X-Register                              |
++=========+=========+=========+=========+=========+=========+=========+=========+
+|  Bit 7  |  Bit 6  |  Bit 5  |  Bit 4  |  Bit 3  |  Bit 2  |  Bit 1  |  Bit 0  |
++---------+---------+---------+---------+---------+---------+---------+---------+
+| CRSR UD |   F5    |   F3    |   F1    |   F7    | CRSR RL | RETURN  |INST/DEL |
++---------+---------+---------+---------+---------+---------+---------+---------+
+*/
+handle_function_key:
+	// check f7
+	cpx #%1000
+	bne !+
+	lda #3
 	sta window
 	jmp update_screen
+!:
+	cpx #%10000
+	bne !+
+	lda #0
+	sta window
+	jmp update_screen
+!:
+	cpx #%100000
+	bne !+
+	lda #1
+	sta window
+	jmp update_screen
+!:
+	cpx #%1000000
+	bne !+
+	lda #2
+	sta window
+	jmp update_screen
+!:
+	rts
+
+/*
+handle special key
++================================================================================
+|                             Return in Y-Register                              |
++=========+=========+=========+=========+=========+=========+=========+=========+
+|  Bit 7  |  Bit 6  |  Bit 5  |  Bit 4  |  Bit 3  |  Bit 2  |  Bit 1  |  Bit 0  |
++---------+---------+---------+---------+---------+---------+---------+---------+
+|RUN STOP | L-SHIFT |   C=    | R-SHIFT |CLR/HOME |  CTRL   |         |         |
++---------+---------+---------+---------+---------+---------+---------+---------+
+*/
+handle_special_key:
+	// check if run/stop has been pressed
+	cpy #%10000000
+	bne !+
+	jmp game_over
+!:
+	rts
+
+// NOTE inlined: kbdjoy.asm
+// process keyboard and joystick
+handle_input:
+	// save CIA1 state
+	lda $dc02
+	sta key_ddr0
+	lda $dc03
+	sta key_ddr1
+	jsr Keyboard
+	bcs !+
+	stx key_x
+	sty key_y
+	cmp #$ff
+	beq !no_alpha+
+	// handle alphanumeric key
+	jsr handle_key
+!no_alpha:
+	ldx key_x
+	beq !+
+	jsr handle_function_key
+!:
+	ldy key_y
+	beq !+
+	jsr handle_special_key
+!:
+	// restore CIA1 state
+	lda #0
+	sta $dc02
+	lda key_ddr1
+	sta $dc03
+	// read joy2 state
+	lda $dc00
+	and #%11111
+	// handle joystick
+	jmp joy_ctl
 
 no_screen_key:
 	rts
@@ -134,9 +241,11 @@ trans_key:
 // joystick control
 
 joy_ctl:
+	.if (false) {
 	// show joy2 for debug purposes
 	lda $dc00
 	sta joy2
+	}
 
 	// if no buttons are pressed, joy2_dir = 0
 	ldx #0
@@ -174,6 +283,8 @@ joy_ctl:
 	lda joy2_dir
 	sta joy2_dir_old
 	rts
+
+.pc = * "screen navigation"
 
 scr_next:
 	// window = (window + 1) % screen_count
@@ -336,8 +447,6 @@ game_over:
 	bne !-
 	lda gameover_timer
 	bne !-
-
-	rts
 
 	// go to main menu if top loader is present or soft reset
 reset_ctl:
@@ -836,7 +945,7 @@ next_disaster:
 	ldx lfsr4_state
 
 	// store state on screen to know it should work...
-	.if (true) {
+	.if (false) {
 	lda hexstring, x
 	sta screen_main
 	lda #WHITE
@@ -1060,7 +1169,7 @@ data_arrow:
 
 .pc = * "keyboard driver"
 
-#import "key.asm"
+#import "kbd.asm"
 
 #import "oeps.spr"
 
@@ -1147,6 +1256,9 @@ sid_gameover:
 
 .pc = * "itb routines"
 #import "invest.asm"
+
+.pc = * "disaster screen routines"
+#import "disaster.asm"
 
 #import "engine/val_to_dec_str.asm"
 #import "engine/date.asm"
