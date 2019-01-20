@@ -42,6 +42,7 @@ update_money:
         lda money
         sec
         sbc expenditure
+        sta money
         lda money + 1
         sbc expenditure + 1
         bcs !end+
@@ -51,6 +52,7 @@ update_money:
         ora #%10000000
         sta stat_flg
 !end:
+        sta money + 1
         jsr write_money
         rts
 
