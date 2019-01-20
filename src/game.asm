@@ -121,6 +121,8 @@ game_loop:
 	jsr update_expenditure
 	jsr update_itb
 
+	jsr update_hearts
+
 	// check if we have a new disaster
 	dec disaster_timer
 	bne !s+
@@ -128,6 +130,8 @@ game_loop:
 	jsr update_disaster
 	jsr copy_impact
 	jsr subtract_impact
+	jsr update_hearts
+	// choose new random interval
 	lda $d012
 	and #%11
 	bne !+
@@ -1593,6 +1597,59 @@ subsidies_handle_key:
     jsr update_expenditure
 !skip:
 	rts
+
+update_hearts:
+	lda itb + 0 * 5 + 4
+	lsr; lsr; lsr; lsr
+	tax
+	lda tbl_hearts_col, x
+	sta level1_color_data + coordToAddr(22, 5)
+	lda itb + 1 * 5 + 4
+	lsr; lsr; lsr; lsr
+	tax
+	lda tbl_hearts_col, x
+	sta level1_color_data + coordToAddr(16, 20)
+	lda itb + 2 * 5 + 4
+	lsr; lsr; lsr; lsr
+	tax
+	lda tbl_hearts_col, x
+	sta level1_color_data + coordToAddr(38, 8)
+	lda itb + 3 * 5 + 4
+	lsr; lsr; lsr; lsr
+	tax
+	lda tbl_hearts_col, x
+	sta level1_color_data + coordToAddr(2, 8)
+
+	lda window
+	bne !+
+	lda itb + 0 * 5 + 4
+	lsr; lsr; lsr; lsr
+	tax
+	lda tbl_hearts_col, x
+	sta colram + coordToAddr(22, 5)
+	lda itb + 1 * 5 + 4
+	lsr; lsr; lsr; lsr
+	tax
+	lda tbl_hearts_col, x
+	sta colram + coordToAddr(16, 20)
+	lda itb + 2 * 5 + 4
+	lsr; lsr; lsr; lsr
+	tax
+	lda tbl_hearts_col, x
+	sta colram + coordToAddr(38, 8)
+	lda itb + 3 * 5 + 4
+	lsr; lsr; lsr; lsr
+	tax
+	lda tbl_hearts_col, x
+	sta colram + coordToAddr(2, 8)
+!:
+	rts
+
+tbl_hearts_col:
+	.byte BLACK, BLACK, RED, RED
+	.byte RED, ORANGE, ORANGE, ORANGE
+	.byte ORANGE, YELLOW, YELLOW, YELLOW
+	.byte YELLOW, LIGHT_GREEN, LIGHT_GREEN, LIGHT_GREEN
 
 tbl_sub_cost:
 	.byte 5, 5, 5, 5, 20

@@ -99,6 +99,7 @@ fetch:
 !:
 
 	// setup video hardware
+	sei
 
 	// character at $1000-$1FFF, screen at $0400-$07FF
 	lda #%00010100
@@ -114,6 +115,8 @@ fetch:
 	lda #BLACK
 	sta $d020
 	sta $d021
+
+	cli
 
 .pc = * "load code"
 
