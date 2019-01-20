@@ -43,7 +43,7 @@ recalc_itb_no_overflow:
         sta itb, X
         inx
         cpx #$23
-        bne init_itb_loop
+        bne recalc_itb_loop
         rts
 
 
