@@ -51,6 +51,7 @@ update_money:
         lda stat_flg
         ora #%10000000
         sta stat_flg
+        rts
 !end:
         sta money + 1
         jsr write_money
@@ -70,7 +71,7 @@ update_expenditure:
         clc                                             // 2
 
 !loop:
-        adc investment_table, x                         // 4
+        adc investment_table - 1, x                     // 4
         bcc !cont+                                      // 2/3/4
         clc                                             // 2
         inc expenditure + 1                             // 5
