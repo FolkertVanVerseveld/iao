@@ -106,9 +106,6 @@ game_loop:
 	jsr update_date
 	jsr update_money
 	jsr update_subsidy
-	jsr update_itb
-	jsr next_disaster
-	jsr update_disaster
 	jsr update_expenditure
 	jsr update_itb
 	jsr next_disaster
@@ -1394,6 +1391,7 @@ subsidies_handle_key:
 	sta investment_table, x
 
 	jsr write_investments
+    jsr update_expenditure
 !:
 
 !skip:
@@ -1433,6 +1431,7 @@ subsidies_handle_key:
 	}
 
 	jsr write_investments
+    jsr update_expenditure
 !skip:
 	rts
 
