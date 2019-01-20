@@ -109,7 +109,7 @@ game_loop:
 	jsr update_itb
 	jsr next_disaster
 	jsr update_disaster
-	//jsr update_expenditure
+	jsr update_expenditure
 	jsr update_itb
 	jsr next_disaster
 	jsr update_disaster

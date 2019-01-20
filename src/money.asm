@@ -89,25 +89,27 @@ write_money:
         mov16 money : c_h_lo
         jsr itoa
 
-        mov_money_str16(screen_main, 1, 24)
-        mov_money_str16(screen_subsidies, 1, 24)
-        mov_money_str16(screen_log, 1, 24)
+        mov_money_str16(screen_main, 1, 24, false)
+        mov_money_str16(screen_subsidies, 1, 24, false)
+        mov_money_str16(screen_log, 1, 24, false)
         rts
 
+.pc = * "Write subsidy"
 write_subsidy:
         mov16 subsidy : c_h_lo
         jsr itoa
 
-        mov_money_str16(screen_main, 11, 24)
-        mov_money_str16(screen_subsidies, 11, 24)
-        mov_money_str16(screen_log, 11, 24)
+        mov_money_str16(screen_main, 11, 24, true)
+        mov_money_str16(screen_subsidies, 11, 24, true)
+        mov_money_str16(screen_log, 11, 24, true)
         rts
 
+.pc = * "Write expenditure"
 write_expenditure:
         mov16 expenditure : c_h_lo
-        //jsr itoa
+        jsr itoa
 
-        mov_money_str16(screen_main, 23, 24)
-        mov_money_str16(screen_subsidies, 23, 24)
-        mov_money_str16(screen_log, 23, 24)
+        mov_money_str16(screen_main, 23, 24, true)
+        mov_money_str16(screen_subsidies, 23, 24, true)
+        mov_money_str16(screen_log, 23, 24, true)
         rts

@@ -121,7 +121,7 @@
 	sta dec_val+4
 }
 
-.macro mov_money_str16(screen_addr, coord_x, coord_y) {
+.macro mov_money_str16(screen_addr, coord_x, coord_y, monthly) {
 	ldx #$ff
 	ldy #0
 !zero_loop:
@@ -138,9 +138,16 @@
 	bne !copy_loop-
 	lda #'k'
 	sta screen_addr+coordToAddr(coord_x, coord_y),y
+
+    .if (monthly) {
+		lda #'/'
+		sta screen_addr+coordToAddr(coord_x, coord_y)+1,y
+		lda #'m'
+		sta screen_addr+coordToAddr(coord_x, coord_y)+2,y
+	}
+
 	ldx #' '
 	// y contains position of 'K'
-	dey
 	lda #0
 	clc
 !branch_modify_loop:
@@ -152,10 +159,15 @@
 !branch:
 	bvc !fill_spaces+
 !fill_spaces:
-	stx screen_addr+coordToAddr(coord_x + 2, coord_y)
-	stx screen_addr+coordToAddr(coord_x + 3, coord_y)
-	stx screen_addr+coordToAddr(coord_x + 4, coord_y)
-	stx screen_addr+coordToAddr(coord_x + 5, coord_y)
+	.if (monthly) {
+		.for (var i = 1; i < 6; i++) {
+			stx screen_addr+coordToAddr(coord_x + i, coord_y)+2
+		}
+	} else {
+		.for (var i = 1; i < 6; i++) {
+			stx screen_addr+coordToAddr(coord_x + i, coord_y)
+		}
+	}
 }
 
 .function coordToAddr(x, y) {
