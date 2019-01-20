@@ -6,7 +6,7 @@
 #import "engine/val_to_dec_str.asm"
 
 init_money:
-        lda #$01
+        lda #$00
         sta money
         sta money+1
 
