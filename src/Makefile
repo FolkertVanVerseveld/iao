@@ -1,7 +1,7 @@
 .PHONY: default clean
 
 default: game.d64
-game.d64: start.prg menu.prg game.prg rol.prg pager.prg
+game.d64: start.prg menu.prg game.prg rol.prg pager.prg bars.prg
 	c1541 -format iaodrip,id d64 game.d64 -write start.prg -write menu.prg -write game.prg -write rol.prg credits.prg -write pager.prg tutorial.prg -write bars.prg win.prg
 start.prg: top.prg zeropage.inc pseudo.lib loader.inc kernal.inc basic.inc start.asm
 	kickass start.asm

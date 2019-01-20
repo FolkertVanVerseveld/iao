@@ -170,6 +170,28 @@ goto_menu:
 	sta prg_index
 	jmp top_loader_start
 
+init:
+	// clear zero page area [2, $e0]
+	ldx #2
+	lda #0
+!:
+	sta 0, x
+	inx
+	cpx #$e0
+	bne !-
+	// check if top loader is present
+	ldx #0
+	lda top_loader_start
+	cmp #<top_magic
+	bne !+
+	lda top_loader_start + 1
+	cmp #>top_magic
+	bne !+
+	ldx #1
+!:
+	stx has_top_loader
+	rts
+
 .align $100
 irq_top:
 	irq
@@ -662,7 +684,7 @@ f 15: lichtgrijs
 .align $100
 image:
 	.byte	$20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20
-	.text "             gefeliciteerd              "
+	.byte	$20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $0B, $0F, $05, $0C, $09, $05, $0A, $0F, $05, $0C, $09, $05, $21, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20
 	.byte	$20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20
 	.byte	$20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20
 	.byte	$20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20
@@ -731,11 +753,15 @@ colors:
 
 	//     0123456789abcdef0123456789abcdef
 texts:
-	.text "     gefeliciteerd!     "
-	.text "       yo gasten!       "
-	.text "party coding to the max!"
-	.text "   released at unc 18   "
-	.text "      code: methos      "
+	.text "    goed gedaan hoor!   "
+	.text "er zijn maar weinig die "
+	.text "   zover zijn gekomen!  "
+	.text "------------------------"
+	.text "         drip           "
+	.text "   gemaakt aan de uva   "
+	.text " code: methos, flevosap "
+	.text "     theezakje, york    "
+	// nog meer tekst, verzin iets leuks :p
 	.text "       gfx: snorro      "
 	.text "  font: methos & snorro "
 	.text "       sid: evs         "
