@@ -23,6 +23,7 @@ update_disaster:
         jsr clear_disaster_text
         jsr write_disaster_txt
         jsr write_disaster_date
+        jsr write_disaster_impact
         rts
 
 read_disaster:
