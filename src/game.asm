@@ -140,19 +140,13 @@ handle normal key
 handle_key:
 
 	// If m is pressed, toggle music
-	// This val means options screen
-	// lda #memsetup_mask + %00010000
-	// cmp $d018
-	// bne !+
-	ldy #';'
-	sty $0401
 	// Options screen
 	ldx window
 	cpx #3
 	bne !+
 	// On options screen
 	// Should key already be loaded in to accumulator??
-	cmp #$0d // m
+	cmp #'m' // m
 	bne !+
 	jsr toggle_music
 !:
@@ -816,22 +810,18 @@ update_screen:
 	jmp (jmp_buf)
 
 toggle_music:
-	lda #';'
-	sta $0401
-	
 	ldx music_mute // Should be 0 if playing, non-zero if muted
-	cpx #$0
 	beq !+
 	// Turn on here
 	ldx #$00
 	stx music_mute
 	// Set chars in screen
 	lda #'a'
-	sta $0400 + (4 * 40) + 25
+	sta screen_options + (5 * 40) + 26
 	lda #'a'
-	sta $0400 + (4 * 40) + 26
+	sta screen_options + (5 * 40) + 27
 	lda #'n'
-	sta $0400 + (4 * 40) + 27
+	sta screen_options + (5 * 40) + 28
 	rts
 !:
 	// Turn off here
@@ -848,11 +838,11 @@ toggle_music:
 
 	// Set chars in screen
 	lda #'u'
-	sta $0400 + (4 * 40) + 25
+	sta screen_options + (5 * 40) + 26
 	lda #'i'
-	sta $0400 + (4 * 40) + 26
+	sta screen_options + (5 * 40) + 27
 	lda #'t'
-	sta $0400 + (4 * 40) + 27
+	sta screen_options + (5 * 40) + 28
 	rts
 
 /////////////////////////////////
