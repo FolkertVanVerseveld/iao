@@ -171,6 +171,12 @@ text_credits:
 	.text "  bedankt voor het spelen van ons spel!"
 	.byte $ff
 
+text_tutorial:
+	.encoding "screencode_mixed"
+	//     0123456789012345678901234567890123456789
+	.text " voor meer instructies, zie de leesmij!"
+	.byte $ff
+
 // filetable
 	.encoding "petscii_upper"
 prg_menu:
@@ -185,17 +191,21 @@ prg_credits:
 	.text "CREDITS.PRG"
 	.byte 0
 
+prg_tutorial:
+	.text "TUTORIAL.PRG"
+	.byte 0
+
 name_tbl_lo:
-	.byte <prg_menu, <prg_game, <prg_menu, <prg_credits
+	.byte <prg_menu, <prg_game, <prg_menu, <prg_credits, <prg_tutorial
 name_tbl_hi:
-	.byte >prg_menu, >prg_game, >prg_menu, >prg_credits
+	.byte >prg_menu, >prg_game, >prg_menu, >prg_credits, >prg_tutorial
 
 start_tbl_lo:
-	.byte <$80e, <$80e, <$80e, <$80e
+	.byte <$80e, <$80e, <$80e, <$80e, <$80e
 start_tbl_hi:
-	.byte >$80e, >$80e, >$80e, >$80e
+	.byte >$80e, >$80e, >$80e, >$80e, >$80e
 
 text_tbl_lo:
-	.byte <text, <text_game, <text_gameover, <text_credits
+	.byte <text, <text_game, <text_gameover, <text_credits, <text_tutorial
 text_tbl_hi:
-	.byte >text, >text_game, >text_gameover, >text_credits
+	.byte >text, >text_game, >text_gameover, >text_credits, >text_tutorial

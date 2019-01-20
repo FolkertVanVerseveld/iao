@@ -355,7 +355,7 @@ menu_start:
 	jmp top_loader_start
 
 tbl_prg:
-	.byte 1, 1, 3
+	.byte 1, 4, 3
 
 .pc = * "irqs"
 

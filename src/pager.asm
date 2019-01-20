@@ -1,24 +1,45 @@
 :BasicUpstart2(start)
 
+/*
+tutorial stuff
+code: methos
+*/
+
 #import "pseudo.lib"
+#import "zeropage.inc"
+#import "loader.inc"
+#import "joy.inc"
+#import "io.inc"
+#import "kernal.inc"
 
 .var vic = $0000
 .var screen = vic + $0400
-.var colram = $d800
 
 .var irq_line_top = 50 + 6 * 8 - 5
 .var irq_line_middle = 50 + 19 * 8 - 2
 
-.var zp = $02
+.var zp = $16
 
 .var scroll = zp + 0
 .var vscroll = zp + 1
 .var key = zp + 2
+.var index = zp + 3
+
+.var music = LoadSid("assets/Airwolf_Mix.sid")
 
 start:
+	jsr init
+
+	lda #3
+	sta $dd00
+
 	lda #0
 	sta $d020
 	sta $d021
+	sta $d015
+
+	lda #music.startSong - 1
+	jsr music.init
 
 	lda #0
 	sta scroll
@@ -30,33 +51,41 @@ start:
 	lda #%00010110
 	sta $d018
 
-	lda #' '
-	ldx #$ff
+	ldx #0
 !:
+	lda #' '
 	sta $0400, x
 	sta $0500, x
 	sta $0600, x
 	sta $06e8, x
-	dex
+	lda #5
+	sta colram + $000, x
+	sta colram + $100, x
+	sta colram + $200, x
+	sta colram + $2e8, x
+	inx
 	bne !-
 
+.if (false) {
 .for (var i=0;i<25;i++) {
 	lda #i
 	sta screen + i * 40
 }
-
-.if (false) {
-!:
-	lda $dc00
-	sta screen
-	lda $dc01
-	cmp #$ef
-	bne !s+
-	inc screen + 2
-!s:
-	sta screen + 1
-	jmp !-
 }
+
+	ldx #0
+!:
+	lda #WHITE
+	sta colram + 2 * 40 + 3, x
+	lda text_top, x
+	sta screen + 2 * 40 + 3, x
+	inx
+	cpx #(text_top_end - text_top)
+	bne !-
+
+	lda #$ff - 12
+	sta scroll
+	jsr scroll_up
 
 	sei
 	lda #$35
@@ -124,25 +153,45 @@ irq_top:
 
 	//dec $d020
 
-	asl $d019
+	jsr music.play
+	jsr read_keyboard
+
+	// TODO add keyboard handling
 
 	qri #irq_line_middle : #irq_middle
 
 irq_middle:
 	irq
 
+.if (false) {
+	lda #WHITE
+	sta colram + 2 * 40 + 2
+	lda index
+	sta screen + 2 * 40 + 2
+}
+
 	lda $dc00
+	and #%11111
 	sta key
 
 	lda key
-	and #$02
+	and #%10
 	bne !+
+	// TODO limit scroll
+	ldx index
+	cpx #$34
+	beq !+
 	dec vscroll
 !:
 
 	lda key
-	and #$01
+	and #%1
 	bne !+
+	// limit scroll
+	ldx index
+	//cpx #$9e
+	cpx #$0d
+	beq !+
 	inc vscroll
 !:
 
@@ -161,28 +210,29 @@ irq_middle:
 	lda #$10
 	sta $d011
 
-	inc $d020
+	//inc $d020
 
 	lda scroll
 	beq !s+
 	bmi !+
-	sta screen + 40
+	//sta screen + 40
 	lda #1
 	sta vscroll
 	jsr scroll_down
 	jmp !s+
 !:
-	sta screen + 40
+	//sta screen + 40
 	lda #7
 	sta vscroll
 	jsr scroll_up
 !s:
 
-	dec $d020
+	//dec $d020
 
 	qri #irq_line_top : #irq_top
 
 dummy:
+	asl $d019
 	rti
 
 scroll_down:
@@ -222,6 +272,7 @@ fetch_down:
 	dec fetch_up + 2
 !:
 
+	dec index
 	dec scroll
 	beq !+
 	jmp scroll_down
@@ -266,11 +317,117 @@ fetch_up:
 	inc fetch_down + 2
 !:
 
+	inc index
 	inc scroll
 	beq !+
 	jmp scroll_up
 !:
 	rts
+
+read_keyboard:
+	// save CIA1 state
+	lda $dc02
+	sta key_ddr0
+	lda $dc03
+	sta key_ddr1
+	jsr Keyboard
+	bcs !+
+	stx key_x
+	sty key_y
+	cmp #$ff
+	beq !no_alpha+
+	// TODO handle alphanumeric key
+	cmp #$20
+	beq goto_menu
+!no_alpha:
+	ldy key_y
+	cpy #%10000000
+	beq goto_menu
+!:
+	// restore CIA1 state
+	lda #0
+	sta $dc02
+	lda key_ddr1
+	sta $dc03
+	// read joy2 state
+	lda $dc00
+	and #%11111
+	// handle joystick
+	cmp #joy_fire
+	beq goto_menu
+	rts
+
+init:
+	// clear zero page area [2, $e0]
+	ldx #2
+	lda #0
+!:
+	sta 0, x
+	inx
+	cpx #$e0
+	bne !-
+	// check if top loader is present
+	ldx #0
+	lda top_loader_start
+	cmp #<top_magic
+	bne !+
+	lda top_loader_start + 1
+	cmp #>top_magic
+	bne !+
+	ldx #1
+!:
+	stx has_top_loader
+	rts
+
+goto_menu:
+	// kill irq
+	sei
+
+	lda #$1b
+	sta $d011
+	lda #$c8
+	sta $d016
+
+	lda #<dummy
+	sta $fffa
+	sta $fffc
+	sta $fffe
+	lda #>dummy
+	sta $fffb
+	sta $fffd
+	sta $ffff
+
+	cli
+
+	// kill sid
+	lda #0
+	ldx #0
+!:
+	sta sid, x
+	inx
+	cpx #$20
+	bne !-
+
+	lda has_top_loader
+	bne !+
+	// reset c64
+	sei
+	lda #$37
+	sta $1
+	cli
+	jmp reset
+!:
+	// go to main menu
+	lda #0
+	sta prg_index
+	jmp top_loader_start
+
+#import "kbd.asm"
+
+* = music.location "tune"
+	.fill music.size, music.getData(i)
+
+.pc = * "scrolltext"
 
 text:
 	.text "Gebruik joy2 om te scrollen! Voor de    "
@@ -323,3 +480,10 @@ text:
 	.text "Genoeg gepraat! Het is de hoogste tijd  "
 	.text "dat u begint aan het redden van de we-  "
 	.text "reld.                                   "
+	.text "                                        "
+	.text "     Druk op spatie of de vuurknop      "
+text_end:
+
+text_top:
+	.text "DRIP spelinstructies"
+text_top_end:
