@@ -1,3 +1,4 @@
+import math
 from scipy.spatial import distance
 from collections import defaultdict
 import re
@@ -22,10 +23,17 @@ city_positions = [(17, 3), (12, 18), (33, 6), (6, 6)]
 def afstand(ramp):
     def f(stad):
         return distance.euclidean(ramp, stad)
+    return f
 
 
 ramp_data = defaultdict(dict)
 
 for ramp in rampen:
     ramp_data[ramp]['distances'] = map(afstand(ramp), city_positions)
+
+for ramp in rampen:
+    output = list(ramp_data[ramp]['distances'])
+    output = [math.floor(255/dist) for dist in output]
+    output = [f"${dist:02x}" for dist in output]
+    print('.byte ' + ','.join(output))
 
