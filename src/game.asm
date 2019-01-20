@@ -15,14 +15,14 @@ Code: methos, theezakje, flevosap
 #import "consts.inc"
 #import "engine/scrn_addr.inc"
 
-.var spr_enable_mask = %10001111
+.var spr_enable_mask = %10011111
 
 // TODO use custom font to redefine dollar character into euro valuta
 // custom font takes two screens
 .var game_font = vic + 6 * 2 * $0400
 
 // use last screen for sprite data
-.var sprdata = vic + 15 * $0400
+.var sprdata = vic + 14 * $0400
 
 // destination for sprite data
 .var spr_star     = sprdata + 0 * 64
@@ -66,7 +66,6 @@ Code: methos, theezakje, flevosap
 .pc = * "Game start"
 
 start:
-	jsr init
 	jsr change_font
 	lda #music_level.startSong - 1
 	jsr music_level.init
@@ -76,9 +75,9 @@ start:
 	jsr copy_screens
 	jsr init_money
 	jsr init_itb
-    jsr init_inv
+	jsr init_inv
 	jsr init_disaster
-	jsr init_disaster_sprite
+	//jsr init_disaster_sprite
     jsr write_date
     jsr write_subsidy
     jsr write_expenditure
@@ -123,15 +122,16 @@ game_loop:
 
 	// check if we have a new disaster
 	dec disaster_timer
-	bne !+
+	bne !s+
 	jsr next_disaster
 	jsr update_disaster
-	ldx $d012
-	inx
-	txa
+	lda $d012
 	and #%11
-	sta disaster_timer
+	bne !+
+	lda #1
 !:
+	sta disaster_timer
+!s:
 
 	jmp game_loop
 
@@ -433,10 +433,11 @@ init:
         mov #64 : date_last
 
 	// disaster_prng
-	ldx $d012
-	inx
-	txa
+	lda $d012
 	and #%11
+	bne !+
+	lda #1
+!:
 	sta disaster_timer
 	rts
 
@@ -548,6 +549,7 @@ setup_interrupt:
 	lda $dd0d
 
 	asl $d019
+	jsr init
 	cli
 
 	rts
@@ -616,6 +618,31 @@ irq_text_top:
 
 	// this code shows game over letters
 	jsr show_game_over
+!:
+
+	lda #%10001111
+	sta sprmask
+
+	lda window
+	cmp #2
+	bne !+
+	lda disaster_occurred
+	beq !+
+	lda #%10011111
+	sta sprmask
+
+	lda lfsr4_state
+	lsr; lsr
+	tax
+	lda tbl_dis_spr, x
+	sta screen_log + $3f8 + 4
+
+	lda #WHITE
+	sta sprcol4
+	lda #$20
+	sta sprx4
+	lda #$40
+	sta spry4
 !:
 
 	qri #irq_magic_line : #irq_magic
@@ -753,25 +780,18 @@ init_menu_sprites:
 	sta sprcol3
 	lda #GREEN
 	sta sprcol7
-	rts
 
-init_disaster_sprite:
-	lda #sprpos(vic, spr_water)
-	sta sprptr(screen_log, 4)
-	lda #$30
-	sta sprx4
-	sta spry4
-	//lda #%000010000
-	//sta sprdw
-	//sta sprdh
-	rts
-
-set_dis_spr:
+	lda #%000010000
+	sta sprdw
+	sta sprdh
 	rts
 
 tbl_bkg_col:
 	// screens: map, money, log, settings
 	.byte GREEN, BLACK, GREY, BLACK
+
+tbl_dis_spr:
+	.byte sprpos(vic, spr_water), sprpos(vic, spr_elec), sprpos(vic, spr_star), sprpos(vic, spr_cyb)
 
 copy_screens:
 	// copy first screen
@@ -1043,9 +1063,10 @@ hexstring:
 	.text "0123456789abcdef"
 
 next_disaster:
-	ldx lfsr4_state
+	lda #1
+	sta disaster_occurred
 
-	jsr set_dis_spr
+	ldx lfsr4_state
 
 	// store state on screen to know it should work...
 	.if (false) {

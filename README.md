@@ -32,13 +32,13 @@ Taak    | Naam/namen
 code    | methos, flevosap
 sfx     | hvsc, flevosap
 gfx     | methos
-font    | ...
+font    | methos
 loader  | krill
-design  | ...
+design  | methos, flevosap
 writing | ...
 testing | methos
 linking | methos
-rapport | methos
+rapport | york, methos
 
 # DONE
 
@@ -46,14 +46,17 @@ MOSCOW puntjes:
 
 ## Must have
 
-* Één academisch onderzoek gekozen
+* Één academisch onderzoek op aansprekende wijze uitleggen
 * Main .prg c64 demo
 * Meerdere .prg parts op d64 image
+* Krills loader
+* Joystick en/of keyboard mode driver
 
 ## Should have
 
-* Krills loader
-* Joystick en/of keyboard mode driver
+## Could have
+
+* Wat koala plaatjes
 
 ## Nice to have
 
@@ -65,20 +68,9 @@ MOSCOW puntjes:
 
 ## Must have
 
-* Één academisch onderzoek op aansprekende wijze uitleggen
-* Main .prg c64 demo
-* Meerdere .prg parts op d64 image
+* Core game mechanics
 
-## Should have
+# NOT have
 
-* Muziek (uit HVSC)
-
-## Could have
-
-* Twee academisch onderzoeken op aansprekende wijze uitleggen
-* Zelf gecomponeerde muziek en sfx
-* Wat koala plaatjes
-
-## Nice to have
-
-* 2 player mode?
+* 2 player mode
+* meerdere levels
