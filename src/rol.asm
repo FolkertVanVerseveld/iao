@@ -59,6 +59,7 @@ BasicUpstart2(start)
 .var scroll_colram = colram + 20 * 40
 
 start:
+	jsr init
 	jsr scr_clear
 	lda #$08
 	ldx #$00

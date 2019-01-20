@@ -29,7 +29,8 @@
 .var irq_line_top = $20 - 1
 .var irq_line_middle = cos_full(3, amplitude, center_y, 12) + 21 + 2
 
-.var irq_line_middle_menu = $90
+.var irq_line_middle_menu = $78
+.var irq_line_bottom_menu = $d0
 
 .var spr_delay = 4
 .var spr_roll_steps = 12
@@ -269,14 +270,56 @@ to_menu:
 	lda #RED
 	sta sprcol7
 
-	// wait for space
-game_loop:
+.pc = * "game loop"
+handle_input:
+	// save CIA1 state
+	lda $dc02
+	sta key_ddr0
+	lda $dc03
+	sta key_ddr1
+	jsr Keyboard
+	bcs !no_key+
+	stx key_x
+	sty key_y
+	cmp #$ff
+	beq !no_alpha+
+	// TODO handle alphanumeric key
+	cmp #$20
+	beq menu_start
+!no_alpha:
+	ldx key_x
+	cpx #%10000
+	bne !+
+	lda #0
+	sta menu_opt_main
+	jmp menu_start
+!:
+	cpx #%100000
+	bne !+
+	lda #1
+	sta menu_opt_main
+	jmp menu_start
+!:
+	cpx #%1000000
+	bne !+
+	lda #2
+	sta menu_opt_main
+	jmp menu_start
+!:
+!no_key:
+	// restore CIA1 state
+	lda #0
+	sta $dc02
+	lda key_ddr1
+	sta $dc03
+	// read joy2 state
 	jsr joy_ctl
-	lda $dc01
-	cmp #$ef
-	bne game_loop
+	jmp handle_input
+
 
 menu_start:
+	lda #0
+	sta $d01c
 
 .pc = * "load game"
 	// kill irq
@@ -288,8 +331,12 @@ menu_start:
 	sta $d016
 
 	lda #<dummy
+	sta $fffa
+	sta $fffc
 	sta $fffe
 	lda #>dummy
+	sta $fffb
+	sta $fffd
 	sta $ffff
 
 	cli
@@ -494,6 +541,67 @@ irq_top_menu:
 irq_middle_menu:
 	irq
 
+	lda #$03
+	sta $d025
+	lda #$05
+	sta $d026
+
+	lda #%1111
+	sta $d01c
+
+	lda #sprpos(vic2, spr_drip0)
+	sta sprptr(screen2, 0)
+	lda #sprpos(vic2, spr_drip1)
+	sta sprptr(screen2, 1)
+	lda #sprpos(vic2, spr_drip2)
+	sta sprptr(screen2, 2)
+	lda #sprpos(vic2, spr_drip3)
+	sta sprptr(screen2, 3)
+
+
+	lda #$38
+	sta sprx0
+	clc
+	adc #24
+	sta sprx1
+	adc #24
+	sta sprx2
+	adc #24
+	sta sprx3
+
+	lda #irq_line_middle_menu + 10
+
+	ldx spr_menu_pos
+	lda spr_menu_drip_y + 0 * 8, x
+	sta spry0
+	lda spr_menu_drip_y + 1 * 8, x
+	sta spry1
+	lda spr_menu_drip_y + 2 * 8, x
+	sta spry2
+	lda spr_menu_drip_y + 3 * 8, x
+	sta spry3
+
+	lda #$d
+	sta sprcol0
+	lda #$6
+	sta sprcol1
+	lda #$a
+	sta sprcol2
+	lda #$4
+	sta sprcol3
+
+	qri #irq_line_bottom_menu : #irq_bottom_menu
+
+irq_bottom_menu:
+	irq
+
+	lda #0
+	sta $d01c
+	sta sprcol0
+	sta sprcol1
+	sta sprcol2
+	sta sprcol3
+
 	// change sprites
 	// credits: sprite 0, 1, 2, 3
 	// drip: sprite 4, 5, 6, 7
@@ -513,7 +621,6 @@ irq_middle_menu:
 	sta sprx2
 	sta sprx3
 
-	ldx spr_menu_pos
 	lda #$30
 	sta sprx0
 	clc
@@ -523,6 +630,7 @@ irq_middle_menu:
 	sta sprx2
 	adc #24
 	sta sprx3
+	ldx spr_menu_pos
 	lda spr_menu_credits_y, x
 	sta spry0
 	sta spry1
@@ -733,6 +841,10 @@ text:
 
 menu_colram:
 	.fill picture.getColorRamSize(), picture.getColorRam(i)
+
+// huge space here
+
+#import "kbd.asm"
 
 .pc = menu_bitmap "menu switch logo"
 	.fill picture.getBitmapSize(), picture.getBitmap(i)
@@ -961,11 +1073,111 @@ spr_arrow:
 	.byte $00,$00,$00,$00,$00,$00,$00,$00
 
 .align $40
+spr_drip0:
+	.byte %10110110,%11011011,%01101101
+	.byte %01101101,%10110110,%11011011
+	.byte %11010000,%00000000,%00110110
+	.byte %10110000,%00000000,%00001101
+	.byte %01101100,%10110110,%00001011
+	.byte %11011000,%01101101,%00000110
+	.byte %10110100,%11011011,%00001101
+	.byte %01101100,%10110110,%00001011
+	.byte %11011000,%01101101,%00000110
+	.byte %10110100,%11011011,%00001101
+	.byte %01101100,%10110110,%00001011
+	.byte %11011000,%01101101,%00000110
+	.byte %10110100,%11011011,%00001101
+	.byte %01101100,%10110110,%00001011
+	.byte %11011000,%01101101,%00000110
+	.byte %10110100,%11011011,%00001101
+	.byte %01101100,%10110110,%00001011
+	.byte %11010000,%00000000,%00000110
+	.byte %10110000,%00000000,%00101101
+	.byte %01101101,%10110110,%11011011
+	.byte %11011011,%01101101,%10110110
+
+.align $40
+spr_drip1:
+	.byte %10110110,%11011011,%01101101
+	.byte %01101101,%10110110,%11011011
+	.byte %11011000,%00000000,%00110110
+	.byte %10110000,%00000000,%00001101
+	.byte %01100000,%10110100,%00001011
+	.byte %11010000,%01101101,%00000110
+	.byte %10110000,%11011011,%00001101
+	.byte %01100000,%10110110,%00001011
+	.byte %11010000,%01101100,%00000110
+	.byte %10110000,%00000000,%00001101
+	.byte %01100000,%00000000,%00001011
+	.byte %11010000,%00000000,%10110110
+	.byte %10110000,%00000000,%00101101
+	.byte %01100000,%10110100,%00001011
+	.byte %11010000,%01101100,%00000110
+	.byte %10110000,%11011011,%00001101
+	.byte %01100000,%10110110,%00001011
+	.byte %11010000,%01101101,%00000110
+	.byte %10110000,%11011011,%00001101
+	.byte %01101101,%10110110,%11011011
+	.byte %11011011,%01101101,%10110110
+
+.align $40
+spr_drip2:
+	.byte %10110110,%11011011,%01101101
+	.byte %01101101,%10110110,%11011011
+	.byte %11010000,%00000000,%00000110
+	.byte %10110000,%00000000,%00001101
+	.byte %01101101,%10000010,%11011011
+	.byte %11011011,%01000001,%10110110
+	.byte %10110110,%11000011,%01101101
+	.byte %01101101,%10000010,%11011011
+	.byte %11011011,%01000001,%10110110
+	.byte %10110110,%11000011,%01101101
+	.byte %01101101,%10000010,%11011011
+	.byte %11011011,%01000001,%10110110
+	.byte %10110110,%11000011,%01101101
+	.byte %01101101,%10000010,%11011011
+	.byte %11011011,%01000001,%10110110
+	.byte %10110110,%11000011,%01101101
+	.byte %01101101,%10000010,%11011011
+	.byte %11010000,%00000000,%00000110
+	.byte %10110000,%00000000,%00001101
+	.byte %01101101,%10110110,%11011011
+	.byte %11011011,%01101101,%10110110
+
+.align $40
+spr_drip3:
+	.byte %10110110,%11011011,%01101101
+	.byte %01101101,%10110110,%11011011
+	.byte %11010000,%00000000,%00000110
+	.byte %10110000,%00000000,%00000001
+	.byte %01100000,%10110110,%11000011
+	.byte %11010000,%01101101,%10000010
+	.byte %10110000,%11011011,%01000001
+	.byte %01100000,%10110110,%11000011
+	.byte %11010000,%01101101,%10000010
+	.byte %10110000,%11011011,%01000001
+	.byte %01100000,%00000000,%00000011
+	.byte %11010000,%00000000,%00000110
+	.byte %10110000,%11011011,%01101101
+	.byte %01100000,%10110110,%11011011
+	.byte %11010000,%01101101,%10110110
+	.byte %10110000,%11011011,%01101101
+	.byte %01100000,%10110110,%11011011
+	.byte %11010000,%01101101,%10110110
+	.byte %10110000,%11011011,%01101101
+	.byte %01101101,%10110110,%11011011
+	.byte %11011011,%01101101,%10110110
+
+.align $40
 spr_menu_credits_y:
 	.fill $20, round($e0 + $4 * sin(toRadians(i * 360 / $20)))
 
 spr_menu_new_y:
 	.fill $20, round($38 + $4 * sin(toRadians(i * 360 / $20)))
+
+spr_menu_drip_y:
+	.fill $20, round(irq_line_middle_menu + 10 + $4 * sin(toRadians(i * 360 / $20)))
+	.fill $20, round(irq_line_middle_menu + 10 + $4 * sin(toRadians(i * 360 / $20)))
 
 spr_menu_pos:
 	.byte 0
