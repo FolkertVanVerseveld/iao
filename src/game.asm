@@ -1378,7 +1378,7 @@ subsidies_handle_key:
 	// update investment
 	tax
 	lda investment_table, x
-	ldx sub_row
+	ldx sub_col
 	clc
 	adc tbl_sub_cost, x
 	bvs !+
@@ -1415,7 +1415,7 @@ subsidies_handle_key:
 	// update investment
 	tax
 	lda investment_table, x
-	ldx sub_row
+	ldx sub_col
 	sec
 	sbc tbl_sub_cost, x
 	bpl !+

@@ -179,7 +179,7 @@ irq_middle:
 	bne !+
 	// TODO limit scroll
 	ldx index
-	cpx #$34
+	cpx #(text_end - text) / 40
 	beq !+
 	dec vscroll
 !:
@@ -442,10 +442,10 @@ text:
 	.text "Deployment(DRIP) for early warning      "
 	.text "systems. Het onderzoek gaat over een    "
 	.text "systeem, ook wel DRIP genoemd, voor het "
-	.text "voor het plannen, valideren en verstrek-"
-	.text "ken van virtuele infrastructuur die     "
-	.text "tijdkritische applicaties moet kunnen   "
-	.text "ondersteunen. De DRIP is onderdeel van  "
+	.text "plannen, valideren en verstrekken van   "
+	.text "een virtuele infrastructuur in de cloud "
+	.text "wat meerdere tijdkritische applicaties  "
+	.text "ondersteunt. De DRIP is onderdeel van   "
 	.text "het door de EU-gesubsidieerde  SWITCH-  "
 	.text "-project wat zich richt op het maken van"
 	.text "tijdkritische applicaties in de cloud.  "
