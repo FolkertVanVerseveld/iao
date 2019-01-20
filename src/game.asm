@@ -111,13 +111,24 @@ game_loop:
 	lda cia_timer_register
 	and #2
 	beq game_loop
+
 	jsr update_date
 	jsr update_money
 	jsr update_subsidy
 	jsr update_expenditure
 	jsr update_itb
+
+	// check if we have a new disaster
+	dec disaster_timer
+	bne !+
 	jsr next_disaster
 	jsr update_disaster
+	ldx $d012
+	inx
+	txa
+	and #%11
+	sta disaster_timer
+!:
 
 	jmp game_loop
 
@@ -151,7 +162,18 @@ handle_key:
 	ldx window
 	cpx #1
 	bne !+
-	jsr subsidies_handle_key
+	jmp subsidies_handle_key
+!:
+
+	// If m is pressed, toggle music
+	// Options screen
+	cpx #3
+	bne !+
+	// On options screen
+	// Should key already be loaded in to accumulator??
+	cmp #'m' // m
+	bne !+
+	jmp toggle_music
 !:
 	rts
 
@@ -352,6 +374,7 @@ change_font:
 	sta game_font + $700, x
 	inx
 	bne !-
+
 	// restore banks to default
 !restore:
 	lda #%00110111
@@ -405,6 +428,13 @@ init:
         mov #1 : date_month
         mov #11 : date_year
         mov #64 : date_last
+
+	// disaster_prng
+	ldx $d012
+	inx
+	txa
+	and #%11
+	sta disaster_timer
 	rts
 
 game_over:
@@ -827,6 +857,42 @@ jmp_dis_scr:
 	lda vec_colram_hi, x
 	sta jmp_buf + 1
 	jmp (jmp_buf)
+
+toggle_music:
+	ldx music_mute // Should be 0 if playing, non-zero if muted
+	beq !+
+	// Turn on here
+	ldx #$00
+	stx music_mute
+	// Set chars in screen
+	lda #'a'
+	sta screen_options + (5 * 40) + 26
+	lda #'a'
+	sta screen_options + (5 * 40) + 27
+	lda #'n'
+	sta screen_options + (5 * 40) + 28
+	rts
+!:
+	// Turn off here
+	ldx #$01
+	stx music_mute
+	// kill sid
+	lda #0
+	ldx #0
+!:
+	sta sid, x
+	inx
+	cpx #$20
+	bne !-
+
+	// Set chars in screen
+	lda #'u'
+	sta screen_options + (5 * 40) + 26
+	lda #'i'
+	sta screen_options + (5 * 40) + 27
+	lda #'t'
+	sta screen_options + (5 * 40) + 28
+	rts
 
 /////////////////////////////////
 // menu screen transition code //
@@ -1444,7 +1510,7 @@ subsidies_handle_key:
 	// update investment
 	tax
 	lda investment_table, x
-	ldx sub_row
+	ldx sub_col
 	clc
 	adc tbl_sub_cost, x
 	bvs !+
@@ -1481,7 +1547,7 @@ subsidies_handle_key:
 	// update investment
 	tax
 	lda investment_table, x
-	ldx sub_row
+	ldx sub_col
 	sec
 	sbc tbl_sub_cost, x
 	bpl !+

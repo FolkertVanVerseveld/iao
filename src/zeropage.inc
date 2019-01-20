@@ -77,7 +77,6 @@ Code: methos, flevosap, theezakje
 
 // more game stuff
 
-// NOTE 2 bytes long
 .const disaster_timer = $ce
 
 // flevosap's and theezakje's stuff:

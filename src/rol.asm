@@ -819,7 +819,7 @@ regel26_rechts:
 	.byte '!'
 	.byte 0
 regel27_links:
-	.text "druk op de vuurknop om terug"
+	.text "druk op spatie om terug"
 	.byte 0
 	.text "te gaan naar het hoofdmen"
 regel28_rechts:

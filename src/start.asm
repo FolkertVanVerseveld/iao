@@ -600,5 +600,7 @@ top_loader:
 
 scroll_text:
 	.encoding "screencode_mixed"
-	.text "welkom bij de old school natuurrampen simulator gebaseerd op het drip-onderzoek gemaakt op en voor de commodore 64 door folkert, sam, robin, mund, york en auke. deze eerste versie van dit spel is in ongeveer 5 weken gemaakt. de code is ontwikkeld door folkert, sam, robin en york. de teksten zijn geschreven door mund. sprites zijn gemaakt door robin, mund en auke. het font is ontworpen door folkert. druk op spatie om door te gaan!!!"
+	.text "welkom terug bij drip! de old school natuurrampen simulator gebaseerd op het drip-onderzoek gemaakt op en voor de commodore 64 door folkert, sam, robin, mund, york en auke. "
+	.text "deze eerste versie van dit spel is in ongeveer 5 weken gemaakt. de code is ontwikkeld door folkert, sam, robin en york. de teksten zijn geschreven door mund. sprites zijn gemaakt door robin, mund en auke. "
+	.text "het font is ontworpen door folkert. druk op spatie om door te gaan!!!                 "
 	.byte $ff
