@@ -81,6 +81,8 @@ write_disaster_date_loop:
         bpl write_disaster_date_loop
         rts
 
+.pc = * "Write disaster impact"
+
 write_disaster_impact:
         lda #$00
         sta c_h_hi
@@ -88,30 +90,30 @@ write_disaster_impact:
         lda impact_table
         sta c_h_lo
         jsr itoa
-        mov dec_char : screen_log+coordToAddr(11, 13)
-        mov dec_char+1 : screen_log+coordToAddr(11, 13)+1
-        mov dec_char+2 : screen_log+coordToAddr(11, 13)+2
+        mov dec_char+2 : screen_log+coordToAddr(11, 13)
+        mov dec_char+3 : screen_log+coordToAddr(11, 13)+1
+        mov dec_char+4 : screen_log+coordToAddr(11, 13)+2
 
         lda impact_table+1
         sta c_h_lo
         jsr itoa
-        mov dec_char : screen_log+coordToAddr(11, 16)
-        mov dec_char+1 : screen_log+coordToAddr(11, 16)+1
-        mov dec_char+2 : screen_log+coordToAddr(11, 16)+2
+        mov dec_char+2 : screen_log+coordToAddr(11, 16)
+        mov dec_char+3 : screen_log+coordToAddr(11, 16)+1
+        mov dec_char+4 : screen_log+coordToAddr(11, 16)+2
 
         lda impact_table+2
         sta c_h_lo
         jsr itoa
-        mov dec_char : screen_log+coordToAddr(11, 19)
-        mov dec_char+1 : screen_log+coordToAddr(11, 19)+1
-        mov dec_char+2 : screen_log+coordToAddr(11, 19)+2
+        mov dec_char+2 : screen_log+coordToAddr(11, 19)
+        mov dec_char+3 : screen_log+coordToAddr(11, 19)+1
+        mov dec_char+4 : screen_log+coordToAddr(11, 19)+2
 
         lda impact_table+3
         sta c_h_lo
         jsr itoa
-        mov dec_char : screen_log+coordToAddr(11, 22)
-        mov dec_char+1 : screen_log+coordToAddr(11, 22)+1
-        mov dec_char+2 : screen_log+coordToAddr(11, 22)+2
+        mov dec_char+2 : screen_log+coordToAddr(11, 22)
+        mov dec_char+3 : screen_log+coordToAddr(11, 22)+1
+        mov dec_char+4 : screen_log+coordToAddr(11, 22)+2
         rts
 
 
