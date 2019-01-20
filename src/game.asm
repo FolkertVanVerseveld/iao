@@ -138,6 +138,11 @@ handle normal key
 +-----------+-----------+-------------+-----------+
 */
 handle_key:
+	ldx window
+	cpx #1
+	bne !+
+	jsr subsidies_handle_key
+!:
 	rts
 
 /*
@@ -231,12 +236,6 @@ handle_input:
 	and #%11111
 	// handle joystick
 	jmp joy_ctl
-
-no_screen_key:
-	rts
-
-trans_key:
-	.byte $03, $00, $01, $02
 
 // joystick control
 
@@ -1262,5 +1261,210 @@ sid_gameover:
 
 #import "engine/val_to_dec_str.asm"
 #import "engine/date.asm"
+
+.pc = * "Subsidies keyboard handling"
+
+subsidies_handle_key:
+	/*
+	scratch memory:
+	0 = key
+	1 = investment table index
+	*/
+	// save key
+	sta scratch_main
+
+	// column handling
+	// erase old position
+	ldx sub_col
+	lda sub_column_col, x
+	sta !erase+ + 1
+	clc
+	adc #1
+	sta !erase2+ + 1
+	lda #WHITE
+!erase:
+	sta colram
+!erase2:
+	sta colram + 1
+
+	// determine column
+	ldx sub_col
+	lda scratch_main
+	cmp #'q'
+	bne !+
+	ldx #0
+!:
+	cmp #'w'
+	bne !+
+	ldx #1
+!:
+	cmp #'e'
+	bne !+
+	ldx #2
+!:
+	cmp #'r'
+	bne !+
+	ldx #3
+!:
+	cmp #'t'
+	bne !+
+	ldx #4
+!:
+	stx sub_col
+
+	// select column
+	lda sub_column_col, x
+	sta !put+ + 1
+	clc
+	adc #1
+	sta !put2+ + 1
+	lda #RED
+!put:
+	sta colram
+!put2:
+	sta colram + 1
+
+	// row handling
+	// erase old position
+	ldx sub_row
+	lda sub_row_col_lo, x
+	sta !erase+ + 1
+	clc
+	adc #1
+	sta !erase2+ + 1
+	lda sub_row_col_hi, x
+	sta !erase+ + 2
+	sta !erase2+ + 2
+	lda #WHITE
+!erase:
+	sta colram
+!erase2:
+	sta colram + 1
+	// determine row
+	ldx sub_row
+	lda scratch_main
+	cmp #'1'
+	bne !+
+	ldx #0
+!:
+	cmp #'2'
+	bne !+
+	ldx #1
+!:
+	cmp #'3'
+	bne !+
+	ldx #2
+!:
+	cmp #'4'
+	bne !+
+	ldx #3
+!:
+	stx sub_row
+
+	// select row
+	lda sub_row_col_lo, x
+	sta !put+ + 1
+	clc
+	adc #1
+	sta !put2+ + 1
+	lda sub_row_col_hi, x
+	sta !put+ + 2
+	sta !put2+ + 2
+	lda #RED
+!put:
+	sta colram
+!put2:
+	sta colram + 1
+
+	// check for + en -
+	lda scratch_main
+	cmp #'+'
+	bne !skip+
+	// compute table index
+	lda #-5
+	ldx sub_row
+!:
+	clc
+	adc #5
+	dex
+	bpl !-
+	clc
+	adc sub_col
+	// store table index
+	sta scratch_main + 1
+	// update investment
+	tax
+	lda investment_table, x
+	ldx sub_row
+	clc
+	adc tbl_sub_cost, x
+	bvs !+
+	// store investment
+
+	.if (false) {
+	sta screen_subsidies
+	ldx #WHITE
+	stx colram
+	}
+
+	ldx scratch_main + 1
+	sta investment_table, x
+!:
+
+!skip:
+	cmp #'-'
+	bne !skip+
+	// compute table index
+	lda #-5
+	ldx sub_row
+!:
+	clc
+	adc #5
+	dex
+	bpl !-
+	clc
+	adc sub_col
+	// store table index
+	sta scratch_main + 1
+	// update investment
+	tax
+	lda investment_table, x
+	ldx sub_row
+	sec
+	sbc tbl_sub_cost, x
+	bpl !+
+	// underflow, store 0
+	lda #0
+	// store investment
+
+!:
+	ldx scratch_main + 1
+	sta investment_table, x
+
+	.if (false) {
+	sta screen_subsidies
+	ldx #WHITE
+	stx colram
+	}
+!skip:
+	rts
+
+tbl_sub_cost:
+	.byte 5, 5, 5, 5, 20
+
+sub_column_col:
+	.for (var i=0; i<5; i++) {
+	.byte <colram + coordToAddr(10 + 6 * i, 0)
+	}
+
+sub_row_col_lo:
+	.for (var i=0; i<4; i++) {
+	.byte <colram + coordToAddr(0, 3 + 3 * i)
+	}
+
+sub_row_col_hi:
+	.for (var i=0; i<4; i++) {
+	.byte >colram + coordToAddr(0, 3 + 3 * i)
+	}
 
 .pc = $8000 "data barrier"

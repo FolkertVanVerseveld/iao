@@ -52,8 +52,18 @@ Code: methos, flevosap, theezakje
 .const date_year = $17
 .const date_last = $18
 
+// subsidie position
+.const sub_col = $19
+.const sub_row = $1a
+
 // global status flags
 .const stat_flg = $20
+
+// scratch space for main thread (16 bytes)
+.const scratch_main = $30
+
+// scratch space for irqs (16 bytes)
+.const scratch_irq = $40
 
 /*** KEYBOARD DRIVER. DO NOT CHANGE ***/
 
