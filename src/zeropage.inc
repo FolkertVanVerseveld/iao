@@ -71,6 +71,10 @@ Code: methos, flevosap, theezakje
 .const disaster_timer = $ce
 
 // flevosap's and theezakje's stuff:
+// Disaster
+.const impact_table = $60
+.const disaster_num = $67
+
 // Finance
 .const investment_table = $98
 

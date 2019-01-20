@@ -68,8 +68,9 @@ start:
 	jsr initialize_month_timer
 	jsr init_sprites
 	jsr copy_screens
-	jsr init_money
-	jsr init_itb
+    jsr init_money
+    jsr init_itb
+    jsr init_disaster
 
 	jsr change_font
 
@@ -104,7 +105,9 @@ game_loop:
 	beq game_loop
 	jsr update_date
 	jsr update_money
-	jsr update_itb
+    jsr update_itb
+    jsr next_disaster
+    jsr update_disaster
 
 	jmp game_loop
 
@@ -1253,6 +1256,9 @@ sid_gameover:
 
 .pc = * "itb routines"
 #import "invest.asm"
+
+.pc = * "disaster screen routines"
+#import "disaster.asm"
 
 #import "engine/val_to_dec_str.asm"
 #import "engine/date.asm"
