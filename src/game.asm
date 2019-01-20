@@ -436,7 +436,7 @@ init:
 	// initialize date stuff
         mov #1 : date_month
         mov #11 : date_year
-        mov #12 : date_last
+        mov #15 : date_last
 
 	// disaster_prng
 	lda $d012
