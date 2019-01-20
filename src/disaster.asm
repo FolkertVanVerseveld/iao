@@ -20,6 +20,7 @@ update_disaster:
         lda lfsr4_state
         lsr; lsr
         sta disaster_num
+        jsr clear_disaster_text
         jsr write_disaster_txt
         rts
 
@@ -58,6 +59,15 @@ write_disaster_cyb:
         sta screen_log+coordToAddr(14, 2), X
         jmp write_disaster_txt_loop
 write_disaster_done:
+        rts
+
+clear_disaster_text:
+        lda #$32
+        ldx #$10
+clear_disaster_text_loop:
+        sta coordToAddr(14, 2), X
+        dex
+        bpl clear_disaster_text_loop
         rts
 
 
