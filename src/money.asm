@@ -14,7 +14,7 @@ init_money:
         sta expenditure+1
         lda #$10
         sta subsidy
-        lda #$03
+        lda #$00
         sta expenditure
 
 .pc = * "Update Money"

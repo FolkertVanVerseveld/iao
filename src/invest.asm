@@ -85,5 +85,50 @@ write_itb_loop:
         rts
 
 write_investments:
-	// FIXME stub
-	rts
+        mov #$00 : c_h_hi
+        ldx #$00
+        ldy #$00
+write_investments_loop:
+        // city 1
+        lda investment_table, X
+        sta c_h_lo
+        jsr itoa
+        mov dec_char+2 : screen_subsidies+coordToAddr(11, 3), X
+        mov dec_char+3 : screen_subsidies+coordToAddr(12, 3), X
+        mov dec_char+4 : screen_subsidies+coordToAddr(13, 3), X
+
+        // city 2
+        lda investment_table+5, X
+        sta c_h_lo
+        jsr itoa
+        mov dec_char+2 : screen_subsidies+coordToAddr(11, 6), X
+        mov dec_char+3 : screen_subsidies+coordToAddr(12, 6), X
+        mov dec_char+4 : screen_subsidies+coordToAddr(13, 6), X
+
+
+        // city 3
+        lda investment_table+10, X
+        sta c_h_lo
+        jsr itoa
+        mov dec_char+2 : screen_subsidies+coordToAddr(11, 9), X
+        mov dec_char+3 : screen_subsidies+coordToAddr(12, 9), X
+        mov dec_char+4 : screen_subsidies+coordToAddr(13, 9), X
+
+
+        // city 4
+        lda investment_table+15, X
+        sta c_h_lo
+        jsr itoa
+        mov dec_char+2 : screen_subsidies+coordToAddr(11, 12), X
+        mov dec_char+3 : screen_subsidies+coordToAddr(12, 12), X
+        mov dec_char+4 : screen_subsidies+coordToAddr(13, 12), X
+
+
+        iny
+        txa
+        add #$06
+        tax
+        cpy #$05
+        bne write_investments_loop
+        rts
+
