@@ -54,7 +54,7 @@ write_itb:
         ldy #$00
 write_itb_loop:
         // city 1
-        lda itb, X
+        lda itb, Y
         sta c_h_lo
         jsr itoa
         mov dec_char+2 : screen_subsidies+coordToAddr(11, 4), X
@@ -62,7 +62,7 @@ write_itb_loop:
         mov dec_char+4 : screen_subsidies+coordToAddr(13, 4), X
 
         // city 2
-        lda itb+5, X
+        lda itb+5, Y
         sta c_h_lo
         jsr itoa
         mov dec_char+2 : screen_subsidies+coordToAddr(11, 7), X
@@ -71,7 +71,7 @@ write_itb_loop:
 
 
         // city 3
-        lda itb+10, X
+        lda itb+10, Y
         sta c_h_lo
         jsr itoa
         mov dec_char+2 : screen_subsidies+coordToAddr(11, 10), X
@@ -80,7 +80,7 @@ write_itb_loop:
 
 
         // city 4
-        lda itb+15, X
+        lda itb+15, Y
         sta c_h_lo
         jsr itoa
         mov dec_char+2 : screen_subsidies+coordToAddr(11, 13), X
