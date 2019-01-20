@@ -85,8 +85,8 @@ Code: methos, flevosap, theezakje
 // HEx to decimal chars conversion
 .const dec_char = $d0
 .const dec_val = $d5
-.const c_h_hi = $da
-.const c_h_lo = $db
+.const c_h_hi = $db
+.const c_h_lo = $da
 
 // Keyboard driver addresses
 .const key_res = $dc          // Read key result

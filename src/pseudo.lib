@@ -121,6 +121,43 @@
 	sta dec_val+4
 }
 
+.macro mov_money_str16(screen_addr, coord_x, coord_y) {
+	ldx #$ff
+	ldy #0
+!zero_loop:
+	inx
+	lda dec_char,x
+	cmp #$30
+    beq !zero_loop-
+!copy_loop:
+	lda dec_char,x
+	sta screen_addr+coordToAddr(coord_x, coord_y),y
+	iny
+	inx
+	cpx #5
+	bne !copy_loop-
+	lda #'k'
+	sta screen_addr+coordToAddr(coord_x, coord_y),y
+	ldx #' '
+	// y contains position of 'K'
+	dey
+	lda #0
+	clc
+!branch_modify_loop:
+	adc #3
+	dey
+	bne !branch_modify_loop-
+	sta 1+!branch+
+	clv
+!branch:
+	bvc !fill_spaces+
+!fill_spaces:
+	stx screen_addr+coordToAddr(coord_x + 2, coord_y)
+	stx screen_addr+coordToAddr(coord_x + 3, coord_y)
+	stx screen_addr+coordToAddr(coord_x + 4, coord_y)
+	stx screen_addr+coordToAddr(coord_x + 5, coord_y)
+}
+
 .function coordToAddr(x, y) {
 	.return y*40 + x
 }
