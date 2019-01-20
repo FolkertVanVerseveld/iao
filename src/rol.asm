@@ -12,9 +12,11 @@ font: some free web font
 BasicUpstart2(start)
 
 #import "pseudo.lib"
+#import "loader.inc"
 #import "io.inc"
 #import "loader.inc"
 #import "joy.inc"
+#import "kernal.inc"
 
 .var scr_clear_char = ' '
 .var scr_clear_color = $00
@@ -79,11 +81,62 @@ start:
 
 	// TODO wait for space
 	// wacht op spatie of joystick vuurknop
+handle_input:
+	// save CIA1 state
+	lda $dc02
+	sta key_ddr0
+	lda $dc03
+	sta key_ddr1
+	jsr Keyboard
+	bcs !+
+	stx key_x
+	sty key_y
+	cmp #$ff
+	beq !no_alpha+
+	// TODO handle alphanumeric key
+	cmp #$20
+	beq goto_menu
+!no_alpha:
+	ldy key_y
+	cpy #%10000000
+	beq goto_menu
 !:
+	// restore CIA1 state
+	lda #0
+	sta $dc02
+	lda key_ddr1
+	sta $dc03
+	// read joy2 state
 	lda $dc00
-	cmp #$ef
-	bne !-
+	and #%11111
+	// handle joystick
+	cmp #joy_fire
+	beq goto_menu
+	jmp handle_input
 
+init:
+	// clear zero page area [2, $e0]
+	ldx #2
+	lda #0
+!:
+	sta 0, x
+	inx
+	cpx #$e0
+	bne !-
+	// check if top loader is present
+	ldx #0
+	lda top_loader_start
+	cmp #<top_magic
+	bne !+
+	lda top_loader_start + 1
+	cmp #>top_magic
+	bne !+
+	ldx #1
+!:
+	stx has_top_loader
+	rts
+
+goto_menu:
 	// kill irq
 	sei
 
@@ -93,8 +146,12 @@ start:
 	sta $d016
 
 	lda #<dummy
+	sta $fffa
+	sta $fffc
 	sta $fffe
 	lda #>dummy
+	sta $fffb
+	sta $fffd
 	sta $ffff
 
 	cli
@@ -108,6 +165,14 @@ start:
 	cpx #$20
 	bne !-
 
+	lda has_top_loader
+	bne !+
+	sei
+	lda #$37
+	sta $1
+	cli
+	jmp reset
+!:
 	// TODO
 	lda #0
 	sta prg_index
@@ -759,6 +824,8 @@ regel27_links:
 regel28_rechts:
 	.byte 'u'
 	.byte 0
+
+#import "kbd.asm"
 
 	* = font "font"
 
