@@ -138,6 +138,24 @@ handle normal key
 +-----------+-----------+-------------+-----------+
 */
 handle_key:
+
+	// If m is pressed, toggle music
+	// This val means options screen
+	// lda #memsetup_mask + %00010000
+	// cmp $d018
+	// bne !+
+	ldy #';'
+	sty $0401
+	// Options screen
+	ldx window
+	cpx #3
+	bne !+
+	// On options screen
+	// Should key already be loaded in to accumulator??
+	cmp #$0d // m
+	bne !+
+	jsr toggle_music
+!:
 	rts
 
 /*
@@ -343,6 +361,7 @@ change_font:
 	sta game_font + $700, x
 	inx
 	bne !-
+
 	// restore banks to default
 !restore:
 	lda #%00110111
@@ -795,6 +814,46 @@ update_screen:
 	lda vec_colram_hi, x
 	sta jmp_buf + 1
 	jmp (jmp_buf)
+
+toggle_music:
+	lda #';'
+	sta $0401
+	
+	ldx music_mute // Should be 0 if playing, non-zero if muted
+	cpx #$0
+	beq !+
+	// Turn on here
+	ldx #$00
+	stx music_mute
+	// Set chars in screen
+	lda #'a'
+	sta $0400 + (4 * 40) + 25
+	lda #'a'
+	sta $0400 + (4 * 40) + 26
+	lda #'n'
+	sta $0400 + (4 * 40) + 27
+	rts
+!:
+	// Turn off here
+	ldx #$01
+	stx music_mute
+	// kill sid
+	lda #0
+	ldx #0
+!:
+	sta sid, x
+	inx
+	cpx #$20
+	bne !-
+
+	// Set chars in screen
+	lda #'u'
+	sta $0400 + (4 * 40) + 25
+	lda #'i'
+	sta $0400 + (4 * 40) + 26
+	lda #'t'
+	sta $0400 + (4 * 40) + 27
+	rts
 
 /////////////////////////////////
 // menu screen transition code //

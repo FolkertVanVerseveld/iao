@@ -661,8 +661,8 @@ import_characters:
         // Horizontal line
         ldx #0
         .for (var i = 0; i < 8; i++) {
-                lda special_characters + ($1C * 8) + i, x
-                sta char_set_ram + (195 * 8) + i, x
+                lda special_characters + ($1c * 8) + i
+                sta char_set_ram + ($1c * 8) + i
                 // T pipe
                 // lda special_characters + (88 * 8) + i, x
                 // sta char_set_ram + (88 * 8) + i, x
