@@ -97,9 +97,7 @@ start:
 .pc = * "Game loop"
 
 game_loop:
-	// process keyboard and joystick
-	jsr key_ctl
-	jsr joy_ctl
+	jsr handle_input
 	// do game tick
 
 	lda cia_timer_register
@@ -113,20 +111,82 @@ game_loop:
 
 	jmp game_loop
 
-key_ctl:
-	jsr read_key
-	lda key_res
-	cmp #%10000000
-	beq no_screen_key
-	sec
-	sbc #$3
-	bmi no_screen_key
-	cmp #$4
-	bpl no_screen_key
-	tax
-	lda trans_key, x
+.pc = * "Input handling"
+
+handle_key:
+	rts
+
+handle_function_key:
+	// check f7
+	cpx #%1000
+	bne !+
+	lda #3
 	sta window
 	jmp update_screen
+!:
+	cpx #%10000
+	bne !+
+	lda #0
+	sta window
+	jmp update_screen
+!:
+	cpx #%100000
+	bne !+
+	lda #1
+	sta window
+	jmp update_screen
+!:
+	cpx #%1000000
+	bne !+
+	lda #2
+	sta window
+	jmp update_screen
+!:
+	rts
+
+handle_special_key:
+	// check if run/stop has been pressed
+	cpy #%10000000
+	bne !+
+	jmp game_over
+!:
+	rts
+
+// NOTE inlined: kbdjoy.asm
+// process keyboard and joystick
+handle_input:
+	// save CIA1 state
+	lda $dc02
+	sta key_ddr0
+	lda $dc03
+	sta key_ddr1
+	jsr Keyboard
+	bcs !+
+	stx key_x
+	sty key_y
+	cmp #$ff
+	beq !no_alpha+
+	// handle alphanumeric key
+	jsr handle_key
+!no_alpha:
+	ldx key_x
+	beq !+
+	jsr handle_function_key
+!:
+	ldy key_y
+	beq !+
+	jsr handle_special_key
+!:
+	// restore CIA1 state
+	lda #0
+	sta $dc02
+	lda key_ddr1
+	sta $dc03
+	// read joy2 state
+	lda $dc00
+	and #%11111
+	// handle joystick
+	jmp joy_ctl
 
 no_screen_key:
 	rts
@@ -137,9 +197,11 @@ trans_key:
 // joystick control
 
 joy_ctl:
+	.if (false) {
 	// show joy2 for debug purposes
 	lda $dc00
 	sta joy2
+	}
 
 	// if no buttons are pressed, joy2_dir = 0
 	ldx #0
@@ -177,6 +239,8 @@ joy_ctl:
 	lda joy2_dir
 	sta joy2_dir_old
 	rts
+
+.pc = * "screen navigation"
 
 scr_next:
 	// window = (window + 1) % screen_count
@@ -339,8 +403,6 @@ game_over:
 	bne !-
 	lda gameover_timer
 	bne !-
-
-	rts
 
 	// go to main menu if top loader is present or soft reset
 reset_ctl:
@@ -839,7 +901,7 @@ next_disaster:
 	ldx lfsr4_state
 
 	// store state on screen to know it should work...
-	.if (true) {
+	.if (false) {
 	lda hexstring, x
 	sta screen_main
 	lda #WHITE
@@ -1063,7 +1125,7 @@ data_arrow:
 
 .pc = * "keyboard driver"
 
-#import "key.asm"
+#import "kbd.asm"
 
 #import "oeps.spr"
 

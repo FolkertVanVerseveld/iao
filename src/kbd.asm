@@ -1,3 +1,5 @@
+// src: http://codebase64.org/doku.php?id=base:scanning_the_keyboard_the_correct_and_non_kernal_way
+// code: tww
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Keyboard IO Routine
     ~~~~~~~~~~~~~~~~~~~
