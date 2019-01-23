@@ -78,10 +78,10 @@ start:
 	jsr init_inv
 	jsr init_disaster
 	//jsr init_disaster_sprite
-    jsr write_itb
-    jsr write_date
-    jsr write_subsidy
-    jsr write_expenditure
+	jsr write_itb
+	jsr write_date
+	jsr write_subsidy
+	jsr write_expenditure
 
 	jsr change_font
 
@@ -398,7 +398,7 @@ change_font:
 	inx
 	cpx #$8
 	bne !-
-    jsr fix_yorks_characters
+	jsr fix_yorks_characters
 	rts
 
 /*
@@ -434,9 +434,9 @@ init:
 	sta lfsr4_state
 
 	// initialize date stuff
-        mov #1 : date_month
-        mov #11 : date_year
-        mov #15 : date_last
+	mov #1 : date_month
+	mov #11 : date_year
+	mov #15 : date_last
 
 	// disaster_prng
 	lda $d012
@@ -1553,7 +1553,7 @@ subsidies_handle_key:
 	sta investment_table, x
 
 	jsr write_investments
-    jsr update_expenditure
+	jsr update_expenditure
 !:
 
 !skip:
