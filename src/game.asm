@@ -119,7 +119,8 @@ game_loop:
 	jsr update_money
 	jsr update_subsidy
 	jsr update_expenditure
-	jsr update_itb
+	// add the new buffer before a new disaster starts
+	jsr recalc_itb
 
 	// check if we have a new disaster
 	dec disaster_timer
@@ -137,7 +138,8 @@ game_loop:
 !:
 	sta disaster_timer
 !s:
-
+	// write the buffer
+	jsr write_itb
 	jmp game_loop
 
 .pc = * "Input handling"

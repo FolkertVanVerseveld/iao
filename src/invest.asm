@@ -35,13 +35,6 @@ init_health:
         sta itb+19
         rts
 
-
-update_itb:
-        jsr recalc_itb
-        jsr write_itb
-        rts
-
-
 recalc_itb:
         ldx #$00
 recalc_itb_loop:
