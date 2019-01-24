@@ -155,6 +155,15 @@ goto_menu:
 	sta $fffd
 	sta $ffff
 
+	lda #$01
+	sta $d01a
+	// init timers
+	lda #$7f
+	sta $dc0d
+	sta $dd0d
+	lda $dc0d
+	lda $dd0d
+
 	cli
 
 	// kill sid

@@ -103,7 +103,7 @@ start:
 	sta $d011
 	lda #irq_line_top
 	sta $d012
-	lda #$81
+	lda #$01
 	sta $d01a
 	// init timers
 	lda #$7f
@@ -141,6 +141,15 @@ check_space:
 	sta $fffe
 	lda #>dummy
 	sta $ffff
+
+	lda #$01
+	sta $d01a
+	// init timers
+	lda #$7f
+	sta $dc0d
+	sta $dd0d
+	lda $dc0d
+	lda $dd0d
 
 	cli
 

@@ -345,6 +345,15 @@ menu_start:
 	sta $fffd
 	sta $ffff
 
+	lda #$81
+	sta $d01a
+	// init timers
+	lda #$7f
+	sta $dc0d
+	sta $dd0d
+	lda $dc0d
+	lda $dd0d
+
 	cli
 
 	// kill sid
@@ -651,6 +660,7 @@ irq_bottom_menu:
 	qri #irq_line_top : #irq_top_menu
 
 dummy:
+	asl $d019
 	rti
 
 joy_ctl:
