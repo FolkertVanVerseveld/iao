@@ -48,6 +48,8 @@ subtract_impact:
             sbc itb+(5*i)+4 // 
             bcc !game_over+
             sta itb+(5*i)+4
+            lda #0
+            sta itb+(5*i),x
 !done:
         }
         rts
