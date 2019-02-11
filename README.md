@@ -1,5 +1,11 @@
 # Integratie Academisch Onderzoek
 
+Welkom bij ons spel DRIP. U krijgt van de Verenigde Naties de opdracht om hun
+gloednieuwe natuurrampenpreventiesysteem, speciaal gemaakt voor de cloud, te
+gebruiken om zo de impact van allerlei rampen te minimaliseren.
+
+Zie [releases](https://github.com/FolkertVanVerseveld/iao/releases) voor de laatste versie.
+
 ## Inleiding
 
 [AVI opdracht](doc/opdracht.md)
@@ -18,14 +24,14 @@ d64           | Standaard c64 floppydiskformaat
 
 # Taakverdeling
 
-Handle    | Naam
-----------|-------
-methos    | Folkert van Verseveld
-flevosap  | Robin Wacanno
-theezakje | Sam van Kampen
-...       | Mund Vetter
-...       | York Broekhuizen
-...       | Auke Schuringa
+Handle     | Naam
+-----------|-------
+methos     | Folkert van Verseveld
+flevosap   | Robin Wacanno
+theezakje  | Sam van Kampen
+pepermunt  | Mund Vetter
+reggaeshark| York Broekhuizen
+auke       | Auke Schuringa
 
 Taak    | Naam/namen
 --------|-----------
@@ -35,7 +41,7 @@ gfx     | methos
 font    | methos
 loader  | krill
 design  | methos, flevosap
-writing | ...
+writing | mund, methos
 testing | methos
 linking | methos
 rapport | york, methos
@@ -47,6 +53,7 @@ MOSCOW puntjes:
 ## Must have
 
 * Één academisch onderzoek op aansprekende wijze uitleggen
+* Core game mechanics
 * Main .prg c64 demo
 * Meerdere .prg parts op d64 image
 * Krills loader
@@ -65,10 +72,6 @@ MOSCOW puntjes:
 # TODO
 
 MOSCOW puntjes:
-
-## Must have
-
-* Core game mechanics
 
 # NOT have
 
