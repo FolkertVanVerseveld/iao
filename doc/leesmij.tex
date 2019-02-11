@@ -1,0 +1,267 @@
+\documentclass{article}
+\usepackage[dutch]{babel}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{eurosym}
+\usepackage{float}
+
+\usepackage{natbib}
+\usepackage{url}
+
+\title{DRIP}
+\author{York Broekhuizen, Sam van Kampen, Mund Vetter \\ Folkert van Verseveld, Robin Wacanno, Auke Schuringa}
+
+\newcounter{problem}
+\newcounter{solution}
+
+\newcommand\problem{%
+  \stepcounter{problem}%
+  \textbf{\theproblem.}~%
+  \setcounter{solution}{0}%
+}
+\parindent 0in
+\parskip 1em
+
+\begin{document}
+\maketitle
+
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\linewidth]{images/menu.png}
+%\caption{VICE emulator}
+\label{fig:drip}
+\end{figure}
+
+\newpage
+
+\section{Inleiding}
+
+Welkom bij DRIP, een spel voor de Commodore 64 waarbij u van de Verenigde Naties de opdracht krijgt om hun gloednieuwe natuurrampendetectiesysteem, DRIP, te gebruiken om de schade van natuurrampen tot een minimum te beperken.
+
+Als eerste is het belangrijk dat u de emulator installeert en de joystick op poort 2 instelt als u het liever met de joystick bedient.
+
+%\emph{Let op dat dit document hyperlinks bevat waar u op kan klikken. Als er geen links te zien zijn met een blauw of rood vierkant dan kunt u ook de pdf in uw browser openen.}
+
+\subsection{VICE opzetten}
+Voor deze workshop gebruiken we de Versatile Commodore Emulator (VICE) \citep{vice}. Hieronder volgen kant-en-klare recepten voor verschillende besturingssytemen.
+
+\subsubsection{Linux}
+Het opzetten van de emulator verschilt per Linux distro.
+Als u een distro hebt die afgeleid is van Debian (bijvoorbeeld Ubuntu of Xubuntu) dan kunt u alles opzetten door het script \verb:vice.sh: \citep{vicescript} als superuser te draaien:
+\verb:sudo sh vice.sh:.
+Als dit niet werkt of u heeft een distro die een andere package manager heeft dan \verb:apt:, dan kunt u in het document de variabelen aanpassen en het script (nogmaals) draaien.
+
+Als dit ook niet werkt maar u heeft Wine dan kunt u het recept van Windows ook volgen.
+Voor de masochisten is er natuurlijk ook altijd de source code \citep{vicesourcelinux} van VICE.
+
+\subsubsection{Windows}
+Download de Windows versie \citep{vicewindows}.
+U heeft 7-Zip \citep{7zip} nodig om de emulator uit te pakken.
+Pak vervolgens de emulator uit en start \verb:x64sc.exe: op.
+
+\subsubsection{Mac}
+Download de Mac versie \citep{viceosx}.
+Om de emulator te gebruiken moet het .dmg bestand uitgepakt worden.
+Klik met de rechtermuisknop (of met CTRL+linkermuisknop) op \verb:x64sc: en dan op \verb:Open:.
+
+\subsection{Tips en Trucs}
+
+Investeringen hebben niet bij elke stad hetzelfde effect omdat sommige rampen ver weg liggen van de dichtsbijzijnde stad.
+Aarzel vooral niet om dingen te proberen.
+
+Als de emulator lijkt te zijn vastgelopen dan kunt u via \verb:File->Reset->Soft: de computer herstarten.
+Als dit niet werkt kunt u via \verb:File->Reset->Hard: een herstart forceren en als dat ook niet werkt de emulator sluiten en opnieuw openen.
+\emph{De floppydisk moet u ook opnieuw aansluiten om het spel weer te laden!}
+
+De emulator kan ook versneld worden met \verb:ALT+W: om zo de laadtijd van programma's te verkorten.
+De originele laadtijd wordt namelijk ook nagebootst omdat veel software hiervan afhankelijk is!
+Met \verb:ALT+W: kunt u de snelheid ook weer herstellen.
+
+% TODO
+\section{VICE opstarten en spel laden}
+
+Als u de VICE emulator opstart zult u een vergelijkbaar venster zien zoals figuur \ref{fig:vice}.
+%(dubbel) Op linux kan het zijn dat u de firmware mist, in dat geval kunt u het best \href{https://raw.githubusercontent.com/FolkertVanVerseveld/workshop/master/vice.sh}{dit script} draaien als superuser.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\linewidth]{images/boot.png}
+\caption{VICE emulator}
+\label{fig:vice}
+\end{figure}
+
+\subsection{Toetsenbordconfiguratie}
+
+Misschien is het u nog niet opgevallen, maar het toetsenbord van de C64 is best wel anders dan een QWERTY toetsenbord.
+Als u \verb:SHIFT+2: en \verb:]: intypt zal er waarschijnlijk \verb:@]: op uw scherm staan.
+Indien u \verb:"@: ziet, dan heeft de emulator de echte layout van het toetsenbord van de C64 gebruikt.
+U kunt de layout veranderen bij \verb:Settings->Keyboard settings->Keyboard mapping type:.
+De echte C64 gebruikt \verb:Positional mapping: en de emulator gebruikt standaard \verb:Symbolic mapping:.
+Zie ook figuur \ref{fig:changekbd} en \ref{fig:vicekbd}.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.75\linewidth]{images/changekbd.png}
+\caption{Veranderen van keyboard layout}
+\label{fig:changekbd}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=\linewidth]{images/vicekbd.png}
+\caption{C64 Keyboard cheatsheet}
+\label{fig:vicekbd}
+\end{figure}
+
+\subsection{Spel verkrijgen}
+
+Verkrijg het spel door de \href{TODO}{gecompileerde versie} te downloaden of door de game te compileren met de source \citep{source}. Voor het vanuit de \verb:src: map in de repository compileren van de game is Kick Assembler \citep{kickass} nodig.
+
+\subsection{Spel laden}
+
+Via \verb:File->Smart-attach disk/tape: (of \verb:ALT+A:) kunt u het spel automatisch laden.
+Kies vervolgens \verb:game.d64: en de emulator versnelt automatisch het laden van het spel en zal alles opstarten.
+Mocht u een regenboog in de achtergrond zien (i.e. snel wisselende kleuren) dan betekent dit dat het spel is vastgelopen en zult u het opnieuw moeten laden.
+\emph{Als u het spel wilt bedienen met de joystick moet u deze configureren op poort 2!}
+
+Tip: zie ook figuur \ref{fig:vicekbd} hoe het toetsenbord er uitziet en in de emulator werkt.
+Als alles goed gegaan is, ziet u na enkele ogenblikken als het programma \verb:RUN: hetzelfde als in figuur \ref{fig:start}.
+
+
+
+\section{Doel van het spel}
+
+De Verenigde Naties (VN) heeft u opgedragen om de schade van natuurrampen tot een minimum te beperken.
+Daarom verstrekken ze subsidies afhankelijk van hoe u presteert.
+Als u slechter presteert, zal de VN meer subsidie steken in de vermindering van de schade.
+Het is belangrijk dat u de subsidies goed verdeeld om zo optimaal gebruik te maken van het gegeven budget. Het spel biedt de gebruiker de mogelijkheid aan om de controle te nemen over de situatie in Europa. Zorg er voor dat de natuurrampen niet uit de hand lopen, en  de steden verwoesten.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\linewidth]{images/start.png}
+\label{fig:start}
+\caption{Het introvenster}
+\end{figure}
+
+\subsection{Bediening van het spel}
+
+Bij sommige schermen (intro, credits, tutorial) kunt u op spatie drukken om door te gaan. U kunt op het hoofdmenu dat in figuur 5 afgebeeld is met de joystick en spatie knop of met de F1, F3, en F5 toetsen de opties kiezen in het hoofdmenu. Hier staat een toelichting over het spel (OVER), de credits, en de SPEEL knop om het daadwerkelijke spel te starten.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\linewidth]{images/menu.png}
+\label{fig:drip}
+\caption{Hoofdmenu}
+\end{figure}
+
+Gedurende het spel kunt u met de joystick of met de F1, F3, F5, F7 toetsen wisselen tussen de menu's boven in het scherm, aangegeven met iconen. Het eerste van deze menu's waarop u begint is de levelkaart in figuur 6. Hier kunt u overzichtelijk de `health' van uw steden zien aan de kleur van het hartje. Ook kunt u natuurrampen zien zodra ze verschijnen op de kaart. Met rechts op de joystick of F3 opent de investeringstabel, ook te zien in figuur 7.
+
+% ja laatste feature requests als jullie er aan toe komen (na belangrijkere dingen) zijn
+%1. een aantal chars omzetten in het font (die heb ik wel voor je)
+%2. Een label per kolom op sub-table voor welk type het representeert.
+
+% Maar ja idd boeit niet enorm die dingen.
+% ja klinkt goed. Ik krijg dit wel af tegen die tijd
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\linewidth]{images/game.png}
+\label{fig:map}
+\caption{Levelkaart}
+\end{figure}
+
+De investeringstabel kan bedient worden met het toetsenbord. De toetsen 1-7 selecteren een rij, en de toetsen `q', `w', `e', `r', en `t' selecteren een kolom. Vervolgens kan men van de geselecteerde stad de investering verhogen of verlagen met de plus (+) en min (-) toetsen; let op dat u (indien nodig) hierbij correct de shift-toets gebruikt. De eerste vier kolommen staan ieder voor een van de volgende natuurrampen; water, stroom, seismologisch, en cyber. Door in deze 4 kolommen te investeren bouwt u een defensieve buffer op tegen de respectievelijke natuurrampen in de gekozen stad. De laatste kolom representeert de `health' van de stad op die rij. Door in deze kolom te investeren restaureerd u de `health' van die stad.
+
+Merk op dat onderaan de meeste menu's een balk staat met diverse getallen. Van links naar rechts betekenen deze getallen het volgende; het kapitaal wat u bezit, uw totale inkomsten per maand, uw totale kosten per maand, en de maand en jaar op dit moment in het spel. U kunt dus aan het rode bedrag zien hoe veel uw investeringen maandelijks kosten.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.65\linewidth]{images/subsidies.png}
+\label{fig:start}
+\caption{Investeringstabel}
+\end{figure}
+
+Het volgende scherm is het meldingen scherm. Hierin staan de meldingen van rampen in de omgeving nader toegelicht, en daarbij ook het effect dat het heeft op de verschillende steden. Alle natuurrampen zullen een melding tonen op deze pagina, dus gebruik deze informatie om uw beslissingen te maken. Aan de hand van de statistieken op deze pagina kunt u beredeneren waar u het best in kunt investeren op dat moment.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.65\linewidth]{images/meldingen.png}
+\label{fig:map}
+\caption{Meldingen}
+\end{figure}
+
+Tot slot, het laatste scherm is simpelweg bedoeld voor de gebruikers-instellingen zoals het uit of aan zetten van de muziek en dergelijke opties. De muziek kan uit- of aangezet worden door de `m' toets te gebruiken terwijl u in het instellingen scherm bent.
+
+\section{Het onderzoek}
+
+Het idee van de game is gebaseerd op het onderzoek Dynamic Real-Time Infrastructure Planning and Deployment for Disaster Early Warning Systems \citep{Zhou2018}.
+
+Het onderzoek gaat over een systeem, ook wel DRIP genoemd, voor het plannen, valideren en verstrekken van virtuele infrastructuur die tijdkritische applicaties moet kunnen ondersteunen. De DRIP is onderdeel van het door de EU-gesubsidieerde SWITCH-project wat zich richt op het maken van tijdkritische applicaties in de cloud.
+
+In het onderzoek is het DRIP-systeem gebruikt voor een vroeg waarschuwingssysteem. De onderzoekers hebben een aantal eisen gesteld voor een rampwaarschuwingssysteem.
+Het systeem moet
+\begin{enumerate}
+    \item sensordata verzamelen en verwerken in real time;
+    \item snel op urgente gebeurtenissen reageren;
+    \item toename van het gebruik voorspellen;
+    \item betrouwbaar en robuust opereren gedurende zijn levensduur en
+    \item schaalbaar zijn wanneer het aantal geïnstalleerde sensoren toeneemt. 
+\end{enumerate}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\linewidth]{images/drip_overzicht.png}
+\label{fig:start}
+\caption{Overzicht van het DRIP-systeem \citep{Zhou2018}.}
+\end{figure}
+
+Het DRIP-systeem voldoet aan deze eisen door het gebruik van een aantal micro services, services die beperkt zijn aan functionaliteit, die aan elkaar worden gekoppeld door een DRIP-manager. De DRIP-manager regelt de interactie van het systeem met de buitenwereld.
+
+Het unieke aan het DRIP-systeem ten opzichte van andere infrastructuur-planningssystemen is dat:
+\begin{enumerate}
+    \item het aanpassen, verstrekken en uitbrengen van een applicatie op een infrastructuur integreert is in één service en
+    \item tijdkritische taken afgehandeld worden door verschillende procedures.
+\end{enumerate}
+
+
+\subsubsection{Terugkoppeling}
+Het idee van het spel is dat je rampen probeert te bestrijden door geld in de goede infrastructuur voor die plaats te investeren. De onderzoekers hebben getracht deze beslissingen te automatiseren middels het DRIP-systeem.
+
+Het DRIP-systeem heeft bijvoorbeeld een planner die de meest kosten effectieve virtuele machines kiest voor een taak, rekening houdend met de deadlines van deze taak.
+
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.50\linewidth]{images/logo.png}
+\caption{Het DRIP-onderzoek is onderdeel van het SWITCH-project.}
+\label{fig:switch}
+\end{figure}
+Het Europese karakter van dit onderzoek komt ook naar voren in het spel door de keuze voor meerdere Europese steden.
+% Het binnenhalen van subsidies is een belangrijke taak van elke onderzoeksgroep. Het belang van subsidies wordt in dit daarom ook duidelijk gemaakt. 
+
+\section{Credits}
+\begin{tabular}{c|c}
+Taak & Naam/Namen \\ \hline
+Code & Folkert, Robin, Sam, York \\
+Muziek & 20th Century Composers (High Voltage Sid Collection) \\
+Graphics & Folkert, Robin, Mund, York en Auke \\
+Sprites & Folkert, Mund en Auke \\
+Font & Folkert \\
+Tekst & Mund \\
+Menus & Robin, York \\
+Design & Folkert, Robin \\
+Handleiding & Folkert, Mund, York en Auke \\
+Testen & Folkert \\
+Drivers & Folkert, codebase64.org \\
+Diskdrive loader & Gunnar Ruthenberg \\
+Tools & Kick Assembler, C64Debugger, VICE
+\end{tabular}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}
