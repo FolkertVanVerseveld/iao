@@ -86,7 +86,7 @@ last_reached:
         bne !-
 
         // de prg index
-        lda #4
+        lda #5
         sta prg_index
         jmp top_loader_start
 
