@@ -4,7 +4,7 @@
 
 .var irq_line_top = $20 - 1
 .var irq_line_bottom = $e8
-.var irq_line_border = $100
+.var irq_line_border = $fe
 
 .var screen = vic + $0400
 
@@ -27,8 +27,9 @@
 #import "kernal.inc"
 
 //.var music = LoadSid(HVSC + "/MUSICIANS/0-9/20CC/van_Santen_Edwin/Take_on_Me.sid")
+.var music = LoadSid("assets/Take_on_Me.sid")
 //.var music = LoadSid("assets/Popcorn_Mix.sid")
-.var music = LoadSid("assets/Cyberfunk.sid")
+//.var music = LoadSid("assets/Cyberfunk.sid")
 
 start:
 	lda #3
@@ -809,11 +810,11 @@ scroll_text:
 	.text "we hopen dat u net zoveel plezier "
 	.text "heeft als wij met het maken ervan!"
 	.text "groetjes aan de c64 demoscene "
-	.text "en onze vrienden op de uni"
+	.text "en onze vrienden op de uni "
 	.text "en dank aan marco en robert voor "
-	.text "het geven van uitstel voor het spel"
+	.text "het geven van uitstel voor het spel "
 	.text "zo hebben we het spel "
-	.text "goed kunnen testen en afronden!"
+	.text "goed kunnen testen en afronden! "
 	.text "druk op spatie om terug "
 	.text "te gaan naar het hoofdmenu... .. .. . . .              "
 	.byte $ff

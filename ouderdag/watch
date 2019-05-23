@@ -1,0 +1,25 @@
+#!/bin/bash
+PDF_VIEWER=atril
+cleanup() {
+	local c=$?
+	trap '' INT TERM QUIT
+	if [ ! -z $p ]; then
+		kill -9 $p >&/dev/null
+	fi
+	exit $c
+}
+p=
+trap cleanup INT TERM QUIT
+while :; do
+	inotifywait -qre modify presentatie.tex
+	make
+	if [ $? -ne 0 ]; then
+		echo ------
+		continue
+	fi
+	if [ ! -z $p ]; then
+		kill -9 $p >&/dev/null
+	fi
+	"$PDF_VIEWER" presentatie.pdf &
+	p=$!
+done
