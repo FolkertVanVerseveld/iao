@@ -38,7 +38,8 @@
 //.var music = LoadSid(HVSC + "/MUSICIANS/0-9/20CC/Paul_Falco/Bomberboy.sid")
 .var music = LoadSid("assets/Bomberboy.sid")
 
-.var picture = LoadBinary("switch.koa", BF_KOALA)
+//.var picture = LoadBinary("switch.koa", BF_KOALA)
+.var picture = LoadBinary("koala1.koa", BF_KOALA)
 
 .var vic2 = $4000
 .var screen2 = vic2 + $2000

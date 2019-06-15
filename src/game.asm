@@ -223,22 +223,11 @@ handle_function_key:
 	sta window
 	jmp update_screen
 !:
-	rts
-
-/*
-handle special key
-+================================================================================
-|                             Return in Y-Register                              |
-+=========+=========+=========+=========+=========+=========+=========+=========+
-|  Bit 7  |  Bit 6  |  Bit 5  |  Bit 4  |  Bit 3  |  Bit 2  |  Bit 1  |  Bit 0  |
-+---------+---------+---------+---------+---------+---------+---------+---------+
-|RUN STOP | L-SHIFT |   C=    | R-SHIFT |CLR/HOME |  CTRL   |         |         |
-+---------+---------+---------+---------+---------+---------+---------+---------+
-*/
-handle_special_key:
-	// check if run/stop has been pressed
-	cpy #%10000000
+	// check DEL cheat
+	cpx #%1
 	bne !+
+	lda #5
+	sta reset_prg + 1
 	jmp game_over
 !:
 	rts
@@ -298,10 +287,6 @@ joy_ctl:
 	cmp #joy_left
 	bne !+
 	ldx #2
-!:
-	cmp #joy_fire
-	bne !+
-	ldx #3
 !:
 
 	stx joy2_dir
@@ -504,6 +489,7 @@ reset_ctl:
 	lda has_top_loader
 	beq !+
 	pla
+reset_prg:
 	lda #2
 	sta prg_index
 	jmp top_loader_start
@@ -1235,6 +1221,24 @@ vec_colram_hi:
 
 .pc = * "options screen"
 #import "options.asm"
+
+/*
+handle special key
++================================================================================
+|                             Return in Y-Register                              |
++=========+=========+=========+=========+=========+=========+=========+=========+
+|  Bit 7  |  Bit 6  |  Bit 5  |  Bit 4  |  Bit 3  |  Bit 2  |  Bit 1  |  Bit 0  |
++---------+---------+---------+---------+---------+---------+---------+---------+
+|RUN STOP | L-SHIFT |   C=    | R-SHIFT |CLR/HOME |  CTRL   |         |         |
++---------+---------+---------+---------+---------+---------+---------+---------+
+*/
+handle_special_key:
+	// check if run/stop has been pressed
+	cpy #%10000000
+	bne !+
+	jmp game_over
+!:
+	rts
 
 .pc = * "sprites"
 data_map:

@@ -712,7 +712,7 @@ f 15: lichtgrijs
 	.print "pagelength="+music.pagelength
 // music end
 
-.pc = * "Shinnosuke PETSCII"
+.pc = * "Logo PETSCII"
 
 .align $100
 image:
@@ -742,7 +742,7 @@ image:
 	.byte $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20
 	.byte $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20
 
-.pc = * "Shinnosuke Colram"
+.pc = * "Logo Colram"
 
 .align $100
 colors:
@@ -755,15 +755,15 @@ colors:
 	.byte $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E
 	.byte $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E
 	.byte $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E
-	.byte $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E
-	.byte $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E
-	.byte $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E
-	.byte $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E
-	.byte $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E
-	.byte $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E
-	.byte $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E
-	.byte $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E
-	.byte $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E
+	.byte $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0A
+	.byte $0A, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0A, $0A, $0A, $0A, $0E, $0E, $0A, $0A, $0A, $0A, $0E, $0E, $0A, $0A, $0A, $0A, $0E, $0A, $0A, $0A, $0A, $0A, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E
+	.byte $0E, $0E, $0E, $0E, $0D, $0E, $0E, $0E, $0E, $0A, $0E, $0E, $0A, $0A, $0E, $0A, $0E, $0E, $0A, $0A, $0E, $0E, $0A, $0A, $0E, $0E, $0A, $0E, $0E, $0E, $0A, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E
+	.byte $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $07, $0E, $0E, $0E, $07, $0E, $07, $0E, $0E, $0E, $07, $0E, $0E, $07, $07, $0E, $0E, $07, $0E, $0E, $0E, $07, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E
+	.byte $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $07, $0E, $0E, $0E, $07, $0E, $07, $0E, $0E, $0E, $07, $0E, $0E, $07, $07, $0E, $0E, $07, $0E, $0E, $0E, $07, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E
+	.byte $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0D, $0E, $0E, $0E, $0D, $0E, $0D, $0E, $0E, $0D, $0D, $0E, $0E, $0D, $0D, $0E, $0E, $0D, $0E, $0E, $0E, $0D, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E
+	.byte $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0D, $0E, $0E, $0E, $0D, $0E, $0D, $0D, $0D, $0D, $0E, $0E, $0E, $0D, $0D, $0E, $0E, $0D, $0D, $0D, $0D, $0D, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E
+	.byte $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $03, $0E, $0E, $0E, $03, $0E, $03, $0E, $03, $03, $0E, $0E, $0E, $03, $03, $0E, $0E, $03, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E
+	.byte $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $03, $0E, $0E, $0E, $03, $0E, $03, $0E, $0E, $03, $03, $0E, $0E, $03, $03, $0E, $0E, $03, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E
 	.byte $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E
 	.byte $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E
 	.byte $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E
@@ -829,7 +829,9 @@ texts:
 	.text "------------------------"
 	.text "bedankt voor het spelen "
 	.text "                        "
-	.text " tekst gaat weer rond  "
+	.text " tot de volgende keer!  "
+	.text "                        "
+	.text " tekst gaat weer rond   "
 	.text "------------------------"
 	.text "                        "
 texts_end:
@@ -838,7 +840,7 @@ scroll_text:
 	.text "goed gedaan! u heeft de wereld behoed van rampen en de verenigde naties zijn erg tevreden met uw werk! "
 	.text "bedankt voor het spelen van ons spel drip! "
 	.text "dit is gemaakt voor de universiteit van amsterdam "
-	.text "in ongeveer 5 weken hebben we dit gemaakt... "
+	.text "in ongeveer 5 weken... "
 	.text "we hebben heel veel geleerd van dit project, "
 	.text "bijvoorbeeld dat we niet te ambitieus moeten zijn! "
 	.text "op de laatste dag dat we het moesten afronden, "
@@ -861,19 +863,17 @@ scroll_text:
 	.byte $ff
 
 timer:
-	inc $d020
+	//inc $d020
 	dec zp_timer
 	bne !l+
 	lda #ticks
 	sta zp_timer
 	// advance timer
-	inc screen
 	//lda zp_event
 	//sta screen + 1
 	dec zp_event
 	bne !l+
 	// handle event
-	inc screen + 1
 	inc zp_index
 	jsr time_event
 	ldx zp_index
@@ -886,7 +886,7 @@ timer:
 	lda tbl_event, x
 	sta zp_event
 !l:
-	dec $d020
+	//dec $d020
 	rts
 
 disable_events:
@@ -898,7 +898,6 @@ disable_events:
 	rts
 
 time_event:
-	inc screen + 40
 	ldx zp_index
 	cpx #1
 	bne !l+
